@@ -1,0 +1,160 @@
+DBGridy License Agreement
+
+Copyright (c) 2025 BrianMSon (hereinafter referred to as "The Author").
+All rights reserved.
+
+================================================================================
+                          IMPORTANT - PLEASE READ
+================================================================================
+
+This is NOT open source software. This is proprietary software protected by 
+copyright laws and international treaties.
+
+BY INSTALLING, COPYING, OR USING THIS SOFTWARE, YOU AGREE TO BE BOUND BY THE 
+TERMS OF THIS LICENSE. IF YOU DO NOT AGREE, DO NOT USE THIS SOFTWARE.
+
+================================================================================
+                         LICENSE GRANT (PERMITTED USES)
+================================================================================
+
+The Author grants you a limited, non-exclusive, non-transferable, revocable 
+license to use this software for the following purposes:
+
+PERMITTED USES:
+  ✓ Personal use
+  ✓ Educational and academic use
+  ✓ Internal business use in organizations of ANY size
+  ✓ Evaluation and testing purposes
+
+WHAT IS ALLOWED:
+  You may use this software freely within your company or organization to 
+  manage your own databases or develop your own products, regardless of the 
+  size of your organization or revenue.
+
+================================================================================
+                       PROHIBITED COMMERCIAL ACTIONS
+================================================================================
+
+While internal use is permitted, you may NOT exploit this software for 
+commercial distribution or resale.
+
+You may NOT:
+  ✗ Sell, rent, lease, sublicense, or lend this software to anyone.
+  ✗ Bundle this software with another product for sale or distribution.
+  ✗ Offer this software as a service (SaaS) to third parties.
+  ✗ Charge a fee for access to this software.
+  ✗ Use this software to provide paid consulting services where the software 
+    itself is the primary deliverable to the client.
+
+All rights to sell or distribute this software are exclusively reserved by 
+The Author.
+
+================================================================================
+                           PROHIBITION ON DISTRIBUTION
+================================================================================
+
+You may NOT:
+  ✗ Distribute copies of this software to third parties.
+  ✗ Make this software available for download on public or private networks.
+  ✗ Modify, adapt, translate, or create derivative works based on the software.
+  ✗ Reverse engineer, decompile, disassemble, or attempt to derive the source code.
+  ✗ Remove or alter any copyright notices, logos, or labels.
+
+================================================================================
+                               CRITICAL WARNING
+================================================================================
+
+⚠️  THIS SOFTWARE CAN DELETE AND MODIFY DATABASE DATA
+
+This software is a database management tool with powerful data modification 
+capabilities. You are SOLELY RESPONSIBLE for:
+
+  • Backing up all data before using this software
+  • Testing all operations in a non-production environment first
+  • Understanding the consequences of database operations
+  • Any data loss, corruption, or damage that may occur
+
+The Author is NOT responsible for any data loss or damage resulting from the 
+use of this software, even if caused by software defects or errors.
+
+ALWAYS MAINTAIN CURRENT BACKUPS OF YOUR DATA.
+
+================================================================================
+                                  DISCLAIMER
+================================================================================
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+The Author DOES NOT WARRANT THAT:
+  • The software will be error-free or uninterrupted
+  • The software will meet your requirements
+  • Defects will be corrected
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+SOFTWARE.
+
+================================================================================
+                             INTELLECTUAL PROPERTY
+================================================================================
+
+All rights, title, and interest in and to this software, including all 
+intellectual property rights, remain the exclusive property of The Author.
+
+This license is not a sale. It does not grant you any ownership rights.
+
+================================================================================
+                              THIRD-PARTY LIBRARIES
+================================================================================
+
+This software uses the following open-source components, each subject to its 
+own license terms:
+
+  1. MongoDB.Driver           - Apache License 2.0
+     https://github.com/mongodb/mongo-csharp-driver
+
+  2. MySqlConnector           - MIT License
+     https://github.com/mysql-net/MySqlConnector
+
+  3. Npgsql                   - PostgreSQL License
+     https://github.com/npgsql/npgsql
+
+  4. Microsoft.Data.SqlClient - MIT License
+     https://github.com/dotnet/SqlClient
+
+  5. Microsoft.Data.Sqlite    - MIT License
+     https://github.com/dotnet/efcore
+
+  6. ClickHouse.Client        - MIT License
+     https://github.com/DarkWanderer/ClickHouse.Client
+
+  7. StackExchange.Redis      - MIT License
+     https://github.com/StackExchange/StackExchange.Redis
+
+  8. Newtonsoft.Json          - MIT License
+     https://github.com/JamesNK/Newtonsoft.Json
+
+  9. Scintilla.NET            - MIT License
+     https://github.com/jacobslusser/ScintillaNET
+     (Modified fork: https://github.com/BrianMSon/Scintilla.NET)
+
+ 10. ExcelDataReader          - MIT License
+     https://github.com/ExcelDataReader/ExcelDataReader
+
+Full license texts are available in each component's repository. Your use of 
+these components is governed by their respective licenses.
+
+================================================================================
+                                 GENERAL TERMS
+================================================================================
+
+GOVERNING LAW:
+  This agreement is governed by the laws of the Republic of Korea.
+
+TERMINATION:
+  Your rights under this license terminate automatically without notice if you 
+  fail to comply with any term(s) of this license. Upon termination, you must 
+  cease all use and destroy all copies of the software.
