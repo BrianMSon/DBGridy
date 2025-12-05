@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DBGridy - The Ultimate Database Grid Editor</title>
+    <title>DBGridy - A Rising Database Grid Editor</title>
     <meta name="description" content="A powerful and versatile Database Grid Editor for Windows. Support for MySQL, MongoDB, Redis, ClickHouse, and more.">
     <style>
         :root {
@@ -225,8 +225,28 @@
                 font-size: 2.5rem;
             }
             
-            .nav-links {
+            /* Hide section links on mobile */
+            .nav-links a:not(.lang-switch):not(.btn-primary) {
                 display: none;
+            }
+
+            /* Adjust layout for remaining buttons */
+            .nav-links {
+                gap: 10px;
+            }
+
+            .nav-links a {
+                margin-left: 0 !important;
+            }
+
+            .lang-switch {
+                margin: 0;
+                padding: 0.4rem 0.6rem;
+            }
+
+            .btn-primary {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -235,7 +255,7 @@
     <header>
         <div class="container">
             <nav>
-                <a href="#" class="logo">DBGridy [diːbiːˈɡrɪdi]</a>
+                <a class="logo">DBGridy [diːbiːˈɡrɪdi]</a>
                 <div class="nav-links">
                     <a href="#features">Features</a>
                     <a href="#screenshots">Screenshots</a>
