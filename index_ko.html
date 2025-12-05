@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DBGridy - The Ultimate Database Grid Editor</title>
-    <meta name="description" content="A powerful and versatile Database Grid Editor for Windows. Support for MySQL, MongoDB, Redis, ClickHouse, and more.">
+    <title>DBGridy - 떠오르는 데이터베이스 그리드 에디터</title>
+    <meta name="description" content="윈도우용 강력하고 다재다능한 데이터베이스 그리드 에디터. MySQL, MongoDB, Redis, ClickHouse 등을 지원합니다.">
     <style>
         :root {
-            --primary-color: #3583fb;
+            --primary-color: #2563eb;
             --secondary-color: #1e293b;
             --text-color: #334155;
             --light-bg: #f8fafc;
             --white: #ffffff;
-            --gray: #eeeeee;
             --dark-text: #0f172a;
             --border-color: #e2e8f0;
         }
@@ -24,14 +23,14 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--white);
         }
 
         header {
-            background-color: var(--gray);
+            background-color: var(--white);
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
@@ -58,6 +57,11 @@
             text-decoration: none;
         }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
         .nav-links a {
             margin-left: 2rem;
             text-decoration: none;
@@ -79,18 +83,19 @@
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
-            color: var(--white);
+            background-color: #f97316;
+            color: #ffffff;
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.05rem;
             transition: background-color 0.2s;
             display: inline-block;
         }
 
         .btn-primary:hover {
-            background-color: #1d5ee8;
+            background-color: #ea580c;
         }
 
         /* Hero Section */
@@ -106,6 +111,7 @@
             color: var(--dark-text);
             margin-bottom: 1.5rem;
             line-height: 1.2;
+            word-break: keep-all;
         }
 
         .hero p {
@@ -113,6 +119,7 @@
             color: #64748b;
             max-width: 700px;
             margin: 0 auto 2.5rem;
+            word-break: keep-all;
         }
 
         /* Features Section */
@@ -235,13 +242,13 @@
     <header>
         <div class="container">
             <nav>
-                <a href="#" class="logo">DBGridy [diːbiːˈɡrɪdi]</a>
+                <a href="#" class="logo">DBGridy [디비 그리디]</a>
                 <div class="nav-links">
-                    <a href="#features">Features</a>
-                    <a href="#screenshots">Screenshots</a>
-                    <a href="#license">License</a>
-                    <a href="index_ko.html" class="lang-switch">한국어</a>
-                    <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Download for Windows</a>
+                    <a href="#features">주요기능</a>
+                    <a href="#screenshots">스크린샷</a>
+                    <a href="#license">라이선스</a>
+                    <a href="index.html" class="lang-switch">English</a>
+                    <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Windows용 다운로드</a>
                 </div>
             </nav>
         </div>
@@ -249,19 +256,19 @@
 
     <section class="hero">
         <div class="container">
-            <h1>Unified Database Management<br>Made Simple</h1>
-            <p>Connect to MySQL, MongoDB, Redis, and more with a powerful, native Windows grid editor. Bridging the gap between SQL and NoSQL.</p>
-            <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Download Now</a>
+            <h1>복잡한 데이터베이스 관리<br>이제 심플하게</h1>
+            <p>MySQL, MongoDB, Redis 등을 하나의 강력한 윈도우 그리드 에디터로 연결하세요. SQL과 NoSQL의 경계를 허무는 완벽한 통합 솔루션입니다.</p>
+            <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">지금 다운로드</a>
         </div>
     </section>
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">Why DBGridy?</h2>
+            <h2 class="section-title">왜 DBGridy인가요?</h2>
             <div class="grid">
                 <div class="card">
-                    <h3>🔌 Multi-Database Support</h3>
-                    <p>Seamlessly connect to your favorite databases in one unified interface.</p>
+                    <h3>🔌 멀티 데이터베이스 지원</h3>
+                    <p>즐겨 사용하는 다양한 데이터베이스를 하나의 통합 인터페이스에서 원활하게 연결하고 관리하세요.</p>
                     <div class="db-list">
                         <span class="db-tag">MySQL</span>
                         <span class="db-tag">MongoDB</span>
@@ -274,28 +281,28 @@
                 </div>
 
                 <div class="card">
-                    <h3>📊 Grid-Based Editing</h3>
-                    <p>Edit database records directly within a user-friendly grid interface. Experience Excel-like convenience for your data.</p>
+                    <h3>📊 그리드 기반 편집</h3>
+                    <p>사용자 친화적인 그리드 인터페이스에서 데이터베이스 레코드를 직접 편집하세요. 마치 엑셀을 다루듯 편리한 데이터 관리를 경험할 수 있습니다.</p>
                 </div>
 
                 <div class="card">
-                    <h3>📝 Advanced Query Editor</h3>
-                    <p>Syntax highlighting for SQL and JSON. Multiple query tabs for multitasking and bulk operations tools.</p>
+                    <h3>📝 고급 쿼리 에디터</h3>
+                    <p>SQL 및 JSON을 위한 문법 강조 기능(Syntax Highlighting)을 지원합니다. 멀티 탭 기능을 통해 여러 작업을 동시에 처리하고, 대량 데이터 작업 도구도 활용해보세요.</p>
                 </div>
 
                 <div class="card">
-                    <h3>🎨 Visualization & Themes</h3>
-                    <p>Built-in JSON pretty-printing, visual Tree Views for schemas/Redis keys, and support for both Light and Dark themes.</p>
+                    <h3>🎨 시각화 및 테마</h3>
+                    <p>내장된 JSON Pretty-print, 스키마 및 Redis 키를 위한 시각적 트리 뷰(Tree View), 그리고 눈이 편안한 라이트/다크 테마를 모두 지원합니다.</p>
                 </div>
 
                 <div class="card">
-                    <h3>💾 Data Management</h3>
-                    <p>Export data to CSV, SQL, or JSON easily. Includes handy tools like Blob-to-Hex conversion.</p>
+                    <h3>💾 데이터 관리</h3>
+                    <p>CSV, SQL, JSON 형식으로 데이터를 손쉽게 내보낼 수 있습니다. Blob 데이터를 Hex로 변환하는 등의 유용한 도구들도 포함되어 있습니다.</p>
                 </div>
 
                 <div class="card">
-                    <h3>🚀 Native Performance</h3>
-                    <p>Built as a native Windows (WinForms) application for maximum performance and system integration.</p>
+                    <h3>🚀 네이티브 성능</h3>
+                    <p>윈도우 네이티브(WinForms) 애플리케이션으로 제작되어 최고의 성능과 시스템 통합성을 보장합니다.</p>
                 </div>
             </div>
         </div>
@@ -303,27 +310,27 @@
 
     <section id="screenshots" class="screenshots">
         <div class="container">
-            <h2 class="section-title">See it in Action</h2>
+            <h2 class="section-title">실제 사용 화면</h2>
             
             <div class="screenshot-container">
-                <img src="DBGridy_dark.png" alt="DBGridy Dark Theme Interface">
-                <p class="screenshot-label">Dark Theme - Modern and easy on the eyes</p>
+                <img src="DBGridy_dark.png" alt="DBGridy 다크 테마 인터페이스">
+                <p class="screenshot-label">다크 테마 - 모던하고 눈이 편안한 디자인</p>
             </div>
 
             <div class="screenshot-container">
-                <img src="DBGridy_light.png" alt="DBGridy Light Theme Interface">
-                <p class="screenshot-label">Light Theme - Clean and professional</p>
+                <img src="DBGridy_light.png" alt="DBGridy 라이트 테마 인터페이스">
+                <p class="screenshot-label">라이트 테마 - 깔끔하고 전문적인 디자인</p>
             </div>
         </div>
     </section>
 
     <section id="license" class="license-info">
         <div class="container">
-            <h2>License Information</h2>
+            <h2>라이선스 정보</h2>
             <div class="license-content">
-                <p>DBGridy is proprietary software free for personal, educational, and internal business use.</p>
+                <p>DBGridy는 개인, 교육 목적, 그리고 사내 비즈니스 용도(관리/개발)로 무료로 사용할 수 있는 독점 소프트웨어입니다.</p>
                 <br>
-                <p style="opacity: 0.8">Commercial redistribution, resale, and modification are prohibited.<br>Please check the <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank" style="color: var(--white); text-decoration: underline;">full license on GitHub</a> for more details.</p>
+                <p style="opacity: 0.8">단, 상업적 재배포, 재판매 및 수정은 금지되어 있습니다.<br>자세한 내용은 <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank" style="color: var(--white); text-decoration: underline;">GitHub의 전체 라이선스</a>를 확인해 주세요.</p>
             </div>
         </div>
     </section>
