@@ -1,11 +1,327 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>DBGridy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBGridy - The Ultimate Database Grid Editor</title>
+    <meta name="description" content="A powerful and versatile Database Grid Editor for Windows. Support for MySQL, MongoDB, Redis, ClickHouse, and more.">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e293b;
+            --text-color: #334155;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+            --dark-text: #0f172a;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--white);
+        }
+
+        header {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark-text);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--dark-text);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background-color: var(--light-bg);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--dark-text);
+            margin-bottom: 3rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--dark-text);
+        }
+
+        .db-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .db-tag {
+            background: #eff6ff;
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Screenshots Section */
+        .screenshots {
+            padding: 5rem 0;
+        }
+
+        .screenshot-container {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .screenshot-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        .screenshot-label {
+            margin-top: 1rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* License Section */
+        .license-info {
+            padding: 5rem 0;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            text-align: center;
+        }
+        
+        .license-info h2 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+        }
+
+        .license-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>DBGridy</h1>
-    <p>Welcome to DBGridy homepage.</p>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">DBGridy</a>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#screenshots">Screenshots</a>
+                    <a href="#license">License</a>
+                    <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Download for Windows</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Unified Database Management<br>Made Simple</h1>
+            <p>Connect to MySQL, MongoDB, Redis, and more with a powerful, native Windows grid editor. Bridging the gap between SQL and NoSQL.</p>
+            <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Download Now</a>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why DBGridy?</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>🔌 Multi-Database Support</h3>
+                    <p>Seamlessly connect to your favorite databases in one unified interface.</p>
+                    <div class="db-list">
+                        <span class="db-tag">MySQL</span>
+                        <span class="db-tag">MongoDB</span>
+                        <span class="db-tag">Redis</span>
+                        <span class="db-tag">ClickHouse</span>
+                        <span class="db-tag">PostgreSQL</span>
+                        <span class="db-tag">SQLite</span>
+                        <span class="db-tag">MS-SQL</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Grid-Based Editing</h3>
+                    <p>Edit database records directly within a user-friendly grid interface. Experience Excel-like convenience for your data.</p>
+                </div>
+
+                <div class="card">
+                    <h3>📝 Advanced Query Editor</h3>
+                    <p>Syntax highlighting for SQL and JSON. Multiple query tabs for multitasking and bulk operations tools.</p>
+                </div>
+
+                <div class="card">
+                    <h3>🎨 Visualization & Themes</h3>
+                    <p>Built-in JSON pretty-printing, visual Tree Views for schemas/Redis keys, and support for both Light and Dark themes.</p>
+                </div>
+
+                <div class="card">
+                    <h3>💾 Data Management</h3>
+                    <p>Export data to CSV, SQL, or JSON easily. Includes handy tools like Blob-to-Hex conversion.</p>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Native Performance</h3>
+                    <p>Built as a native Windows (WinForms) application for maximum performance and system integration.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenshots" class="screenshots">
+        <div class="container">
+            <h2 class="section-title">See it in Action</h2>
+            
+            <div class="screenshot-container">
+                <img src="DBGridy_dark.png" alt="DBGridy Dark Theme Interface">
+                <p class="screenshot-label">Dark Theme - Modern and easy on the eyes</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="DBGridy_light.png" alt="DBGridy Light Theme Interface">
+                <p class="screenshot-label">Light Theme - Clean and professional</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="license" class="license-info">
+        <div class="container">
+            <h2>License Information</h2>
+            <div class="license-content">
+                <p>DBGridy is proprietary software free for personal, educational, and internal business use.</p>
+                <br>
+                <p style="opacity: 0.8">Commercial redistribution, resale, and modification are prohibited.<br>Please check the <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank" style="color: var(--white); text-decoration: underline;">full license on GitHub</a> for more details.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>Copyright © 2025 BrianMSon. All Rights Reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
