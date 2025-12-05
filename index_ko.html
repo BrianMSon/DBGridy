@@ -48,8 +48,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
+            padding-top: 0.8rem;
+            padding-bottom: 0.8rem;
         }
 
         .logo {
@@ -57,6 +57,13 @@
             font-weight: 800;
             color: var(--dark-text);
             text-decoration: none;
+        }
+        .phonetic {
+            font-size: 0.8em;
+            font-weight: 400;
+            vertical-align: middle;
+            opacity: 0.7;
+            margin-left: 0.25rem;
         }
 
         .nav-links {
@@ -264,7 +271,7 @@
     <header>
         <div class="container">
             <nav>
-                <a class="logo">DBGridy [디비 그리디]</a>
+                <a class="logo">DBGridy <span class="phonetic">[디비 그리디]</span></a>
                 <div class="nav-links">
                     <a href="#features">주요기능</a>
                     <a href="#screenshots">스크린샷</a>
