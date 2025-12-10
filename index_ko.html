@@ -305,6 +305,26 @@
                 font-size: 0.9rem;
             }
         }
+        .button-link {
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            margin: 0 0.25rem;
+            display: inline-block;
+        }
+
+        .button-link:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #f0f9ff;
+        }
     </style>
 </head>
 <body>
@@ -409,10 +429,9 @@
         <div class="container">
             <p>
                 Copyright © 2025 BrianMSon. All Rights Reserved.
-                <br>
-                <a href="https://github.com/BrianMSon/DBGridy/issues" target="_blank">버그 리포트</a>
-                |
-                <a href="https://github.com/BrianMSon/DBGridy/discussions" target="_blank">피드백</a>
+                <br><br>
+                <button onclick="window.open('https://github.com/BrianMSon/DBGridy/issues', '_blank')" class="button-link">버그 리포트</button>
+                <button onclick="window.open('https://github.com/BrianMSon/DBGridy/discussions', '_blank')" class="button-link">피드백</button>
             </p>
         </div>
     </footer>
