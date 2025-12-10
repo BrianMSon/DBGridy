@@ -225,6 +225,22 @@
             font-weight: 500;
         }
 
+        .buy-coffee-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .buy-coffee-link {
+            position: absolute;
+            right: 0;
+        }
+
+        .buy-coffee-link img {
+            height: 140px;
+        }
+
         /* Screenshots Section */
         .screenshots {
             padding: 5rem 0;
@@ -277,6 +293,15 @@
         }
 
         @media (max-width: 768px) {
+            .buy-coffee-header {
+                flex-direction: column;
+            }
+
+            .buy-coffee-link {
+                position: static;
+                margin-top: 1rem;
+            }
+
             .hero h1 {
                 font-size: 2.5rem;
             }
@@ -354,7 +379,7 @@
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title" style="display: flex; justify-content: center; align-items: center; position: relative;">왜 DBGridy인가요? <a href="https://www.paypal.com/ncp/payment/YHJZY5GCV2ZAA" target="_blank" style="position: absolute; right: 0;"><img src="BuyMeACoffee_BrianMSon.jpg" alt="Buy Me A Coffee" style="height: 140px;"></a></h2>
+            <h2 class="section-title buy-coffee-header">왜 DBGridy인가요? <a href="https://www.paypal.com/ncp/payment/YHJZY5GCV2ZAA" target="_blank" class="buy-coffee-link"><img src="BuyMeACoffee_BrianMSon.jpg" alt="Buy Me A Coffee"></a></h2>
             <div class="grid">
                 <div class="card">
                     <h3>🔌 멀티 데이터베이스 지원</h3>
