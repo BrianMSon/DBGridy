@@ -144,6 +144,9 @@ own license terms:
  10. ExcelDataReader          - MIT License
      https://github.com/ExcelDataReader/ExcelDataReader
 
+ 11. DiffPlex                 - Apache License 2.0
+     https://github.com/mmanela/diffplex
+
 Full license texts are available in each component's repository. Your use of 
 these components is governed by their respective licenses.
 
