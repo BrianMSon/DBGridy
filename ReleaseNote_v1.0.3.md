@@ -1,5 +1,6 @@
 DBGridy v1.0.3 Release Notes
 ============================
+
 Date: 2025-12-16
 Status: Maintenance Update
 
@@ -24,6 +25,10 @@ The following object icons are now supported:
 ## Technical Changes
 
 - Improved additional loading performance of DataGridView
+
+---
+
+![DBGridy Dark](DBGridy_dark.png)
 
 ---
 
