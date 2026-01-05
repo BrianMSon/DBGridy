@@ -71,9 +71,18 @@
             background-color: var(--white);
         }
 
-        /* Korean specific font */
-        #content-ko {
+        body.lang-ko {
             font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body.lang-ko .btn-primary {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        body.lang-ko .hero h1,
+        body.lang-ko .hero p {
+            word-break: keep-all;
         }
 
         header {
@@ -105,6 +114,7 @@
             text-decoration: none;
             cursor: pointer;
         }
+
         .phonetic {
             font-size: 0.7em;
             font-weight: 400;
@@ -145,11 +155,6 @@
             display: inline-block;
         }
 
-        #content-ko .btn-primary {
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-
         .btn-primary:hover {
             background-color: #1d5ee8;
         }
@@ -169,22 +174,18 @@
             line-height: 1.2;
         }
 
-        #content-ko .hero h1,
-        #content-ko .hero p {
-            word-break: keep-all;
-        }
-
         .hero p {
             font-size: 1.25rem;
             color: #64748b;
             max-width: 700px;
             margin: 0 auto 2.5rem;
         }
+
         .hero-icon {
             width: 80px;
             height: 80px;
             margin-bottom: 1.5rem;
-            display: block; /* Ensures centering with margin: auto */
+            display: block;
             margin-left: auto;
             margin-right: auto;
         }
@@ -290,7 +291,7 @@
             color: var(--white);
             text-align: center;
         }
-        
+
         .license-info h2 {
             color: var(--white);
             margin-bottom: 1.5rem;
@@ -299,6 +300,15 @@
         .license-content {
             max-width: 800px;
             margin: 0 auto;
+        }
+
+        .license-content a {
+            color: var(--white);
+            text-decoration: underline;
+        }
+
+        .license-sub {
+            opacity: 0.8;
         }
 
         /* Footer */
@@ -323,13 +333,11 @@
             .hero h1 {
                 font-size: 2.5rem;
             }
-            
-            /* Hide section links on mobile */
+
             .nav-links a:not(.lang-switch):not(.btn-primary) {
                 display: none;
             }
 
-            /* Adjust layout for remaining buttons */
             .nav-links {
                 gap: 10px;
             }
@@ -348,6 +356,7 @@
                 font-size: 0.9rem;
             }
         }
+
         .button-link {
             background-color: var(--white);
             border: 1px solid var(--border-color);
@@ -369,281 +378,319 @@
             background-color: #f0f9ff;
         }
     </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a class="logo" href="#">DBGridy <span class="phonetic" data-i18n="phonetic">[diːbiːˈɡrɪdi]</span></a>
+                <div class="nav-links">
+                    <a href="#features" data-i18n="nav.features">Features</a>
+                    <a href="#screenshots" data-i18n="nav.screenshots">Screenshots</a>
+                    <a href="#license" data-i18n="nav.license">License</a>
+                    <a href="#" onclick="toggleLanguage(); return false;" class="lang-switch" data-i18n="nav.langSwitch">한국어</a>
+                    <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary" data-i18n="nav.download">Download for Windows</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <img src="./dbgridy_192.png" alt="DBGridy Icon" class="hero-icon">
+            <h1 data-i18n="hero.title">Unified Database Management<br>Made Simple</h1>
+            <h2 data-i18n="hero.subtitle">Tired of DBeaver's UI? This tool is for you.</h2>
+            <p data-i18n="hero.desc1">DBGridy — Fast Windows DB editor that lets you edit SQL and NoSQL data just like Excel.</p>
+            <p data-i18n="hero.desc2">Stop fighting with heavy interfaces and endless menus.</p>
+            <p data-i18n="hero.desc3">DBGridy is a blazing-fast, grid-based database editor built for developers who want to view, edit, and manage data instantly — without writing unnecessary queries.</p>
+            <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary" data-i18n="hero.downloadBtn">Download Now</a>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title buy-coffee-header">
+                <span data-i18n="features.title">Why DBGridy?</span>
+                <a href="https://www.paypal.com/ncp/payment/YHJZY5GCV2ZAA" target="_blank" class="buy-coffee-link">
+                    <img src="BuyMeACoffee_BrianMSon.jpg" alt="Buy Me A Coffee">
+                </a>
+            </h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 data-i18n="features.multiDb.title">🔌 Multi-Database Support</h3>
+                    <p data-i18n="features.multiDb.desc">Seamlessly connect to your favorite databases in one unified interface.</p>
+                    <div class="db-list">
+                        <span class="db-tag">MySQL</span>
+                        <span class="db-tag">MongoDB</span>
+                        <span class="db-tag">Redis</span>
+                        <span class="db-tag">ClickHouse</span>
+                        <span class="db-tag">PostgreSQL</span>
+                        <span class="db-tag">SQLite</span>
+                        <span class="db-tag">MS-SQL</span>
+                        <span class="db-tag">Oracle</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.grid.title">📊 Grid-Based Editing</h3>
+                    <p data-i18n="features.grid.desc">Edit database records directly within a user-friendly grid interface. Experience Excel-like convenience for your data.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.query.title">📝 Advanced Query Editor</h3>
+                    <p data-i18n="features.query.desc">Syntax highlighting for SQL and JSON. Multiple query tabs for multitasking and bulk operations tools.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.visual.title">🎨 Visualization & Themes</h3>
+                    <p data-i18n="features.visual.desc">Built-in JSON pretty-printing, visual Tree Views for schemas/Redis keys, and support for both Light and Dark themes.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.data.title">💾 Data Management</h3>
+                    <p data-i18n="features.data.desc">Export data to CSV, SQL, or JSON easily. Includes handy tools like Blob-to-Hex conversion.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.native.title">🚀 Native Performance</h3>
+                    <p data-i18n="features.native.desc">Built as a native Windows (WinForms) application for maximum performance and system integration.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.ssh.title">🔐 SSH/SFTP & WSL Support</h3>
+                    <p data-i18n="features.ssh.desc">Connect to remote servers via SSH terminal, browse and transfer files with SFTP, and access WSL environments directly from the app.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenshots" class="screenshots">
+        <div class="container">
+            <h2 class="section-title" data-i18n="screenshots.title">See it in Action</h2>
+
+            <div class="screenshot-container">
+                <img src="DBGridy_dark.png" alt="DBGridy Dark Theme Interface">
+                <p class="screenshot-label" data-i18n="screenshots.dark">Dark Theme - Modern and easy on the eyes</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="DBGridy_light.png" alt="DBGridy Light Theme Interface">
+                <p class="screenshot-label" data-i18n="screenshots.light">Light Theme - Clean and professional</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="terminal.png" alt="DBGridy Terminal">
+                <p class="screenshot-label">DBGridy Terminal</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="license" class="license-info">
+        <div class="container">
+            <h2 data-i18n="license.title">License Information</h2>
+            <div class="license-content">
+                <p data-i18n="license.desc">DBGridy is proprietary software free for personal, educational, and internal business use.</p>
+                <br>
+                <p class="license-sub" data-i18n-html="license.sub">Commercial redistribution, resale, and modification are prohibited.<br>Please check the <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank">full license on GitHub</a> for more details.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>
+                Copyright © 2025 BrianMSon. All Rights Reserved.
+                <br><br>
+                <button onclick="window.open('https://github.com/BrianMSon/DBGridy/issues', '_blank')" class="button-link" data-i18n="footer.bugReport">Bug report</button>
+                <button onclick="window.open('https://github.com/BrianMSon/DBGridy/discussions', '_blank')" class="button-link" data-i18n="footer.feedback">Feedback</button>
+            </p>
+        </div>
+    </footer>
+
     <script>
-        function toggleLanguage(lang) {
-            const koContent = document.getElementById('content-ko');
-            const enContent = document.getElementById('content-en');
-            
-            if (lang === 'ko') {
-                enContent.style.display = 'none';
-                koContent.style.display = 'block';
-                document.title = "DBGridy - 윈도우용 통합 데이터베이스 관리 도구 (MySQL, MongoDB, Redis)";
-                document.documentElement.lang = 'ko';
-                localStorage.setItem('preferred-lang', 'ko');
-            } else {
-                koContent.style.display = 'none';
-                enContent.style.display = 'block';
-                document.title = "DBGridy - The Ultimate Database Grid Editor for Windows (MySQL, MongoDB, Redis)";
-                document.documentElement.lang = 'en';
-                localStorage.setItem('preferred-lang', 'en');
+        const i18n = {
+            en: {
+                title: "DBGridy - The Ultimate Database Grid Editor for Windows (MySQL, MongoDB, Redis)",
+                phonetic: "[diːbiːˈɡrɪdi]",
+                nav: {
+                    features: "Features",
+                    screenshots: "Screenshots",
+                    license: "License",
+                    langSwitch: "한국어",
+                    download: "Download for Windows"
+                },
+                hero: {
+                    title: "Unified Database Management<br>Made Simple",
+                    subtitle: "Tired of DBeaver's UI? This tool is for you.",
+                    desc1: "DBGridy — Fast Windows DB editor that lets you edit SQL and NoSQL data just like Excel.",
+                    desc2: "Stop fighting with heavy interfaces and endless menus.",
+                    desc3: "DBGridy is a blazing-fast, grid-based database editor built for developers who want to view, edit, and manage data instantly — without writing unnecessary queries.",
+                    downloadBtn: "Download Now"
+                },
+                features: {
+                    title: "Why DBGridy?",
+                    multiDb: {
+                        title: "🔌 Multi-Database Support",
+                        desc: "Seamlessly connect to your favorite databases in one unified interface."
+                    },
+                    grid: {
+                        title: "📊 Grid-Based Editing",
+                        desc: "Edit database records directly within a user-friendly grid interface. Experience Excel-like convenience for your data."
+                    },
+                    query: {
+                        title: "📝 Advanced Query Editor",
+                        desc: "Syntax highlighting for SQL and JSON. Multiple query tabs for multitasking and bulk operations tools."
+                    },
+                    visual: {
+                        title: "🎨 Visualization & Themes",
+                        desc: "Built-in JSON pretty-printing, visual Tree Views for schemas/Redis keys, and support for both Light and Dark themes."
+                    },
+                    data: {
+                        title: "💾 Data Management",
+                        desc: "Export data to CSV, SQL, or JSON easily. Includes handy tools like Blob-to-Hex conversion."
+                    },
+                    native: {
+                        title: "🚀 Native Performance",
+                        desc: "Built as a native Windows (WinForms) application for maximum performance and system integration."
+                    },
+                    ssh: {
+                        title: "🔐 SSH/SFTP & WSL Support",
+                        desc: "Connect to remote servers via SSH terminal, browse and transfer files with SFTP, and access WSL environments directly from the app."
+                    }
+                },
+                screenshots: {
+                    title: "See it in Action",
+                    dark: "Dark Theme - Modern and easy on the eyes",
+                    light: "Light Theme - Clean and professional"
+                },
+                license: {
+                    title: "License Information",
+                    desc: "DBGridy is proprietary software free for personal, educational, and internal business use.",
+                    sub: 'Commercial redistribution, resale, and modification are prohibited.<br>Please check the <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank">full license on GitHub</a> for more details.'
+                },
+                footer: {
+                    bugReport: "Bug report",
+                    feedback: "Feedback"
+                }
+            },
+            ko: {
+                title: "DBGridy - 윈도우용 통합 데이터베이스 관리 도구 (MySQL, MongoDB, Redis)",
+                phonetic: "[디비 그리디]",
+                nav: {
+                    features: "주요기능",
+                    screenshots: "스크린샷",
+                    license: "라이선스",
+                    langSwitch: "English",
+                    download: "Windows용 다운로드"
+                },
+                hero: {
+                    title: "복잡한 데이터베이스 관리<br>이제 심플하게",
+                    subtitle: "DBeaver의 복잡한 UI가 답답하셨나요? 당신을 위한 도구입니다.",
+                    desc1: "DBGridy — SQL과 NoSQL 데이터를 엑셀처럼 편리하게 편집할 수 있는 빠른 윈도우 전용 DB 에디터입니다.",
+                    desc2: "무거운 인터페이스와 끝없는 메뉴 설정으로 고생하지 마세요.",
+                    desc3: "DBGridy는 불필요한 쿼리 작성 없이 데이터를 즉시 확인하고 편집하길 원하는 개발자를 위해 만들어진, 그리드 기반의 초고속 데이터베이스 관리 도구입니다.",
+                    downloadBtn: "지금 다운로드"
+                },
+                features: {
+                    title: "왜 DBGridy인가요?",
+                    multiDb: {
+                        title: "🔌 멀티 데이터베이스 지원",
+                        desc: "즐겨 사용하는 다양한 데이터베이스를 하나의 통합 인터페이스에서 원활하게 연결하고 관리하세요."
+                    },
+                    grid: {
+                        title: "📊 그리드 기반 편집",
+                        desc: "사용자 친화적인 그리드 인터페이스에서 데이터베이스 레코드를 직접 편집하세요. 마치 엑셀을 다루듯 편리한 데이터 관리를 경험할 수 있습니다."
+                    },
+                    query: {
+                        title: "📝 고급 쿼리 에디터",
+                        desc: "SQL 및 JSON을 위한 문법 강조 기능(Syntax Highlighting)을 지원합니다. 멀티 탭 기능을 통해 여러 작업을 동시에 처리하고, 대량 데이터 작업 도구도 활용해보세요."
+                    },
+                    visual: {
+                        title: "🎨 시각화 및 테마",
+                        desc: "내장된 JSON Pretty-print, 스키마 및 Redis 키를 위한 시각적 트리 뷰(Tree View), 그리고 눈이 편안한 라이트/다크 테마를 모두 지원합니다."
+                    },
+                    data: {
+                        title: "💾 데이터 관리",
+                        desc: "CSV, SQL, JSON 형식으로 데이터를 손쉽게 내보낼 수 있습니다. Blob 데이터를 Hex로 변환하는 등의 유용한 도구들도 포함되어 있습니다."
+                    },
+                    native: {
+                        title: "🚀 네이티브 성능",
+                        desc: "윈도우 네이티브(WinForms) 애플리케이션으로 제작되어 최고의 성능과 시스템 통합성을 보장합니다."
+                    },
+                    ssh: {
+                        title: "🔐 SSH/SFTP & WSL 지원",
+                        desc: "SSH 터미널로 원격 서버에 접속하고, SFTP로 파일을 탐색 및 전송하며, WSL 환경에도 직접 접근할 수 있습니다."
+                    }
+                },
+                screenshots: {
+                    title: "실제 사용 화면",
+                    dark: "다크 테마 - 모던하고 눈이 편안한 디자인",
+                    light: "라이트 테마 - 깔끔하고 전문적인 디자인"
+                },
+                license: {
+                    title: "라이선스 정보",
+                    desc: "DBGridy는 개인, 교육 목적, 그리고 사내 비즈니스 용도(관리/개발)로 무료로 사용할 수 있는 독점 소프트웨어입니다.",
+                    sub: '단, 상업적 재배포, 재판매 및 수정은 금지되어 있습니다.<br>자세한 내용은 <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank">GitHub의 전체 라이선스</a>를 확인해 주세요.'
+                },
+                footer: {
+                    bugReport: "버그 리포트",
+                    feedback: "피드백"
+                }
             }
+        };
+
+        let currentLang = 'en';
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
+        function applyTranslations(lang) {
+            const translations = i18n[lang];
+
+            // Update document title
+            document.title = translations.title;
+            document.documentElement.lang = lang;
+
+            // Update body class for language-specific styles
+            document.body.classList.remove('lang-en', 'lang-ko');
+            document.body.classList.add('lang-' + lang);
+
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const value = getNestedValue(translations, key);
+                if (value) {
+                    el.innerHTML = value;
+                }
+            });
+
+            // Update all elements with data-i18n-html attribute (for HTML content)
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.getAttribute('data-i18n-html');
+                const value = getNestedValue(translations, key);
+                if (value) {
+                    el.innerHTML = value;
+                }
+            });
+        }
+
+        function toggleLanguage(lang) {
+            if (lang) {
+                currentLang = lang;
+            } else {
+                currentLang = currentLang === 'en' ? 'ko' : 'en';
+            }
+
+            applyTranslations(currentLang);
+            localStorage.setItem('preferred-lang', currentLang);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('preferred-lang') || 'en';
-            toggleLanguage(savedLang);
+            currentLang = savedLang;
+            applyTranslations(currentLang);
         });
     </script>
-</head>
-<body>
-    <!-- English Content -->
-    <div id="content-en">
-        <header>
-            <div class="container">
-                <nav>
-                    <a class="logo" href="#">DBGridy <span class="phonetic">[diːbiːˈɡrɪdi]</span></a>
-                    <div class="nav-links">
-                        <a href="#features">Features</a>
-                        <a href="#screenshots">Screenshots</a>
-                        <a href="#license">License</a>
-                        <a href="#" onclick="toggleLanguage('ko'); return false;" class="lang-switch">한국어</a>
-                        <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Download for Windows</a>
-                    </div>
-                </nav>
-            </div>
-        </header>
-
-        <section class="hero">
-            <div class="container">
-                <img src="./dbgridy_192.png" alt="DBGridy Icon" class="hero-icon">
-                <h1>Unified Database Management<br>Made Simple</h1>
-                <h2>Tired of DBeaver’s UI? This tool is for you.</h2>
-                <p>DBGridy — Fast Windows DB editor that lets you edit SQL and NoSQL data just like Excel.</p>
-                <p>Stop fighting with heavy interfaces and endless menus.</p>
-                <p>DBGridy is a blazing-fast, grid-based database editor built for developers who want to view, edit, and manage data instantly — without writing unnecessary queries.</p>
-                <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Download Now</a>
-            </div>
-        </section>
-
-        <section id="features" class="features">
-            <div class="container">
-                <h2 class="section-title buy-coffee-header">Why DBGridy? <a href="https://www.paypal.com/ncp/payment/YHJZY5GCV2ZAA" target="_blank" class="buy-coffee-link"><img src="BuyMeACoffee_BrianMSon.jpg" alt="Buy Me A Coffee"></a></h2>
-                <div class="grid">
-                    <div class="card">
-                        <h3>🔌 Multi-Database Support</h3>
-                        <p>Seamlessly connect to your favorite databases in one unified interface.</p>
-                        <div class="db-list">
-                            <span class="db-tag">MySQL</span>
-                            <span class="db-tag">MongoDB</span>
-                            <span class="db-tag">Redis</span>
-                            <span class="db-tag">ClickHouse</span>
-                            <span class="db-tag">PostgreSQL</span>
-                            <span class="db-tag">SQLite</span>
-                            <span class="db-tag">MS-SQL</span>
-                            <span class="db-tag">Oracle</span>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>📊 Grid-Based Editing</h3>
-                        <p>Edit database records directly within a user-friendly grid interface. Experience Excel-like convenience for your data.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>📝 Advanced Query Editor</h3>
-                        <p>Syntax highlighting for SQL and JSON. Multiple query tabs for multitasking and bulk operations tools.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>🎨 Visualization & Themes</h3>
-                        <p>Built-in JSON pretty-printing, visual Tree Views for schemas/Redis keys, and support for both Light and Dark themes.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>💾 Data Management</h3>
-                        <p>Export data to CSV, SQL, or JSON easily. Includes handy tools like Blob-to-Hex conversion.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>🚀 Native Performance</h3>
-                        <p>Built as a native Windows (WinForms) application for maximum performance and system integration.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>🔐 SSH/SFTP & WSL Support</h3>
-                        <p>Connect to remote servers via SSH terminal, browse and transfer files with SFTP, and access WSL environments directly from the app.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="screenshots" class="screenshots">
-            <div class="container">
-                <h2 class="section-title">See it in Action</h2>
-                
-                <div class="screenshot-container">
-                    <img src="DBGridy_dark.png" alt="DBGridy Dark Theme Interface">
-                    <p class="screenshot-label">Dark Theme - Modern and easy on the eyes</p>
-                </div>
-
-                <div class="screenshot-container">
-                    <img src="DBGridy_light.png" alt="DBGridy Light Theme Interface">
-                    <p class="screenshot-label">Light Theme - Clean and professional</p>
-                </div>
-
-                <div class="screenshot-container">
-                    <img src="terminal.png" alt="DBGridy Terminal">
-                    <p class="screenshot-label">DBGridy Terminal</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="license" class="license-info">
-            <div class="container">
-                <h2>License Information</h2>
-                <div class="license-content">
-                    <p>DBGridy is proprietary software free for personal, educational, and internal business use.</p>
-                    <br>
-                    <p style="opacity: 0.8">Commercial redistribution, resale, and modification are prohibited.<br>Please check the <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank" style="color: var(--white); text-decoration: underline;">full license on GitHub</a> for more details.</p>
-                </div>
-            </div>
-        </section>
-
-        <footer>
-            <div class="container">
-                <p>
-                    Copyright © 2025 BrianMSon. All Rights Reserved.
-                    <br><br>
-                    <button onclick="window.open('https://github.com/BrianMSon/DBGridy/issues', '_blank')" class="button-link">Bug report</button>
-                    <button onclick="window.open('https://github.com/BrianMSon/DBGridy/discussions', '_blank')" class="button-link">Feedback</button>
-                </p>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Korean Content -->
-    <div id="content-ko" style="display: none;">
-        <header>
-            <div class="container">
-                <nav>
-                    <a class="logo" href="#">DBGridy <span class="phonetic">[디비 그리디]</span></a>
-                    <div class="nav-links">
-                        <a href="#features">주요기능</a>
-                        <a href="#screenshots">스크린샷</a>
-                        <a href="#license">라이선스</a>
-                        <a href="#" onclick="toggleLanguage('en'); return false;" class="lang-switch">English</a>
-                        <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">Windows용 다운로드</a>
-                    </div>
-                </nav>
-            </div>
-        </header>
-
-        <section class="hero">
-            <div class="container">
-                <img src="./dbgridy_192.png" alt="DBGridy 아이콘" class="hero-icon">
-                <h1>복잡한 데이터베이스 관리<br>이제 심플하게</h1>
-                <h2>DBeaver의 복잡한 UI가 답답하셨나요? 당신을 위한 도구입니다.</h2>
-                <p>DBGridy — SQL과 NoSQL 데이터를 엑셀처럼 편리하게 편집할 수 있는 빠른 윈도우 전용 DB 에디터입니다.</p>
-                <p>무거운 인터페이스와 끝없는 메뉴 설정으로 고생하지 마세요.</p>
-                <p>DBGridy는 불필요한 쿼리 작성 없이 데이터를 즉시 확인하고 편집하길 원하는 개발자를 위해 만들어진, 그리드 기반의 초고속 데이터베이스 관리 도구입니다.</p>
-                <a href="https://github.com/BrianMSon/DBGridy/releases" class="btn-primary">지금 다운로드</a>
-            </div>
-        </section>
-
-        <section id="features" class="features">
-            <div class="container">
-                <h2 class="section-title buy-coffee-header">왜 DBGridy인가요? <a href="https://www.paypal.com/ncp/payment/YHJZY5GCV2ZAA" target="_blank" class="buy-coffee-link"><img src="BuyMeACoffee_BrianMSon.jpg" alt="Buy Me A Coffee"></a></h2>
-                <div class="grid">
-                    <div class="card">
-                        <h3>🔌 멀티 데이터베이스 지원</h3>
-                        <p>즐겨 사용하는 다양한 데이터베이스를 하나의 통합 인터페이스에서 원활하게 연결하고 관리하세요.</p>
-                        <div class="db-list">
-                            <span class="db-tag">MySQL</span>
-                            <span class="db-tag">MongoDB</span>
-                            <span class="db-tag">Redis</span>
-                            <span class="db-tag">ClickHouse</span>
-                            <span class="db-tag">PostgreSQL</span>
-                            <span class="db-tag">SQLite</span>
-                            <span class="db-tag">MS-SQL</span>
-                            <span class="db-tag">Oracle</span>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>📊 그리드 기반 편집</h3>
-                        <p>사용자 친화적인 그리드 인터페이스에서 데이터베이스 레코드를 직접 편집하세요. 마치 엑셀을 다루듯 편리한 데이터 관리를 경험할 수 있습니다.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>📝 고급 쿼리 에디터</h3>
-                        <p>SQL 및 JSON을 위한 문법 강조 기능(Syntax Highlighting)을 지원합니다. 멀티 탭 기능을 통해 여러 작업을 동시에 처리하고, 대량 데이터 작업 도구도 활용해보세요.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>🎨 시각화 및 테마</h3>
-                        <p>내장된 JSON Pretty-print, 스키마 및 Redis 키를 위한 시각적 트리 뷰(Tree View), 그리고 눈이 편안한 라이트/다크 테마를 모두 지원합니다.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>💾 데이터 관리</h3>
-                        <p>CSV, SQL, JSON 형식으로 데이터를 손쉽게 내보낼 수 있습니다. Blob 데이터를 Hex로 변환하는 등의 유용한 도구들도 포함되어 있습니다.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>🚀 네이티브 성능</h3>
-                        <p>윈도우 네이티브(WinForms) 애플리케이션으로 제작되어 최고의 성능과 시스템 통합성을 보장합니다.</p>
-                    </div>
-
-                    <div class="card">
-                        <h3>🔐 SSH/SFTP & WSL 지원</h3>
-                        <p>SSH 터미널로 원격 서버에 접속하고, SFTP로 파일을 탐색 및 전송하며, WSL 환경에도 직접 접근할 수 있습니다.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="screenshots" class="screenshots">
-            <div class="container">
-                <h2 class="section-title">실제 사용 화면</h2>
-                
-                <div class="screenshot-container">
-                    <img src="DBGridy_dark.png" alt="DBGridy 다크 테마 인터페이스">
-                    <p class="screenshot-label">다크 테마 - 모던하고 눈이 편안한 디자인</p>
-                </div>
-
-                <div class="screenshot-container">
-                    <img src="DBGridy_light.png" alt="DBGridy 라이트 테마 인터페이스">
-                    <p class="screenshot-label">라이트 테마 - 깔끔하고 전문적인 디자인</p>
-                </div>
-
-                <div class="screenshot-container">
-                    <img src="terminal.png" alt="DBGridy Terminal">
-                    <p class="screenshot-label">DBGridy Terminal</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="license" class="license-info">
-            <div class="container">
-                <h2>라이선스 정보</h2>
-                <div class="license-content">
-                    <p>DBGridy는 개인, 교육 목적, 그리고 사내 비즈니스 용도(관리/개발)로 무료로 사용할 수 있는 독점 소프트웨어입니다.</p>
-                    <br>
-                    <p style="opacity: 0.8">단, 상업적 재배포, 재판매 및 수정은 금지되어 있습니다.<br>자세한 내용은 <a href="https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt" target="_blank" style="color: var(--white); text-decoration: underline;">GitHub의 전체 라이선스</a>를 확인해 주세요.</p>
-                </div>
-            </div>
-        </section>
-
-        <footer>
-            <div class="container">
-                <p>
-                    Copyright © 2025 BrianMSon. All Rights Reserved.
-                    <br><br>
-                    <button onclick="window.open('https://github.com/BrianMSon/DBGridy/issues', '_blank')" class="button-link">버그 리포트</button>
-                    <button onclick="window.open('https://github.com/BrianMSon/DBGridy/discussions', '_blank')" class="button-link">피드백</button>
-                </p>
-            </div>
-        </footer>
-    </div>
 </body>
 </html>
