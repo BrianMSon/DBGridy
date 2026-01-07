@@ -147,7 +147,19 @@ own license terms:
  11. DiffPlex                 - Apache License 2.0
      https://github.com/mmanela/diffplex
 
-Full license texts are available in each component's repository. Your use of 
+ 12. SSH.NET                   - MIT License
+     https://github.com/sshnet/SSH.NET
+
+ 13. Oracle.ManagedDataAccess.Core - Apache License 2.0
+     https://github.com/oracle/dotnet-db-samples
+
+ 14. Microsoft.Web.WebView2    - BSD 3-Clause License
+     https://github.com/AmineDjer686/WebView2-Offline
+
+ 15. FracturedJson             - MIT License
+     https://github.com/j-brooke/FracturedJson
+
+Full license texts are available in each component's repository. Your use of
 these components is governed by their respective licenses.
 
 ================================================================================

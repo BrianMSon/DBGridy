@@ -92,6 +92,29 @@ A comprehensive collection of developer tools has been added to the **"Convert U
 - **Right Panel Tab**
   - Added functionality to move query tabs to the right panel.
 
+
+### 🖥 SSH Terminal
+
+DBGridy includes a built-in SSH terminal with full xterm.js integration, allowing you to manage servers directly within the application.
+
+![Terminal](terminal.png)
+
+#### Features
+- **Integrated Terminal Tabs**: Open SSH terminals as tabs alongside your query editors
+- **SFTP Integration**: Right-click on SFTP connections to open terminal in the current directory
+- **Fast Async Connection**: Terminal tabs appear instantly with background SSH connection
+- **Session Persistence**: Terminal sessions are saved and restored on application restart
+- **Full Terminal Emulation**:
+  - xterm-256color support
+  - Vi/Nano editor compatibility
+  - Mouse support
+  - Clipboard integration (Ctrl+Shift+C/V)
+- **WSL Support**: Connect to Windows Subsystem for Linux distributions
+
+#### Keyboard Shortcuts
+- **Ctrl+W**: Close current terminal tab
+- **Ctrl+N**: Create new terminal tab
+
 ---
 
 ## 📥 Installation & Requirements
