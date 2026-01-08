@@ -28,7 +28,7 @@ The following object icons are now supported:
 
 ---
 
-![DBGridy Dark](DBGridy_dark.png)
+![DBGridy Dark](dbgridy-dark.png)
 
 ---
 

@@ -2,10 +2,10 @@
 
 **DBGridy** is a powerful and versatile Database Grid Editor designed for Windows. It provides a unified interface to manage and edit data across multiple database systems, bridging the gap between SQL and NoSQL environments.
 
-![DBGridy Light Theme](DBGridy_light.png)
+![DBGridy Light Theme](dbgridy-light.png)
 _Light Theme_
 
-![DBGridy Dark Theme](DBGridy_dark.png)
+![DBGridy Dark Theme](dbgridy-dark.png)
 _Dark Theme_
 
 ## 🚀 Key Features
@@ -64,7 +64,7 @@ A comprehensive collection of developer tools has been added to the **"Convert U
 * **JSON**: **JsonPath Tester** to evaluate expressions against JSON data.
 
 
-![Convert Util](ConvertUtilMenu.png)
+![Convert Util](convertutil-menu.png)
 
 
 ### 🛠 Compare Mode
@@ -84,7 +84,7 @@ A comprehensive collection of developer tools has been added to the **"Convert U
 - **Manual Refresh**
   - F5: Manually refresh diff comparison (replaces auto-refresh on line change)
 
-![Compare Mode](Compare.png)
+![Compare Mode](comparemode.png)
 
 
 ### 🛠 Tab Management Improvements
