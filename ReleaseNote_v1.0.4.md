@@ -73,8 +73,6 @@ Icon resources have been added for TreeView:
 ### Technical Changes
 - Improved additional loading performance of DataGridView
 
-![DBGridy Dark](dbgridy-dark.png)
-
 ---
 
 ## v1.0.2
