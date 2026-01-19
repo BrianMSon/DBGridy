@@ -3,7 +3,7 @@
 ---
 
 ## v1.0.4
-**Date:** 2025-12
+**Date:** 2026-01-10
 **Status:** Major Feature Update
 
 ### New Features
