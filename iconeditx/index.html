@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4N5EPFZ1L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-R4N5EPFZ1L');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PKTG3C6K');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IconEditX - Lightweight Icon Editor for Windows</title>
+
+    <link rel="icon" href="https://dbgridy.com/favicon-48.png">
+    <link rel="shortcut icon" href="../favicon3.ico">
+
+    <meta name="description" content="IconEditX is a lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support, pixel-perfect drawing tools, and dark theme.">
+    <meta name="keywords" content="Icon Editor, ICO Editor, Icon Editor Windows, Free Icon Editor, Pixel Editor, ICO File Editor, Multi-frame ICO, IconEditX, Open Source Icon Editor">
+    <meta name="author" content="HappySloth">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="canonical" href="https://dbgridy.com/iconeditx/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dbgridy.com/iconeditx/">
+    <meta property="og:site_name" content="IconEditX">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ko_KR">
+    <meta property="og:title" content="IconEditX - Lightweight Icon Editor for Windows">
+    <meta property="og:description" content="IconEditX is a lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support.">
+    <meta property="og:image" content="https://dbgridy.com/dbgridy192.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://dbgridy.com/iconeditx/">
+    <meta name="twitter:title" content="IconEditX - Lightweight Icon Editor for Windows">
+    <meta name="twitter:description" content="IconEditX is a lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support.">
+    <meta name="twitter:image" content="https://dbgridy.com/dbgridy192.png">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "IconEditX",
+      "operatingSystem": "Windows",
+      "applicationCategory": "DesignApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support and pixel-perfect drawing tools.",
+      "license": "https://opensource.org/licenses/MIT"
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #1e293b;
+            --text-color: #334155;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+            --gray: #eeeeee;
+            --dark-text: #0f172a;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--white);
+        }
+
+        body.lang-ko {
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body.lang-ko .btn-primary {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        body.lang-ko .hero h1,
+        body.lang-ko .hero p {
+            word-break: keep-all;
+        }
+
+        header {
+            background-color: var(--gray);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.8rem;
+            padding-bottom: 0.8rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark-text);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logo span.icon {
+            color: var(--primary-color);
+        }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .lang-switch {
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            background: linear-gradient(to bottom, #eef2ff, #ffffff);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--dark-text);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 5rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background-color: var(--light-bg);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--dark-text);
+            margin-bottom: 3rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--dark-text);
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .feature-tag {
+            background: #eef2ff;
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Coming Soon Section */
+        .coming-soon {
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .coming-soon-box {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 2px dashed var(--primary-color);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .coming-soon-box h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .coming-soon-box p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        /* License Section */
+        .license-info {
+            padding: 5rem 0;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .license-info h2 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+        }
+
+        .license-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .license-content a {
+            color: var(--white);
+            text-decoration: underline;
+        }
+
+        .license-sub {
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links a:not(.lang-switch):not(.btn-primary) {
+                display: none;
+            }
+
+            .nav-links {
+                gap: 10px;
+            }
+
+            .nav-links a {
+                margin-left: 0 !important;
+            }
+
+            .lang-switch {
+                margin: 0;
+                padding: 0.4rem 0.6rem;
+            }
+
+            .btn-primary {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .button-link {
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            margin: 0 0.25rem;
+            display: inline-block;
+        }
+
+        .button-link:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #eef2ff;
+        }
+
+        .buy-coffee-section {
+            padding: 3rem 0;
+            text-align: center;
+            background-color: var(--light-bg);
+        }
+
+        .buy-coffee-link img {
+            height: 120px;
+            transition: transform 0.2s;
+        }
+
+        .buy-coffee-link img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKTG3C6K"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <header>
+        <div class="container">
+            <nav>
+                <a class="logo" href="#"><span class="icon">Icon</span>EditX</a>
+                <div class="nav-links">
+                    <a href="#features" data-i18n="nav.features">Features</a>
+                    <a href="#license" data-i18n="nav.license">License</a>
+                    <a href="#" onclick="toggleLanguage(); return false;" class="lang-switch" data-i18n="nav.langSwitch">한국어</a>
+                    <a href="https://github.com/nicesloth/IconEditX/releases" class="btn-primary" data-i18n="nav.download">Download</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-icon">🎨</div>
+            <h1 data-i18n="hero.title">Lightweight & Fast<br>Icon Editor</h1>
+            <p data-i18n="hero.desc1">IconEditX — A pixel-perfect icon editor for Windows with multi-frame ICO support.</p>
+            <p data-i18n="hero.desc2">No bloat. No complexity. Just pure icon editing.</p>
+            <p data-i18n="hero.desc3">Create, edit, and export icons with an intuitive dark-themed interface and powerful drawing tools.</p>
+            <a href="https://github.com/nicesloth/IconEditX/releases" class="btn-primary" data-i18n="hero.downloadBtn">Download Now</a>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title" data-i18n="features.title">Why IconEditX?</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 data-i18n="features.drawing.title">🖌️ Pixel-Perfect Drawing</h3>
+                    <p data-i18n="features.drawing.desc">Pencil, eraser, fill, line, rectangle, ellipse, and text tools. Everything you need for precise pixel-level icon creation.</p>
+                    <div class="feature-list">
+                        <span class="feature-tag">Pencil</span>
+                        <span class="feature-tag">Eraser</span>
+                        <span class="feature-tag">Fill</span>
+                        <span class="feature-tag">Line</span>
+                        <span class="feature-tag">Rectangle</span>
+                        <span class="feature-tag">Ellipse</span>
+                        <span class="feature-tag">Text</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.multiframe.title">📐 Multi-Frame ICO</h3>
+                    <p data-i18n="features.multiframe.desc">Create icons with multiple resolutions in a single ICO file. Add, remove, duplicate, and reorder frames with ease.</p>
+                    <div class="feature-list">
+                        <span class="feature-tag">16x16</span>
+                        <span class="feature-tag">32x32</span>
+                        <span class="feature-tag">48x48</span>
+                        <span class="feature-tag">64x64</span>
+                        <span class="feature-tag">128x128</span>
+                        <span class="feature-tag">256x256</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.formats.title">📁 Multiple Formats</h3>
+                    <p data-i18n="features.formats.desc">Open ICO, PNG, BMP, WebP, JPG, and GIF files. Save as ICO with multi-frame support, or export as PNG and BMP.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.transform.title">🔄 Image Transforms</h3>
+                    <p data-i18n="features.transform.desc">Flip, rotate (90° or custom angle), resize frames, and insert external images. Full undo/redo history for every operation.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.color.title">🎨 Color Management</h3>
+                    <p data-i18n="features.color.desc">40+ color palette with recent colors tracking. Foreground/background dual color system with full alpha channel transparency support.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.performance.title">🚀 Native Performance</h3>
+                    <p data-i18n="features.performance.desc">Built as a native Windows application with a sleek dark theme. Instant startup, zero configuration, fully portable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="coming-soon">
+        <div class="container">
+            <div class="coming-soon-box">
+                <h2 data-i18n="coming.title">Download Now</h2>
+                <p data-i18n="coming.desc">IconEditX is free and open source. Try it today!</p>
+                <br>
+                <a href="https://github.com/nicesloth/IconEditX/releases" class="btn-primary" data-i18n="coming.downloadBtn">Download from GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="license" class="license-info">
+        <div class="container">
+            <h2 data-i18n="license.title">License Information</h2>
+            <div class="license-content">
+                <p data-i18n="license.desc">IconEditX is free and open-source software released under the MIT License.</p>
+                <br>
+                <p class="license-sub" data-i18n="license.sub">Use it freely for personal, educational, or commercial purposes.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="buy-coffee-section">
+        <div class="container">
+            <a href="https://www.paypal.com/ncp/payment/YHJZY5GCV2ZAA" target="_blank" class="buy-coffee-link">
+                <img src="../buymeacoffee-brianmson.jpg" alt="Buy Me A Coffee">
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>
+                Copyright &copy; 2026 HappySloth.
+                <br><br>
+                <span style="color: #94a3b8; font-size: 0.8rem;" data-i18n="footer.sisterProduct">Sister Products:</span>
+                <a href="https://dbgridy.com/" class="button-link" style="margin-left: 0.5rem;">DBGridy</a>
+                <a href="https://dbgridy.com/pdfeditx/" class="button-link" style="border-color: #e74c3c; color: #e74c3c; background-color: #fef2f2;">PDFEditX</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const i18n = {
+            en: {
+                title: "IconEditX - Lightweight Icon Editor for Windows",
+                nav: {
+                    features: "Features",
+                    license: "License",
+                    langSwitch: "한국어",
+                    download: "Download"
+                },
+                hero: {
+                    title: "Lightweight & Fast<br>Icon Editor",
+                    desc1: "IconEditX — A pixel-perfect icon editor for Windows with multi-frame ICO support.",
+                    desc2: "No bloat. No complexity. Just pure icon editing.",
+                    desc3: "Create, edit, and export icons with an intuitive dark-themed interface and powerful drawing tools.",
+                    downloadBtn: "Download Now"
+                },
+                features: {
+                    title: "Why IconEditX?",
+                    drawing: {
+                        title: "🖌️ Pixel-Perfect Drawing",
+                        desc: "Pencil, eraser, fill, line, rectangle, ellipse, and text tools. Everything you need for precise pixel-level icon creation."
+                    },
+                    multiframe: {
+                        title: "📐 Multi-Frame ICO",
+                        desc: "Create icons with multiple resolutions in a single ICO file. Add, remove, duplicate, and reorder frames with ease."
+                    },
+                    formats: {
+                        title: "📁 Multiple Formats",
+                        desc: "Open ICO, PNG, BMP, WebP, JPG, and GIF files. Save as ICO with multi-frame support, or export as PNG and BMP."
+                    },
+                    transform: {
+                        title: "🔄 Image Transforms",
+                        desc: "Flip, rotate (90° or custom angle), resize frames, and insert external images. Full undo/redo history for every operation."
+                    },
+                    color: {
+                        title: "🎨 Color Management",
+                        desc: "40+ color palette with recent colors tracking. Foreground/background dual color system with full alpha channel transparency support."
+                    },
+                    performance: {
+                        title: "🚀 Native Performance",
+                        desc: "Built as a native Windows application with a sleek dark theme. Instant startup, zero configuration, fully portable."
+                    }
+                },
+                coming: {
+                    title: "Download Now",
+                    desc: "IconEditX is free and open source. Try it today!",
+                    downloadBtn: "Download from GitHub"
+                },
+                license: {
+                    title: "License Information",
+                    desc: "IconEditX is free and open-source software released under the MIT License.",
+                    sub: "Use it freely for personal, educational, or commercial purposes."
+                },
+                footer: {
+                    sisterProduct: "Sister Products:"
+                }
+            },
+            ko: {
+                title: "IconEditX - 가볍고 빠른 Windows용 아이콘 편집기",
+                nav: {
+                    features: "주요기능",
+                    license: "라이선스",
+                    langSwitch: "English",
+                    download: "다운로드"
+                },
+                hero: {
+                    title: "가볍고 빠른<br>아이콘 편집기",
+                    desc1: "IconEditX — 멀티 프레임 ICO를 지원하는 픽셀 단위 아이콘 편집기입니다.",
+                    desc2: "불필요한 기능 없음. 복잡함 없음. 순수한 아이콘 편집 기능만.",
+                    desc3: "직관적인 다크 테마 인터페이스와 강력한 드로잉 도구로 아이콘을 만들고 편집하세요.",
+                    downloadBtn: "지금 다운로드"
+                },
+                features: {
+                    title: "왜 IconEditX인가요?",
+                    drawing: {
+                        title: "🖌️ 픽셀 단위 드로잉",
+                        desc: "연필, 지우개, 채우기, 선, 사각형, 타원, 텍스트 도구를 제공합니다. 정밀한 픽셀 수준의 아이콘 제작에 필요한 모든 것을 갖추고 있습니다."
+                    },
+                    multiframe: {
+                        title: "📐 멀티 프레임 ICO",
+                        desc: "하나의 ICO 파일에 여러 해상도의 아이콘을 담을 수 있습니다. 프레임 추가, 삭제, 복제, 순서 변경이 자유롭습니다."
+                    },
+                    formats: {
+                        title: "📁 다양한 파일 형식",
+                        desc: "ICO, PNG, BMP, WebP, JPG, GIF 파일을 열 수 있습니다. 멀티 프레임 ICO로 저장하거나 PNG, BMP로 내보낼 수 있습니다."
+                    },
+                    transform: {
+                        title: "🔄 이미지 변환",
+                        desc: "뒤집기, 회전(90° 또는 사용자 지정 각도), 프레임 크기 조정, 외부 이미지 삽입을 지원합니다. 모든 작업에 대한 실행취소/다시실행을 지원합니다."
+                    },
+                    color: {
+                        title: "🎨 색상 관리",
+                        desc: "40가지 이상의 색상 팔레트와 최근 사용 색상 기록을 제공합니다. 전경/배경 이중 색상 시스템과 알파 채널 투명도를 완벽히 지원합니다."
+                    },
+                    performance: {
+                        title: "🚀 네이티브 성능",
+                        desc: "세련된 다크 테마의 Windows 네이티브 애플리케이션입니다. 즉시 실행, 설정 불필요, 완전한 포터블 앱입니다."
+                    }
+                },
+                coming: {
+                    title: "지금 다운로드",
+                    desc: "IconEditX는 무료 오픈소스입니다. 지금 사용해 보세요!",
+                    downloadBtn: "GitHub에서 다운로드"
+                },
+                license: {
+                    title: "라이선스 정보",
+                    desc: "IconEditX는 MIT 라이선스로 배포되는 무료 오픈소스 소프트웨어입니다.",
+                    sub: "개인, 교육, 상업적 용도 모두 자유롭게 사용할 수 있습니다."
+                },
+                footer: {
+                    sisterProduct: "자매품:"
+                }
+            }
+        };
+
+        let currentLang = 'en';
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
+        function applyTranslations(lang) {
+            const translations = i18n[lang];
+
+            // Update document title
+            document.title = translations.title;
+            document.documentElement.lang = lang;
+
+            // Update body class for language-specific styles
+            document.body.classList.remove('lang-en', 'lang-ko');
+            document.body.classList.add('lang-' + lang);
+
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const value = getNestedValue(translations, key);
+                if (value) {
+                    el.innerHTML = value;
+                }
+            });
+        }
+
+        function toggleLanguage(lang) {
+            if (lang) {
+                currentLang = lang;
+            } else {
+                currentLang = currentLang === 'en' ? 'ko' : 'en';
+            }
+
+            applyTranslations(currentLang);
+            localStorage.setItem('iconeditx-preferred-lang', currentLang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('iconeditx-preferred-lang') || 'en';
+            currentLang = savedLang;
+            applyTranslations(currentLang);
+        });
+    </script>
+</body>
+</html>
