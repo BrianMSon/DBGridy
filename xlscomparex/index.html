@@ -35,6 +35,8 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://dbgridy.com/xlscomparex/">
     <meta property="og:site_name" content="XlsCompareX">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ko_KR">
     <meta property="og:title" content="XlsCompareX - Excel, CSV, and TSV Compare Tool for Windows">
     <meta property="og:description" content="Compare Excel and delimited text files side by side with synchronized previews and exportable differences.">
     <meta property="og:image" content="https://dbgridy.com/xlscomparex/screenshot.png">
@@ -87,6 +89,23 @@
             background-color: var(--white);
         }
 
+        body.lang-ko {
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body.lang-ko .btn-primary {
+            font-weight: 700;
+            font-size: 1.02rem;
+        }
+
+        body.lang-ko .hero h1,
+        body.lang-ko .hero p,
+        body.lang-ko .card p,
+        body.lang-ko .download-box p,
+        body.lang-ko .license-content p {
+            word-break: keep-all;
+        }
+
         header {
             background-color: var(--gray);
             border-bottom: 1px solid var(--border-color);
@@ -130,6 +149,15 @@
 
         .nav-links a:hover {
             color: var(--primary-color);
+        }
+
+        .lang-switch {
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            cursor: pointer;
         }
 
         .btn-primary {
@@ -345,7 +373,7 @@
                 font-size: 2.5rem;
             }
 
-            .nav-links a:not(.btn-primary) {
+            .nav-links a:not(.lang-switch):not(.btn-primary) {
                 display: none;
             }
 
@@ -355,6 +383,11 @@
 
             .nav-links a {
                 margin-left: 0 !important;
+            }
+
+            .lang-switch {
+                margin: 0;
+                padding: 0.4rem 0.6rem;
             }
 
             .btn-primary {
@@ -375,10 +408,11 @@
             <nav>
                 <a class="logo" href="#"><span class="xls">Xls</span>CompareX</a>
                 <div class="nav-links">
-                    <a href="#features">Features</a>
-                    <a href="#screenshots">Screenshot</a>
-                    <a href="#download">Download</a>
-                    <a href="https://github.com/BrianMSon/XlsCompareX/releases" class="btn-primary">Download</a>
+                    <a href="#features" data-i18n="nav.features">Features</a>
+                    <a href="#screenshots" data-i18n="nav.screenshots">Screenshot</a>
+                    <a href="#download" data-i18n="nav.downloadSection">Download</a>
+                    <a href="#" onclick="toggleLanguage(); return false;" class="lang-switch" data-i18n="nav.langSwitch">한국어</a>
+                    <a href="https://github.com/BrianMSon/XlsCompareX/releases" class="btn-primary" data-i18n="nav.download">Download</a>
                 </div>
             </nav>
         </div>
@@ -387,22 +421,22 @@
     <section class="hero">
         <div class="container">
             <img src="./AppIcon-Preview.png" alt="XlsCompareX Icon" class="hero-icon">
-            <h1>Compare Excel, CSV, and TSV Files<br>Without the Noise</h1>
-            <p>XlsCompareX is a Windows desktop tool for comparing spreadsheet and delimited text files side by side.</p>
-            <p>Open two files, inspect synchronized previews, jump across differences, and export the visible result set to CSV.</p>
+            <h1 data-i18n="hero.title">Compare Excel, CSV, and TSV Files<br>Without the Noise</h1>
+            <p data-i18n="hero.desc1">XlsCompareX is a Windows desktop tool for comparing spreadsheet and delimited text files side by side.</p>
+            <p data-i18n="hero.desc2">Open two files, inspect synchronized previews, jump across differences, and export the visible result set to CSV.</p>
             <div class="hero-actions">
-                <a href="https://github.com/BrianMSon/XlsCompareX/releases" class="btn-primary">Download for Windows</a>
+                <a href="https://github.com/BrianMSon/XlsCompareX/releases" class="btn-primary" data-i18n="hero.downloadBtn">Download for Windows</a>
             </div>
         </div>
     </section>
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">Why XlsCompareX?</h2>
+            <h2 class="section-title" data-i18n="features.title">Why XlsCompareX?</h2>
             <div class="grid">
                 <div class="card">
-                    <h3>Spreadsheet and Delimited File Support</h3>
-                    <p>Compare `.xls`, `.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.csv`, and `.tsv` files from the same interface.</p>
+                    <h3 data-i18n="features.support.title">Spreadsheet and Delimited File Support</h3>
+                    <p data-i18n="features.support.desc">Compare `.xls`, `.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.csv`, and `.tsv` files from the same interface.</p>
                     <div class="tag-list">
                         <span class="tag">XLSX</span>
                         <span class="tag">CSV</span>
@@ -411,28 +445,28 @@
                 </div>
 
                 <div class="card">
-                    <h3>Side-by-Side Preview</h3>
-                    <p>Review `Source` and `Target` together, select preview sheets independently, and keep both views aligned while you inspect cell changes.</p>
+                    <h3 data-i18n="features.preview.title">Side-by-Side Preview</h3>
+                    <p data-i18n="features.preview.desc">Review `Source` and `Target` together, select preview sheets independently, and keep both views aligned while you inspect cell changes.</p>
                 </div>
 
                 <div class="card">
-                    <h3>Fast Difference Review</h3>
-                    <p>Jump from the `Differences` grid to the matching cell, auto-fit both previews, filter visible results, and export the current list to CSV.</p>
+                    <h3 data-i18n="features.diff.title">Fast Difference Review</h3>
+                    <p data-i18n="features.diff.desc">Jump from the `Differences` grid to the matching cell, auto-fit both previews, filter visible results, and export the current list to CSV.</p>
                 </div>
 
                 <div class="card">
-                    <h3>Git Previous Version Compare</h3>
-                    <p>Use `Git Prev` to compare a locally modified file against its previous committed version when the file is already tracked by git.</p>
+                    <h3 data-i18n="features.git.title">Git Previous Version Compare</h3>
+                    <p data-i18n="features.git.desc">Use `Git Prev` to compare a locally modified file against its previous committed version when the file is already tracked by git.</p>
                 </div>
 
                 <div class="card">
-                    <h3>Drag and Drop Workflow</h3>
-                    <p>Drop two files at once to populate `Source` and `Target`, or drag a single file directly onto the preview area to replace one side.</p>
+                    <h3 data-i18n="features.drag.title">Drag and Drop Workflow</h3>
+                    <p data-i18n="features.drag.desc">Drop two files at once to populate `Source` and `Target`, or drag a single file directly onto the preview area to replace one side.</p>
                 </div>
 
                 <div class="card">
-                    <h3>Focused Windows Desktop App</h3>
-                    <p>Built with .NET and WinForms for a lightweight native workflow without browser overhead or cloud dependency.</p>
+                    <h3 data-i18n="features.desktop.title">Focused Windows Desktop App</h3>
+                    <p data-i18n="features.desktop.desc">Built with .NET and WinForms for a lightweight native workflow without browser overhead or cloud dependency.</p>
                 </div>
             </div>
         </div>
@@ -440,10 +474,10 @@
 
     <section id="screenshots" class="screenshot-section">
         <div class="container">
-            <h2 class="section-title">Screenshot</h2>
+            <h2 class="section-title" data-i18n="screenshots.title">Screenshot</h2>
             <div class="screenshot-frame">
                 <img src="./screenshot.png" alt="XlsCompareX main window">
-                <p class="screenshot-label">Review highlighted differences, synchronized previews, and exportable results in one window.</p>
+                <p class="screenshot-label" data-i18n="screenshots.label">Review highlighted differences, synchronized previews, and exportable results in one window.</p>
             </div>
         </div>
     </section>
@@ -451,18 +485,18 @@
     <section id="download" class="download">
         <div class="container">
             <div class="download-box">
-                <h2>Get XlsCompareX</h2>
-                <p>Download the latest release package, extract it, and run `XlsCompareX.exe` on Windows.</p>
-                <a href="https://github.com/BrianMSon/XlsCompareX/releases" class="btn-primary">Open GitHub Releases</a>
+                <h2 data-i18n="download.title">Get XlsCompareX</h2>
+                <p data-i18n="download.desc">Download the latest release package, extract it, and run `XlsCompareX.exe` on Windows.</p>
+                <a href="https://github.com/BrianMSon/XlsCompareX/releases" class="btn-primary" data-i18n="download.button">Open GitHub Releases</a>
             </div>
         </div>
     </section>
 
     <section class="license-info">
         <div class="container">
-            <h2>Current Scope</h2>
+            <h2 data-i18n="scope.title">Current Scope</h2>
             <div class="license-content">
-                <p>XlsCompareX currently compares sheet presence and cell values by address. Formatting comparison and row or column auto-alignment are not included yet.</p>
+                <p data-i18n="scope.desc">XlsCompareX currently compares sheet presence and cell values by address. Formatting comparison and row or column auto-alignment are not included yet.</p>
             </div>
         </div>
     </section>
@@ -480,12 +514,175 @@
             <p>
                 Copyright &copy; 2026 BrianMSon. All Rights Reserved.
                 <br><br>
-                <span style="color: #94a3b8; font-size: 0.8rem;">Sister Products:</span>
+                <span style="color: #94a3b8; font-size: 0.8rem;" data-i18n="footer.sisterProducts">Sister Products:</span>
                 <a href="https://dbgridy.com/" class="button-link" style="margin-left: 0.5rem;">DBGridy</a>
                 <a href="https://dbgridy.com/pdfeditx/" class="button-link" style="border-color: #e74c3c; color: #e74c3c; background-color: #fef2f2;">PDFEditX</a>
                 <a href="https://dbgridy.com/iconeditx/" class="button-link" style="border-color: #6366f1; color: #6366f1; background-color: #eef2ff;">IconEditX</a>
             </p>
         </div>
     </footer>
+
+    <script>
+        const i18n = {
+            en: {
+                title: "XlsCompareX - Excel, CSV, and TSV Compare Tool for Windows",
+                nav: {
+                    features: "Features",
+                    screenshots: "Screenshot",
+                    downloadSection: "Download",
+                    langSwitch: "한국어",
+                    download: "Download"
+                },
+                hero: {
+                    title: "Compare Excel, CSV, and TSV Files<br>Without the Noise",
+                    desc1: "XlsCompareX is a Windows desktop tool for comparing spreadsheet and delimited text files side by side.",
+                    desc2: "Open two files, inspect synchronized previews, jump across differences, and export the visible result set to CSV.",
+                    downloadBtn: "Download for Windows"
+                },
+                features: {
+                    title: "Why XlsCompareX?",
+                    support: {
+                        title: "Spreadsheet and Delimited File Support",
+                        desc: "Compare `.xls`, `.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.csv`, and `.tsv` files from the same interface."
+                    },
+                    preview: {
+                        title: "Side-by-Side Preview",
+                        desc: "Review `Source` and `Target` together, select preview sheets independently, and keep both views aligned while you inspect cell changes."
+                    },
+                    diff: {
+                        title: "Fast Difference Review",
+                        desc: "Jump from the `Differences` grid to the matching cell, auto-fit both previews, filter visible results, and export the current list to CSV."
+                    },
+                    git: {
+                        title: "Git Previous Version Compare",
+                        desc: "Use `Git Prev` to compare a locally modified file against its previous committed version when the file is already tracked by git."
+                    },
+                    drag: {
+                        title: "Drag and Drop Workflow",
+                        desc: "Drop two files at once to populate `Source` and `Target`, or drag a single file directly onto the preview area to replace one side."
+                    },
+                    desktop: {
+                        title: "Focused Windows Desktop App",
+                        desc: "Built with .NET and WinForms for a lightweight native workflow without browser overhead or cloud dependency."
+                    }
+                },
+                screenshots: {
+                    title: "Screenshot",
+                    label: "Review highlighted differences, synchronized previews, and exportable results in one window."
+                },
+                download: {
+                    title: "Get XlsCompareX",
+                    desc: "Download the latest release package, extract it, and run `XlsCompareX.exe` on Windows.",
+                    button: "Open GitHub Releases"
+                },
+                scope: {
+                    title: "Current Scope",
+                    desc: "XlsCompareX currently compares sheet presence and cell values by address. Formatting comparison and row or column auto-alignment are not included yet."
+                },
+                footer: {
+                    sisterProducts: "Sister Products:"
+                }
+            },
+            ko: {
+                title: "XlsCompareX - Windows용 Excel, CSV, TSV 비교 도구",
+                nav: {
+                    features: "주요기능",
+                    screenshots: "스크린샷",
+                    downloadSection: "다운로드",
+                    langSwitch: "English",
+                    download: "다운로드"
+                },
+                hero: {
+                    title: "엑셀, CSV, TSV 파일을<br>간단하게 비교하세요",
+                    desc1: "XlsCompareX는 스프레드시트와 구분자 기반 텍스트 파일을 좌우로 나란히 비교하는 Windows 데스크톱 도구입니다.",
+                    desc2: "두 파일을 열고, 동기화된 미리보기로 차이를 확인하고, 현재 보이는 결과를 CSV로 내보낼 수 있습니다.",
+                    downloadBtn: "Windows용 다운로드"
+                },
+                features: {
+                    title: "왜 XlsCompareX인가요?",
+                    support: {
+                        title: "스프레드시트 및 구분자 파일 지원",
+                        desc: "하나의 인터페이스에서 `.xls`, `.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.csv`, `.tsv` 파일을 비교할 수 있습니다."
+                    },
+                    preview: {
+                        title: "좌우 미리보기 비교",
+                        desc: "`Source`와 `Target`을 함께 확인하고, 양쪽 미리보기 시트를 독립적으로 선택하면서 셀 차이를 비교할 수 있습니다."
+                    },
+                    diff: {
+                        title: "빠른 차이 검토",
+                        desc: "`Differences` 그리드에서 해당 셀로 바로 이동하고, 양쪽 프리뷰를 자동 맞춤하고, 현재 보이는 결과만 필터링해서 CSV로 내보낼 수 있습니다."
+                    },
+                    git: {
+                        title: "Git 이전 버전 비교",
+                        desc: "이미 git에 추적 중인 파일이라면 `Git Prev`로 현재 로컬 수정본과 이전 커밋 버전을 바로 비교할 수 있습니다."
+                    },
+                    drag: {
+                        title: "드래그 앤 드롭 작업 흐름",
+                        desc: "파일 두 개를 한 번에 놓아 `Source`와 `Target`을 채우거나, 프리뷰 영역에 파일 하나를 놓아 한쪽만 바로 교체할 수 있습니다."
+                    },
+                    desktop: {
+                        title: "집중형 Windows 데스크톱 앱",
+                        desc: "브라우저 오버헤드나 클라우드 의존 없이 .NET과 WinForms로 만든 가벼운 네이티브 워크플로를 제공합니다."
+                    }
+                },
+                screenshots: {
+                    title: "스크린샷",
+                    label: "강조된 차이점, 동기화된 프리뷰, CSV로 내보낼 수 있는 결과를 한 화면에서 확인할 수 있습니다."
+                },
+                download: {
+                    title: "XlsCompareX 다운로드",
+                    desc: "최신 릴리스 패키지를 내려받아 압축을 풀고 Windows에서 `XlsCompareX.exe`를 실행하세요.",
+                    button: "GitHub Releases 열기"
+                },
+                scope: {
+                    title: "현재 범위",
+                    desc: "현재 XlsCompareX는 시트 존재 여부와 셀 주소 기준 값 비교를 지원합니다. 서식 비교나 행 또는 열 자동 정렬은 아직 포함되지 않습니다."
+                },
+                footer: {
+                    sisterProducts: "자매품:"
+                }
+            }
+        };
+
+        let currentLang = 'en';
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
+        function applyTranslations(lang) {
+            const translations = i18n[lang];
+            document.title = translations.title;
+            document.documentElement.lang = lang;
+
+            document.body.classList.remove('lang-en', 'lang-ko');
+            document.body.classList.add('lang-' + lang);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const value = getNestedValue(translations, key);
+                if (value) {
+                    el.innerHTML = value;
+                }
+            });
+        }
+
+        function toggleLanguage(lang) {
+            if (lang) {
+                currentLang = lang;
+            } else {
+                currentLang = currentLang === 'en' ? 'ko' : 'en';
+            }
+
+            applyTranslations(currentLang);
+            localStorage.setItem('xlscomparex-preferred-lang', currentLang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('xlscomparex-preferred-lang') || 'en';
+            currentLang = savedLang;
+            applyTranslations(currentLang);
+        });
+    </script>
 </body>
 </html>
