@@ -21,61 +21,61 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IconEditX - Lightweight Icon Editor for Windows</title>
+    <title>CmdDock - Dock CMD, PowerShell & Terminal Windows into One Grid</title>
 
     <link rel="icon" href="https://dbgridy.com/favicon-48.png">
     <link rel="shortcut icon" href="../favicon3.ico">
 
-    <meta name="description" content="IconEditX is a lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support, pixel-perfect drawing tools, and dark theme.">
-    <meta name="keywords" content="Icon Editor, ICO Editor, Icon Editor Windows, Free Icon Editor, Pixel Editor, ICO File Editor, Multi-frame ICO, IconEditX, Open Source Icon Editor">
+    <meta name="description" content="CmdDock is a lightweight Windows utility that docks multiple CMD, PowerShell, Windows Terminal, and Explorer windows into a single resizable grid host.">
+    <meta name="keywords" content="CmdDock, CMD Dock, PowerShell Dock, Windows Terminal Dock, Terminal Multiplexer Windows, Console Grid, Multi-Terminal, Explorer Dock, Window Tiling, Windows Productivity">
     <meta name="author" content="HappySloth">
     <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#6366f1">
-    <link rel="canonical" href="https://dbgridy.com/iconeditx/">
+    <meta name="theme-color" content="#0ea5e9">
+    <link rel="canonical" href="https://dbgridy.com/cmddock/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://dbgridy.com/iconeditx/">
-    <meta property="og:site_name" content="IconEditX">
+    <meta property="og:url" content="https://dbgridy.com/cmddock/">
+    <meta property="og:site_name" content="CmdDock">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ko_KR">
-    <meta property="og:title" content="IconEditX - Lightweight Icon Editor for Windows">
-    <meta property="og:description" content="IconEditX is a lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support.">
-    <meta property="og:image" content="https://dbgridy.com/dbgridy192.png">
+    <meta property="og:title" content="CmdDock - Dock CMD, PowerShell & Terminal Windows into One Grid">
+    <meta property="og:description" content="A lightweight Windows utility that docks multiple CMD, PowerShell, Windows Terminal, and Explorer windows into a single resizable grid host.">
+    <meta property="og:image" content="https://dbgridy.com/cmddock/screenshot-cmddock.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://dbgridy.com/iconeditx/">
-    <meta name="twitter:title" content="IconEditX - Lightweight Icon Editor for Windows">
-    <meta name="twitter:description" content="IconEditX is a lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support.">
-    <meta name="twitter:image" content="https://dbgridy.com/dbgridy192.png">
+    <meta name="twitter:url" content="https://dbgridy.com/cmddock/">
+    <meta name="twitter:title" content="CmdDock - Dock CMD, PowerShell & Terminal Windows into One Grid">
+    <meta name="twitter:description" content="A lightweight Windows utility that docks multiple CMD, PowerShell, Windows Terminal, and Explorer windows into a single resizable grid host.">
+    <meta name="twitter:image" content="https://dbgridy.com/cmddock/screenshot-cmddock.png">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "IconEditX",
+      "name": "CmdDock",
       "operatingSystem": "Windows",
-      "applicationCategory": "DesignApplication",
+      "applicationCategory": "DeveloperApplication",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "A lightweight and fast icon editor for Windows. Create and edit ICO files with multi-frame support and pixel-perfect drawing tools.",
+      "description": "A lightweight Windows utility that docks multiple CMD, PowerShell, Windows Terminal, and Explorer windows into a single resizable grid host.",
       "license": "https://opensource.org/licenses/MIT"
     }
     </script>
 
     <style>
         :root {
-            --primary-color: #6366f1;
-            --secondary-color: #1e293b;
+            --primary-color: #0ea5e9;
+            --secondary-color: #0f172a;
             --text-color: #334155;
             --light-bg: #f8fafc;
             --white: #ffffff;
-            --gray: #eeeeee;
+            --gray: #1e293b;
             --dark-text: #0f172a;
             --border-color: #e2e8f0;
         }
@@ -87,14 +87,14 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--white);
         }
 
         body.lang-ko {
-            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
         }
 
         body.lang-ko .btn-primary {
@@ -132,7 +132,7 @@
         .logo {
             font-size: 1.5rem;
             font-weight: 800;
-            color: var(--dark-text);
+            color: var(--white);
             text-decoration: none;
             cursor: pointer;
         }
@@ -144,7 +144,7 @@
         .nav-links a {
             margin-left: 2rem;
             text-decoration: none;
-            color: var(--text-color);
+            color: #cbd5e1;
             font-weight: 500;
             transition: color 0.2s;
         }
@@ -156,10 +156,11 @@
         .lang-switch {
             margin-left: 2rem;
             font-size: 0.9rem;
-            border: 1px solid var(--border-color);
+            border: 1px solid #475569;
             padding: 0.25rem 0.75rem;
             border-radius: 20px;
             cursor: pointer;
+            color: #cbd5e1;
         }
 
         .btn-primary {
@@ -174,14 +175,14 @@
         }
 
         .btn-primary:hover {
-            background-color: #4f46e5;
+            background-color: #0284c7;
         }
 
         /* Hero Section */
         .hero {
             padding: 6rem 0;
             text-align: center;
-            background: linear-gradient(to bottom, #eef2ff, #ffffff);
+            background: linear-gradient(to bottom, #e0f2fe, #ffffff);
         }
 
         .hero h1 {
@@ -195,7 +196,7 @@
         .hero p {
             font-size: 1.25rem;
             color: #64748b;
-            max-width: 700px;
+            max-width: 720px;
             margin: 0 auto 2.5rem;
         }
 
@@ -255,7 +256,7 @@
         }
 
         .feature-tag {
-            background: #eef2ff;
+            background: #e0f2fe;
             color: var(--primary-color);
             padding: 0.25rem 0.75rem;
             border-radius: 15px;
@@ -263,14 +264,38 @@
             font-weight: 500;
         }
 
-        /* Coming Soon Section */
-        .coming-soon {
+        /* Screenshots Section */
+        .screenshots {
+            padding: 5rem 0;
+        }
+
+        .screenshot-container {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .screenshot-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        .screenshot-label {
+            margin-top: 1rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* Download Section */
+        .download-section {
             padding: 5rem 0;
             text-align: center;
         }
 
-        .coming-soon-box {
-            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        .download-box {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
             border: 2px dashed var(--primary-color);
             border-radius: 16px;
             padding: 4rem 2rem;
@@ -278,14 +303,14 @@
             margin: 0 auto;
         }
 
-        .coming-soon-box h2 {
+        .download-box h2 {
             font-size: 2rem;
             color: var(--primary-color);
             margin-bottom: 1rem;
         }
 
-        .coming-soon-box p {
-            color: #64748b;
+        .download-box p {
+            color: #475569;
             font-size: 1.1rem;
         }
 
@@ -371,7 +396,7 @@
         .button-link:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
-            background-color: #eef2ff;
+            background-color: #e0f2fe;
         }
 
         .buy-coffee-section {
@@ -399,12 +424,13 @@
     <header>
         <div class="container">
             <nav>
-                <a class="logo" href="#"><span class="icon">Icon</span>EditX</a>
+                <a class="logo" href="#"><span class="icon">Cmd</span>Dock</a>
                 <div class="nav-links">
                     <a href="#features" data-i18n="nav.features">Features</a>
+                    <a href="#screenshots" data-i18n="nav.screenshots">Screenshots</a>
                     <a href="#license" data-i18n="nav.license">License</a>
                     <a href="#" onclick="toggleLanguage(); return false;" class="lang-switch" data-i18n="nav.langSwitch">한국어</a>
-                    <a href="https://github.com/BrianMSon/IconEditX/releases" class="btn-primary" data-i18n="nav.download">Download</a>
+                    <a href="https://github.com/BrianMSon/CmdDock/releases" class="btn-primary" data-i18n="nav.download">Download</a>
                 </div>
             </nav>
         </div>
@@ -412,76 +438,84 @@
 
     <section class="hero">
         <div class="container">
-            <div class="hero-icon">🎨</div>
-            <h1 data-i18n="hero.title">Lightweight & Fast<br>Icon Editor</h1>
-            <p data-i18n="hero.desc1">IconEditX — A pixel-perfect icon editor for Windows with multi-frame ICO support.</p>
-            <p data-i18n="hero.desc2">No bloat. No complexity. Just pure icon editing.</p>
-            <p data-i18n="hero.desc3">Create, edit, and export icons with an intuitive dark-themed interface and powerful drawing tools.</p>
-            <a href="https://github.com/BrianMSon/IconEditX/releases" class="btn-primary" data-i18n="hero.downloadBtn">Download Now</a>
+            <div class="hero-icon">🖥️</div>
+            <h1 data-i18n="hero.title">Dock Every Terminal<br>Into One Grid</h1>
+            <p data-i18n="hero.desc1">CmdDock — A lightweight Windows utility that docks CMD, PowerShell, Windows Terminal, and Explorer windows into a single resizable grid host.</p>
+            <p data-i18n="hero.desc2">Stop juggling scattered console windows across your desktop.</p>
+            <p data-i18n="hero.desc3">Lay out a row × column grid, drop any console or Explorer window into a cell, and manage them all from one window.</p>
+            <a href="https://github.com/BrianMSon/CmdDock/releases" class="btn-primary" data-i18n="hero.downloadBtn">Download Now</a>
         </div>
     </section>
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title" data-i18n="features.title">Why IconEditX?</h2>
+            <h2 class="section-title" data-i18n="features.title">Why CmdDock?</h2>
             <div class="grid">
                 <div class="card">
-                    <h3 data-i18n="features.drawing.title">🖌️ Pixel-Perfect Drawing</h3>
-                    <p data-i18n="features.drawing.desc">Pencil, eraser, fill, line, rectangle, ellipse, and text tools. Everything you need for precise pixel-level icon creation.</p>
+                    <h3 data-i18n="features.grid.title">📐 Grid Docking</h3>
+                    <p data-i18n="features.grid.desc">Arrange any number of rows and columns, drag windows over the host, and drop them into cells. Resize live by dragging row/column borders.</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-i18n="features.windows.title">🖥️ Multi-Window Support</h3>
+                    <p data-i18n="features.windows.desc">Dock CMD, PowerShell, Windows Terminal, ConEmu, Git Bash, File Explorer, and any custom .exe / .bat / .lnk.</p>
                     <div class="feature-list">
-                        <span class="feature-tag">Pencil</span>
-                        <span class="feature-tag">Eraser</span>
-                        <span class="feature-tag">Fill</span>
-                        <span class="feature-tag">Line</span>
-                        <span class="feature-tag">Rectangle</span>
-                        <span class="feature-tag">Ellipse</span>
-                        <span class="feature-tag">Text</span>
+                        <span class="feature-tag">cmd</span>
+                        <span class="feature-tag">PowerShell</span>
+                        <span class="feature-tag">Windows Terminal</span>
+                        <span class="feature-tag">ConEmu</span>
+                        <span class="feature-tag">Git Bash</span>
+                        <span class="feature-tag">Explorer</span>
+                        <span class="feature-tag">Custom .exe</span>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3 data-i18n="features.multiframe.title">📐 Multi-Frame ICO</h3>
-                    <p data-i18n="features.multiframe.desc">Create icons with multiple resolutions in a single ICO file. Add, remove, duplicate, and reorder frames with ease.</p>
-                    <div class="feature-list">
-                        <span class="feature-tag">16x16</span>
-                        <span class="feature-tag">32x32</span>
-                        <span class="feature-tag">48x48</span>
-                        <span class="feature-tag">64x64</span>
-                        <span class="feature-tag">128x128</span>
-                        <span class="feature-tag">256x256</span>
-                    </div>
+                    <h3 data-i18n="features.session.title">💾 Multi-Instance Sessions</h3>
+                    <p data-i18n="features.session.desc">Run up to 16 independent instances side by side. Each instance saves its grid layout, cell ratios, dock state, and theme to its own session file — Redock All re-binds matching live windows on restart.</p>
                 </div>
 
                 <div class="card">
-                    <h3 data-i18n="features.formats.title">📁 Multiple Formats</h3>
-                    <p data-i18n="features.formats.desc">Open ICO, PNG, BMP, WebP, JPG, and GIF files. Save as ICO with multi-frame support, or export as PNG and BMP.</p>
+                    <h3 data-i18n="features.explorer.title">📂 Explorer Integration</h3>
+                    <p data-i18n="features.explorer.desc">Launch Explorer directly into a cell at a saved path. /separate launch keeps shell extension overlays (like TortoiseGit) loading cleanly per process.</p>
                 </div>
 
                 <div class="card">
-                    <h3 data-i18n="features.transform.title">🔄 Image Transforms</h3>
-                    <p data-i18n="features.transform.desc">Flip, rotate (90° or custom angle), resize frames, and insert external images. Full undo/redo history for every operation.</p>
+                    <h3 data-i18n="features.cell.title">🎯 Per-Cell Customization</h3>
+                    <p data-i18n="features.cell.desc">Editable cell labels, per-cell custom exe registration, and right-click menu to Launch / Undock / Redock / Reset any cell instantly.</p>
                 </div>
 
                 <div class="card">
-                    <h3 data-i18n="features.color.title">🎨 Color Management</h3>
-                    <p data-i18n="features.color.desc">40+ color palette with recent colors tracking. Foreground/background dual color system with full alpha channel transparency support.</p>
-                </div>
-
-                <div class="card">
-                    <h3 data-i18n="features.performance.title">🚀 Native Performance</h3>
-                    <p data-i18n="features.performance.desc">Built as a native Windows application with a sleek dark theme. Instant startup, zero configuration, fully portable.</p>
+                    <h3 data-i18n="features.theme.title">🎨 Custom Titlebar &amp; Theme</h3>
+                    <p data-i18n="features.theme.desc">Self-drawn dark titlebar and toolbar with no system frame. Tune titlebar, toolbar, and cell colors — persisted with the session.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="coming-soon">
+    <section id="screenshots" class="screenshots">
         <div class="container">
-            <div class="coming-soon-box">
-                <h2 data-i18n="coming.title">Download Now</h2>
-                <p data-i18n="coming.desc">IconEditX is free and open source. Try it today!</p>
+            <h2 class="section-title" data-i18n="screenshots.title">See it in Action</h2>
+
+            <div class="screenshot-container">
+                <img src="screenshot-cmddock.png" alt="CmdDock grid hosting multiple terminals">
+                <p class="screenshot-label" data-i18n="screenshots.main">Grid host with docked CMD, PowerShell, Terminal, and Explorer windows</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="screenshot-cmddock1.png" alt="CmdDock layout example">
+                <p class="screenshot-label" data-i18n="screenshots.alt">Resizable rows and columns — drag borders to relayout live</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="download-section">
+        <div class="container">
+            <div class="download-box">
+                <h2 data-i18n="download.title">Download Now</h2>
+                <p data-i18n="download.desc">CmdDock is free and open source. Fully portable — no installer required.</p>
                 <br>
-                <a href="https://github.com/BrianMSon/IconEditX/releases" class="btn-primary" data-i18n="coming.downloadBtn">Download from GitHub</a>
+                <a href="https://github.com/BrianMSon/CmdDock/releases" class="btn-primary" data-i18n="download.downloadBtn">Download from GitHub</a>
             </div>
         </div>
     </section>
@@ -490,7 +524,7 @@
         <div class="container">
             <h2 data-i18n="license.title">License Information</h2>
             <div class="license-content">
-                <p data-i18n="license.desc">IconEditX is free and open-source software released under the MIT License.</p>
+                <p data-i18n="license.desc">CmdDock is free and open-source software released under the MIT License.</p>
                 <br>
                 <p class="license-sub" data-i18n="license.sub">Use it freely for personal, educational, or commercial purposes.</p>
             </div>
@@ -513,8 +547,8 @@
                 <span style="color: #94a3b8; font-size: 0.8rem;" data-i18n="footer.sisterProduct">Sister Products:</span>
                 <a href="https://dbgridy.com/" class="button-link" style="margin-left: 0.5rem;">DBGridy</a>
                 <a href="https://dbgridy.com/pdfeditx/" class="button-link" style="border-color: #e74c3c; color: #e74c3c; background-color: #fef2f2;">PDFEditX</a>
+                <a href="https://dbgridy.com/iconeditx/" class="button-link" style="border-color: #6366f1; color: #6366f1; background-color: #eef2ff;">IconEditX</a>
                 <a href="https://dbgridy.com/xlscomparex/" class="button-link" style="border-color: #217346; color: #217346; background-color: #edf7f0;">XlsCompareX</a>
-                <a href="https://dbgridy.com/cmddock/" class="button-link" style="border-color: #0ea5e9; color: #0ea5e9; background-color: #e0f2fe;">CmdDock</a>
             </p>
         </div>
     </footer>
@@ -522,55 +556,61 @@
     <script>
         const i18n = {
             en: {
-                title: "IconEditX - Lightweight Icon Editor for Windows",
+                title: "CmdDock - Dock CMD, PowerShell & Terminal Windows into One Grid",
                 nav: {
                     features: "Features",
+                    screenshots: "Screenshots",
                     license: "License",
                     langSwitch: "한국어",
                     download: "Download"
                 },
                 hero: {
-                    title: "Lightweight & Fast<br>Icon Editor",
-                    desc1: "IconEditX — A pixel-perfect icon editor for Windows with multi-frame ICO support.",
-                    desc2: "No bloat. No complexity. Just pure icon editing.",
-                    desc3: "Create, edit, and export icons with an intuitive dark-themed interface and powerful drawing tools.",
+                    title: "Dock Every Terminal<br>Into One Grid",
+                    desc1: "CmdDock — A lightweight Windows utility that docks CMD, PowerShell, Windows Terminal, and Explorer windows into a single resizable grid host.",
+                    desc2: "Stop juggling scattered console windows across your desktop.",
+                    desc3: "Lay out a row × column grid, drop any console or Explorer window into a cell, and manage them all from one window.",
                     downloadBtn: "Download Now"
                 },
                 features: {
-                    title: "Why IconEditX?",
-                    drawing: {
-                        title: "🖌️ Pixel-Perfect Drawing",
-                        desc: "Pencil, eraser, fill, line, rectangle, ellipse, and text tools. Everything you need for precise pixel-level icon creation."
+                    title: "Why CmdDock?",
+                    grid: {
+                        title: "📐 Grid Docking",
+                        desc: "Arrange any number of rows and columns, drag windows over the host, and drop them into cells. Resize live by dragging row/column borders."
                     },
-                    multiframe: {
-                        title: "📐 Multi-Frame ICO",
-                        desc: "Create icons with multiple resolutions in a single ICO file. Add, remove, duplicate, and reorder frames with ease."
+                    windows: {
+                        title: "🖥️ Multi-Window Support",
+                        desc: "Dock CMD, PowerShell, Windows Terminal, ConEmu, Git Bash, File Explorer, and any custom .exe / .bat / .lnk."
                     },
-                    formats: {
-                        title: "📁 Multiple Formats",
-                        desc: "Open ICO, PNG, BMP, WebP, JPG, and GIF files. Save as ICO with multi-frame support, or export as PNG and BMP."
+                    session: {
+                        title: "💾 Multi-Instance Sessions",
+                        desc: "Run up to 16 independent instances side by side. Each instance saves its grid layout, cell ratios, dock state, and theme to its own session file — Redock All re-binds matching live windows on restart."
                     },
-                    transform: {
-                        title: "🔄 Image Transforms",
-                        desc: "Flip, rotate (90° or custom angle), resize frames, and insert external images. Full undo/redo history for every operation."
+                    explorer: {
+                        title: "📂 Explorer Integration",
+                        desc: "Launch Explorer directly into a cell at a saved path. /separate launch keeps shell extension overlays (like TortoiseGit) loading cleanly per process."
                     },
-                    color: {
-                        title: "🎨 Color Management",
-                        desc: "40+ color palette with recent colors tracking. Foreground/background dual color system with full alpha channel transparency support."
+                    cell: {
+                        title: "🎯 Per-Cell Customization",
+                        desc: "Editable cell labels, per-cell custom exe registration, and right-click menu to Launch / Undock / Redock / Reset any cell instantly."
                     },
-                    performance: {
-                        title: "🚀 Native Performance",
-                        desc: "Built as a native Windows application with a sleek dark theme. Instant startup, zero configuration, fully portable."
+                    theme: {
+                        title: "🎨 Custom Titlebar & Theme",
+                        desc: "Self-drawn dark titlebar and toolbar with no system frame. Tune titlebar, toolbar, and cell colors — persisted with the session."
                     }
                 },
-                coming: {
+                screenshots: {
+                    title: "See it in Action",
+                    main: "Grid host with docked CMD, PowerShell, Terminal, and Explorer windows",
+                    alt: "Resizable rows and columns — drag borders to relayout live"
+                },
+                download: {
                     title: "Download Now",
-                    desc: "IconEditX is free and open source. Try it today!",
+                    desc: "CmdDock is free and open source. Fully portable — no installer required.",
                     downloadBtn: "Download from GitHub"
                 },
                 license: {
                     title: "License Information",
-                    desc: "IconEditX is free and open-source software released under the MIT License.",
+                    desc: "CmdDock is free and open-source software released under the MIT License.",
                     sub: "Use it freely for personal, educational, or commercial purposes."
                 },
                 footer: {
@@ -578,55 +618,61 @@
                 }
             },
             ko: {
-                title: "IconEditX - 가볍고 빠른 Windows용 아이콘 편집기",
+                title: "CmdDock - CMD, PowerShell, 터미널을 하나의 그리드로 도킹",
                 nav: {
                     features: "주요기능",
+                    screenshots: "스크린샷",
                     license: "라이선스",
                     langSwitch: "English",
                     download: "다운로드"
                 },
                 hero: {
-                    title: "가볍고 빠른<br>아이콘 편집기",
-                    desc1: "IconEditX — 멀티 프레임 ICO를 지원하는 픽셀 단위 아이콘 편집기입니다.",
-                    desc2: "불필요한 기능 없음. 복잡함 없음. 순수한 아이콘 편집 기능만.",
-                    desc3: "직관적인 다크 테마 인터페이스와 강력한 드로잉 도구로 아이콘을 만들고 편집하세요.",
+                    title: "모든 터미널을<br>하나의 그리드로",
+                    desc1: "CmdDock — CMD, PowerShell, Windows Terminal, 탐색기 창을 하나의 크기 조절 가능한 그리드 호스트에 도킹하는 가벼운 Windows 유틸리티입니다.",
+                    desc2: "여기저기 흩어진 콘솔 창들과 씨름하지 마세요.",
+                    desc3: "행 × 열 그리드를 구성하고, 콘솔이나 탐색기 창을 셀에 떨어뜨려서 한 창에서 모두 관리하세요.",
                     downloadBtn: "지금 다운로드"
                 },
                 features: {
-                    title: "왜 IconEditX인가요?",
-                    drawing: {
-                        title: "🖌️ 픽셀 단위 드로잉",
-                        desc: "연필, 지우개, 채우기, 선, 사각형, 타원, 텍스트 도구를 제공합니다. 정밀한 픽셀 수준의 아이콘 제작에 필요한 모든 것을 갖추고 있습니다."
+                    title: "왜 CmdDock인가요?",
+                    grid: {
+                        title: "📐 그리드 도킹",
+                        desc: "원하는 만큼 행과 열을 배치하고, 창을 호스트 위로 드래그하여 셀에 떨어뜨리세요. 행/열 경계를 드래그해 실시간으로 크기를 조절할 수 있습니다."
                     },
-                    multiframe: {
-                        title: "📐 멀티 프레임 ICO",
-                        desc: "하나의 ICO 파일에 여러 해상도의 아이콘을 담을 수 있습니다. 프레임 추가, 삭제, 복제, 순서 변경이 자유롭습니다."
+                    windows: {
+                        title: "🖥️ 다양한 창 지원",
+                        desc: "CMD, PowerShell, Windows Terminal, ConEmu, Git Bash, 파일 탐색기, 그리고 어떤 사용자 지정 .exe / .bat / .lnk도 도킹할 수 있습니다."
                     },
-                    formats: {
-                        title: "📁 다양한 파일 형식",
-                        desc: "ICO, PNG, BMP, WebP, JPG, GIF 파일을 열 수 있습니다. 멀티 프레임 ICO로 저장하거나 PNG, BMP로 내보낼 수 있습니다."
+                    session: {
+                        title: "💾 멀티 인스턴스 세션",
+                        desc: "최대 16개의 독립 인스턴스를 나란히 실행할 수 있습니다. 각 인스턴스는 그리드 레이아웃, 셀 비율, 도킹 상태, 테마를 고유 세션 파일에 저장하며, Redock All로 살아 있는 창을 재시작 후 다시 도킹합니다."
                     },
-                    transform: {
-                        title: "🔄 이미지 변환",
-                        desc: "뒤집기, 회전(90° 또는 사용자 지정 각도), 프레임 크기 조정, 외부 이미지 삽입을 지원합니다. 모든 작업에 대한 실행취소/다시실행을 지원합니다."
+                    explorer: {
+                        title: "📂 탐색기 통합",
+                        desc: "저장된 경로로 탐색기를 셀에 바로 실행합니다. /separate 실행으로 TortoiseGit 같은 셸 확장 오버레이가 프로세스마다 깨끗하게 로드됩니다."
                     },
-                    color: {
-                        title: "🎨 색상 관리",
-                        desc: "40가지 이상의 색상 팔레트와 최근 사용 색상 기록을 제공합니다. 전경/배경 이중 색상 시스템과 알파 채널 투명도를 완벽히 지원합니다."
+                    cell: {
+                        title: "🎯 셀 단위 커스터마이징",
+                        desc: "셀 레이블 편집, 셀별 사용자 exe 등록, 우클릭 메뉴로 실행/도킹 해제/재도킹/리셋을 즉시 수행할 수 있습니다."
                     },
-                    performance: {
-                        title: "🚀 네이티브 성능",
-                        desc: "세련된 다크 테마의 Windows 네이티브 애플리케이션입니다. 즉시 실행, 설정 불필요, 완전한 포터블 앱입니다."
+                    theme: {
+                        title: "🎨 커스텀 타이틀바 & 테마",
+                        desc: "시스템 프레임 없이 다크 타이틀바와 툴바를 직접 그립니다. 타이틀바, 툴바, 셀 색상을 자유롭게 조정하고 세션에 함께 저장됩니다."
                     }
                 },
-                coming: {
+                screenshots: {
+                    title: "실제 사용 화면",
+                    main: "CMD, PowerShell, 터미널, 탐색기가 도킹된 그리드 호스트",
+                    alt: "크기 조절 가능한 행/열 — 경계를 드래그해 실시간으로 재배치"
+                },
+                download: {
                     title: "지금 다운로드",
-                    desc: "IconEditX는 무료 오픈소스입니다. 지금 사용해 보세요!",
+                    desc: "CmdDock는 무료 오픈소스이며, 설치 프로그램이 필요 없는 완전한 포터블 앱입니다.",
                     downloadBtn: "GitHub에서 다운로드"
                 },
                 license: {
                     title: "라이선스 정보",
-                    desc: "IconEditX는 MIT 라이선스로 배포되는 무료 오픈소스 소프트웨어입니다.",
+                    desc: "CmdDock는 MIT 라이선스로 배포되는 무료 오픈소스 소프트웨어입니다.",
                     sub: "개인, 교육, 상업적 용도 모두 자유롭게 사용할 수 있습니다."
                 },
                 footer: {
@@ -670,11 +716,11 @@
             }
 
             applyTranslations(currentLang);
-            localStorage.setItem('iconeditx-preferred-lang', currentLang);
+            localStorage.setItem('cmddock-preferred-lang', currentLang);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('iconeditx-preferred-lang') || 'en';
+            const savedLang = localStorage.getItem('cmddock-preferred-lang') || 'en';
             currentLang = savedLang;
             applyTranslations(currentLang);
         });
