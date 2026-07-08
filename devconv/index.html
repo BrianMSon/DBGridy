@@ -1,0 +1,3583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개발자 변환 도구</title>
+<style>
+:root {
+  --font-sans: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
+  --text: #202426;
+  --muted: #647077;
+  --bg: #f5f7f8;
+  --panel: #ffffff;
+  --line: #d9e0e4;
+  --line-strong: #b8c3ca;
+  --accent: #0f766e;
+  --accent-dark: #0b5f59;
+  --blue: #2563eb;
+  --amber: #a16207;
+  --red: #b91c1c;
+  --shadow: 0 12px 30px rgba(22, 34, 39, 0.08);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+}
+button, input, textarea, select {
+  font: inherit;
+}
+button {
+  border: 0;
+  cursor: pointer;
+}
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 0 clamp(12px, 3vw, 28px);
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(22, 34, 39, 0.06);
+}
+.app-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0 36%, var(--blue) 36% 68%, var(--amber) 68% 100%);
+}
+.header-inner {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(240px, 460px) auto;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+  max-width: 1920px;
+  min-height: 58px;
+  margin: 0 auto;
+  padding: 8px 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #113f3b;
+  border-radius: 8px;
+  background: #102321;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: inset 0 -4px 0 rgba(15, 118, 110, 0.45);
+}
+.brand-text {
+  min-width: 0;
+}
+.title-wrap h1 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+.title-wrap p {
+  margin: 1px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.brand-kicker {
+  display: block;
+  margin: 0;
+  color: var(--accent-dark);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.search-wrap {
+  position: relative;
+}
+.search-wrap::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--muted);
+  border-radius: 50%;
+  transform: translateY(-58%);
+  pointer-events: none;
+}
+.search-wrap::after {
+  content: "";
+  position: absolute;
+  left: 25px;
+  top: 22px;
+  width: 7px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.search {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px 0 34px;
+  background: #f9fbfb;
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.lang-toggle {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 40px);
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2px;
+  background: #f7faf9;
+}
+.lang-btn {
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 18px;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 20px clamp(14px, 2vw, 34px) 38px;
+}
+.side {
+  position: sticky;
+  top: 74px;
+  align-self: start;
+  display: grid;
+  gap: 4px;
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  text-align: left;
+}
+.nav-btn:hover, .nav-btn.active {
+  border-color: var(--line);
+  background: #fff;
+}
+.nav-btn span:last-child {
+  color: var(--muted);
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+.main {
+  min-width: 0;
+}
+.category {
+  margin-bottom: 26px;
+  scroll-margin-top: 82px;
+}
+.quick-panel {
+  margin-bottom: 18px;
+}
+.quick-panel.hidden {
+  display: none;
+}
+.recent-panel h2 {
+  color: var(--accent-dark);
+}
+.recent-panel .tool-jumps {
+  border-color: var(--accent);
+  background: #f2fbf9;
+}
+.quick-panel-head,
+.category-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 10px;
+  padding: 0 2px;
+}
+.quick-panel h2,
+.category h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.3;
+}
+.quick-panel-count,
+.category-count {
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.quick-panel-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quick-toggle-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.quick-toggle-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+.quick-panel.collapsed .tool-jumps {
+  display: none;
+}
+.tool-jumps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.tool-jump-btn {
+  min-height: 30px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #f4f7f8;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.recent-tool-chip {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+}
+.recent-tool-chip .tool-jump-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.recent-remove-btn {
+  min-width: 30px;
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+  background: #fff;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.recent-remove-btn:hover {
+  border-color: var(--accent);
+  background: #eef6f5;
+  color: var(--red);
+}
+.tool-jump-btn:hover {
+  border-color: var(--accent);
+  background: #eef6f5;
+  color: var(--accent-dark);
+}
+.tool-jump-btn.hidden {
+  display: none;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+.tool-card {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-width: 0;
+  scroll-margin-top: 84px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.tool-card.hidden, .category.hidden {
+  display: none;
+}
+.tool-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tool-title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+.tool-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.tag {
+  border-radius: 999px;
+  padding: 1px 7px 2px;
+  background: #eef6f5;
+  color: var(--accent-dark);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.field.wide {
+  grid-column: 1 / -1;
+}
+.field.check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+}
+.field label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.field.check label {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+textarea, input, select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  outline: 0;
+}
+textarea:focus, input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.13);
+}
+textarea {
+  min-height: 124px;
+  max-height: 320px;
+  overflow-y: auto;
+  resize: vertical;
+  padding: 11px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+input, select {
+  min-height: 38px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+}
+input[type="color"] {
+  padding: 2px;
+  height: 36px;
+}
+input[type="file"] {
+  padding: 6px 8px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn {
+  min-height: 36px;
+  border-radius: 6px;
+  padding: 0 13px;
+  background: #e9eef0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn.primary:hover {
+  background: var(--accent-dark);
+}
+.btn:hover {
+  filter: brightness(0.97);
+}
+.result-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+.result-search {
+  min-height: 34px;
+}
+.result-match-count {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.output {
+  min-height: 124px;
+  max-height: none;
+  overflow-y: hidden;
+  background: #fbfcfc;
+}
+.result-highlight {
+  display: none;
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 11px;
+  background: #fffdf4;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.result-highlight.on {
+  display: block;
+}
+.preview {
+  display: none;
+  min-height: 34px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 8px;
+  padding: 8px;
+  overflow: auto;
+  background: #fbfcfc;
+}
+.preview.on {
+  display: block;
+}
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 8px;
+}
+.swatch {
+  min-height: 66px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  display: grid;
+  align-content: end;
+  overflow: hidden;
+}
+.swatch span {
+  display: block;
+  padding: 3px 5px;
+  background: rgba(255,255,255,0.88);
+  color: #111;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.noise-meter {
+  display: grid;
+  gap: 10px;
+}
+.noise-meter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.noise-meter-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+.noise-meter-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+.noise-meter-bar {
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e9eef0;
+}
+.noise-meter-bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 0.08s linear, background 0.08s linear;
+}
+.noise-meter-graph {
+  width: 100%;
+  height: 100px;
+  display: block;
+  border-radius: 10px;
+  background: #f4f7f8;
+  border: 1px solid #dde4e6;
+}
+.noise-meter-graph-cap {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.noise-meter-scale {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.noise-meter-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.mini-table th, .mini-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 5px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+.mini-table th {
+  color: var(--muted);
+  font-size: 11px;
+}
+.diff-table td:first-child {
+  width: 38px;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+.diff-add td {
+  background: #ecfdf5;
+}
+.diff-del td {
+  background: #fef2f2;
+}
+.diff-same td {
+  background: #fbfcfc;
+}
+.match {
+  border-radius: 3px;
+  background: #fff3bf;
+  color: #312700;
+}
+.toast {
+  position: fixed;
+  right: 16px;
+  bottom: 72px;
+  z-index: 20;
+  max-width: min(420px, calc(100vw - 32px));
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #1f2933;
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.toast.on {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast.error {
+  background: var(--red);
+}
+.top-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 19;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--accent-dark);
+  box-shadow: 0 12px 28px rgba(22, 34, 39, 0.16);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+.top-btn.on {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.top-btn:hover {
+  background: #eef6f5;
+}
+.top-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+}
+.muted {
+  color: var(--muted);
+}
+@media (max-width: 1120px) {
+  .header-inner {
+    grid-template-columns: minmax(230px, 1fr) minmax(220px, 380px) auto;
+  }
+  .tools-grid {
+    gap: 14px;
+  }
+  .tool-card {
+    padding: 14px;
+  }
+}
+@media (max-width: 760px) {
+  .app-header {
+    position: static;
+    padding: 0 14px;
+  }
+  .header-inner {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    min-height: 0;
+    padding: 10px 0;
+  }
+  .brand {
+    align-items: flex-start;
+  }
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+  .title-wrap p {
+    white-space: normal;
+  }
+  .header-actions {
+    justify-content: flex-start;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+    padding-top: 12px;
+  }
+  .side {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fields {
+    grid-template-columns: 1fr;
+  }
+  .category {
+    scroll-margin-top: 12px;
+  }
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">DC</div>
+      <div class="title-wrap brand-text">
+        <span class="brand-kicker">Dev Conv</span>
+        <h1>개발자 변환</h1>
+        <p>인코딩, 날짜, 해시, 텍스트, 네트워크, 색상, 코드 도구</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input id="toolSearch" class="search" type="search" placeholder="도구 검색">
+    </div>
+    <div class="header-actions">
+      <div id="languageToggle" class="lang-toggle" role="group" aria-label="언어 선택">
+        <button id="langKo" class="lang-btn" type="button" data-lang="ko">KO</button>
+        <button id="langEn" class="lang-btn" type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sideNav" class="side" aria-label="도구 카테고리"></nav>
+  <main id="main" class="main"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<button id="topButton" class="top-btn" type="button" aria-label="맨 위로 이동">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+
+<script>
+"use strict";
+
+const categories = [
+  ["encoding", "인코딩 / 디코딩"],
+  ["datetime", "날짜 / 시간"],
+  ["crypto", "해시 / 암호화"],
+  ["text", "텍스트 변환"],
+  ["number", "숫자 / 진수"],
+  ["network", "네트워크 / 웹"],
+  ["color", "색상"],
+  ["code", "코드 관련"]
+];
+const ALL_CATEGORY = "all";
+const LANG_STORAGE_KEY = "devconv.lang";
+const RECENT_STORAGE_KEY = "devconv.recent";
+const QUICK_COLLAPSE_STORAGE_KEY = "devconv.quickCollapsed";
+const MAX_RECENT = 8;
+const SUPPORTED_LANGS = new Set(["ko", "en"]);
+
+const I18N = {
+  ko: {
+    documentTitle: "개발자 변환 도구",
+    appTitle: "개발자 변환",
+    appSubtitle: "인코딩, 날짜, 해시, 텍스트, 네트워크, 색상, 코드 도구",
+    searchPlaceholder: "도구 검색",
+    navAria: "도구 카테고리",
+    topAria: "맨 위로 이동",
+    languageAria: "언어 선택",
+    koLabel: "한국어",
+    enLabel: "영어",
+    allTools: "모든 도구",
+    quickPanelTitle: "도구 퀵 버튼",
+    quickPanelAria: "도구 퀵 버튼",
+    quickPanelCollapse: "접기",
+    quickPanelExpand: "펼치기",
+    recentPanelTitle: "최근 사용한 도구",
+    recentPanelAria: "최근 사용한 도구 퀵 버튼",
+    recentRemoveAria: "최근 사용한 도구에서 제거",
+    run: "실행",
+    copy: "결과 복사",
+    clear: "초기화",
+    stop: "정지",
+    remeasure: "재측정",
+    resultPlaceholder: "결과",
+    resultSearchPlaceholder: "결과 검색",
+    resultSearchAria: "결과 텍스트 검색",
+    noCopyResult: "복사할 결과가 없습니다.",
+    copiedResult: "결과를 복사했습니다.",
+    processing: "처리 중...",
+    genericError: "오류가 발생했습니다.",
+    languageChanged: "언어를 한국어로 전환했습니다."
+  },
+  en: {
+    documentTitle: "Developer Conversion Tools",
+    appTitle: "Developer Converter",
+    appSubtitle: "Encoding, dates, hashes, text, network, color, and code tools",
+    searchPlaceholder: "Search tools",
+    navAria: "Tool categories",
+    topAria: "Back to top",
+    languageAria: "Language",
+    koLabel: "Korean",
+    enLabel: "English",
+    allTools: "All Tools",
+    quickPanelTitle: "Tool Shortcuts",
+    quickPanelAria: "Tool shortcuts",
+    quickPanelCollapse: "Collapse",
+    quickPanelExpand: "Expand",
+    recentPanelTitle: "Recently Used",
+    recentPanelAria: "Recently used tool shortcuts",
+    recentRemoveAria: "Remove from recently used",
+    run: "Run",
+    copy: "Copy Result",
+    clear: "Clear",
+    stop: "Stop",
+    remeasure: "Re-measure",
+    resultPlaceholder: "Result",
+    resultSearchPlaceholder: "Search result",
+    resultSearchAria: "Search result text",
+    noCopyResult: "There is no result to copy.",
+    copiedResult: "Result copied.",
+    processing: "Processing...",
+    genericError: "An error occurred.",
+    languageChanged: "Language changed to English."
+  }
+};
+
+const EN_LABELS = {
+  "인코딩 / 디코딩": "Encoding / Decoding",
+  "날짜 / 시간": "Date / Time",
+  "해시 / 암호화": "Hash / Crypto",
+  "텍스트 변환": "Text Conversion",
+  "숫자 / 진수": "Numbers / Radix",
+  "네트워크 / 웹": "Network / Web",
+  "색상": "Color",
+  "코드 관련": "Code",
+  "Base64 인코딩/디코딩": "Base64 Encode/Decode",
+  "URL 인코딩/디코딩": "URL Encode/Decode",
+  "HTML 엔티티 인코딩/디코딩": "HTML Entity Encode/Decode",
+  "Unicode 변환": "Unicode Converter",
+  "Hex 인코딩/디코딩": "Hex Encode/Decode",
+  "Binary 변환": "Binary Converter",
+  "Punycode 변환": "Punycode Converter",
+  "Unix Timestamp 변환": "Unix Timestamp Converter",
+  "타임존 변환": "Time Zone Converter",
+  "날짜 포맷 변환": "Date Format Converter",
+  "날짜 계산": "Date Calculator",
+  "Cron 표현식 해석": "Cron Expression Parser",
+  "MD5 / SHA 해시 생성": "MD5 / SHA Hash Generator",
+  "HMAC 생성": "HMAC Generator",
+  "파일 해시 체크섬 계산": "File Hash Checksum",
+  "bcrypt 해시 생성": "bcrypt Hash Generator",
+  "UUID 생성": "UUID Generator",
+  "랜덤 비밀번호/토큰 생성": "Random Password/Token Generator",
+  "대소문자/케이스 변환": "Case Converter",
+  "JSON 포맷팅 / 압축 / 검사": "JSON Format / Minify / Validate",
+  "JSONPath / jq 테스트": "JSONPath / jq Tester",
+  "JSON Schema 검사": "JSON Schema Validator",
+  "XML / JSON 변환": "XML / JSON Converter",
+  "YAML / JSON 변환": "YAML / JSON Converter",
+  "CSV / JSON 변환": "CSV / JSON Converter",
+  "Markdown / HTML 변환": "Markdown / HTML Converter",
+  "줄바꿈 변환": "Line Ending Converter",
+  "문자 수 / 바이트 수 / 줄 수": "Character / Byte / Line Count",
+  "중복 줄 제거": "Remove Duplicate Lines",
+  "줄 정렬": "Sort Lines",
+  "Diff 도구": "Diff Tool",
+  "진수 변환": "Radix Converter",
+  "숫자 포맷": "Number Format",
+  "파일 크기 단위 변환": "File Size Converter",
+  "길이 단위 변환": "Length Unit Converter",
+  "온도 단위 변환": "Temperature Converter",
+  "데이터 속도 단위 변환": "Data Rate Converter",
+  "소음(데시벨) 측정기": "Noise (Decibel) Meter",
+  "IP 주소 정보 조회": "IP Address Lookup",
+  "URL 파서": "URL Parser",
+  "IP / 정수 변환": "IP / Integer Converter",
+  "서브넷 마스크 계산": "Subnet Calculator",
+  "MAC 주소 포맷 변환": "MAC Address Formatter",
+  "DNS 조회": "DNS Lookup",
+  "JWT 디코딩": "JWT Decode",
+  "HTTP 상태 코드 설명": "HTTP Status Code Description",
+  "HTTP Header 파서": "HTTP Header Parser",
+  "User-Agent 파싱": "User-Agent Parser",
+  "HEX / RGB / HSL 변환": "HEX / RGB / HSL Converter",
+  "색상 팔레트 생성": "Color Palette Generator",
+  "색상 대비 비율 계산": "Color Contrast Ratio",
+  "CSS 색상명 / HEX 변환": "CSS Color Name / HEX Converter",
+  "정규식 테스터": "Regex Tester",
+  "JWT 인코딩/디코딩": "JWT Encode/Decode",
+  "SQL 포맷팅": "SQL Formatter",
+  "HTML/CSS/JS 압축": "HTML/CSS/JS Minifier",
+  "이미지 Base64 변환": "Image Base64 Converter",
+  "QR코드 생성": "QR Code Generator",
+  "바코드 생성": "Barcode Generator",
+  "입력": "Input",
+  "작업": "Operation",
+  "공백": "Space",
+  "도메인": "Domain",
+  "단위": "Unit",
+  "날짜 입력": "Date Input",
+  "날짜/시간": "Date/Time",
+  "날짜": "Date",
+  "출력 포맷": "Output Format",
+  "시작일": "Start Date",
+  "종료일": "End Date",
+  "시작일에 더할 일수": "Days to Add to Start Date",
+  "다음 실행 수": "Next Run Count",
+  "알고리즘": "Algorithm",
+  "메시지": "Message",
+  "비밀키": "Secret Key",
+  "파일": "File",
+  "비밀번호": "Password",
+  "버전": "Version",
+  "개수": "Count",
+  "종류": "Type",
+  "길이": "Length",
+  "대문자": "Uppercase",
+  "소문자": "Lowercase",
+  "숫자": "Numbers",
+  "특수문자": "Symbols",
+  "출력": "Output",
+  "루트명": "Root Name",
+  "앞뒤 공백 무시": "Ignore surrounding spaces",
+  "순서": "Order",
+  "숫자 정렬": "Numeric sort",
+  "값": "Value",
+  "입력 진수": "Input Base",
+  "기준": "Base",
+  "보정 오프셋(dB)": "Calibration Offset (dB)",
+  "IP 주소": "IP Address",
+  "IPv4 또는 정수": "IPv4 or Integer",
+  "상태 코드": "Status Code",
+  "기준 색상": "Base Color",
+  "전경색": "Foreground",
+  "배경색": "Background",
+  "색상명 또는 HEX": "Color name or HEX",
+  "패턴": "Pattern",
+  "플래그": "Flags",
+  "테스트 텍스트": "Test Text",
+  "코드": "Code",
+  "데이터": "Data",
+  "데이터 URI": "Data URI",
+  "크기": "Size",
+  "형식": "Format",
+  "경로": "Path",
+  "왼쪽": "Left",
+  "오른쪽": "Right",
+  "치환": "Replacement",
+  "스키마": "Schema",
+  "URL": "URL",
+  "헤더": "Header",
+  "레코드": "Record",
+  "인코딩": "Encode",
+  "디코딩": "Decode",
+  "파일 -> Data URI": "File -> Data URI",
+  "Data URI -> 미리보기": "Data URI -> Preview",
+  "Base64 인코딩": "Base64 Encode",
+  "Base64 디코딩": "Base64 Decode",
+  "URL Safe 인코딩": "URL Safe Encode",
+  "URL Safe 디코딩": "URL Safe Decode",
+  "문자 -> \\uXXXX": "Text -> \\uXXXX",
+  "\\uXXXX -> 문자": "\\uXXXX -> Text",
+  "텍스트 -> Hex": "Text -> Hex",
+  "Hex -> 텍스트": "Hex -> Text",
+  "공백 없이 출력": "Output without spaces",
+  "텍스트 -> Binary": "Text -> Binary",
+  "Binary -> 텍스트": "Binary -> Text",
+  "자동 인식": "Auto Detect",
+  "초": "Seconds",
+  "밀리초": "Milliseconds",
+  "Timestamp -> 날짜": "Timestamp -> Date",
+  "날짜 -> Timestamp": "Date -> Timestamp",
+  "5개": "5",
+  "10개": "10",
+  "20개": "20",
+  "Hex 토큰": "Hex Token",
+  "Base64 URL 토큰": "Base64 URL Token",
+  "포맷팅": "Format",
+  "압축": "Minify",
+  "유효성 검사": "Validate",
+  "HTML 태그 제거": "Strip HTML Tags",
+  "오름차순": "Ascending",
+  "내림차순": "Descending",
+  "2진수": "Binary",
+  "8진수": "Octal",
+  "10진수": "Decimal",
+  "16진수": "Hex",
+  "콤마 추가": "Add commas",
+  "콤마 제거": "Remove commas",
+  "IP -> 정수": "IP -> Integer",
+  "정수 -> IP": "Integer -> IP",
+  "색상": "Color",
+  "마이크": "Microphone",
+  "텍스트 또는 Base64": "Text or Base64",
+  "https://example.com/a b?x=한글": "https://example.com/a b?x=korean",
+  "ABC 한글": "ABC Korean",
+  "예: 한글.com 또는 xn--bj0bj06e.com": "e.g. hangul.com or xn--bj0bj06e.com",
+  "# 제목\n\n**bold** and [link](https://example.com)": "# Title\n\n**bold** and [link](https://example.com)",
+  "hello\n한글": "hello\nKorean",
+  "차이": "Diff"
+};
+
+let currentLang = initLanguage();
+
+const tzOptions = [
+  ["UTC-12:00", "-720"], ["UTC-08:00", "-480"], ["UTC-05:00", "-300"],
+  ["UTC", "0"], ["CET UTC+01:00", "60"], ["UTC+05:30", "330"],
+  ["KST UTC+09:00", "540"], ["JST UTC+09:00", "540"], ["AEST UTC+10:00", "600"]
+];
+
+const BARCODE_DEFAULT_DATA = "1234567890";
+const BARCODE_FORMAT_SAMPLES = {
+  EAN13: { sample: "5901234123457", pattern: /^\d{13}$/, koRule: "숫자 13자리", enRule: "13 digits" },
+  UPCA: { sample: "042100005264", pattern: /^\d{12}$/, koRule: "숫자 12자리", enRule: "12 digits" }
+};
+
+const tools = [
+  { id: "base64", category: "encoding", title: "Base64 인코딩/디코딩", tags: ["Base64", "URL Safe"], fields: [
+    area("input", "입력", "텍스트 또는 Base64"),
+    select("mode", "작업", [["Base64 인코딩","b64enc"],["Base64 디코딩","b64dec"],["URL Safe 인코딩","b64uenc"],["URL Safe 디코딩","b64udec"]], "b64enc")
+  ]},
+  { id: "url", category: "encoding", title: "URL 인코딩/디코딩", tags: ["%20", "+"], fields: [
+    area("input", "입력", "https://example.com/a b?x=한글"),
+    select("mode", "작업", [["인코딩","enc"],["디코딩","dec"]], "enc"),
+    select("space", "공백", [["%20","%20"],["+","plus"]], "%20")
+  ]},
+  { id: "htmlEntity", category: "encoding", title: "HTML 엔티티 인코딩/디코딩", tags: ["&amp;", "&"], fields: [
+    area("input", "입력", "<div class=\"x\">A & B</div>"),
+    select("mode", "작업", [["인코딩","enc"],["디코딩","dec"]], "enc")
+  ]},
+  { id: "unicode", category: "encoding", title: "Unicode 변환", tags: ["\\u0041", "A"], fields: [
+    area("input", "입력", "ABC 한글"),
+    select("mode", "작업", [["문자 -> \\uXXXX","enc"],["\\uXXXX -> 문자","dec"]], "enc")
+  ]},
+  { id: "hex", category: "encoding", title: "Hex 인코딩/디코딩", tags: ["UTF-8", "HEX"], fields: [
+    area("input", "입력", "Hello"),
+    select("mode", "작업", [["텍스트 -> Hex","enc"],["Hex -> 텍스트","dec"]], "enc"),
+    checkbox("compact", "공백 없이 출력", true)
+  ]},
+  { id: "binary", category: "encoding", title: "Binary 변환", tags: ["2진수"], fields: [
+    area("input", "입력", "Hi"),
+    select("mode", "작업", [["텍스트 -> Binary","enc"],["Binary -> 텍스트","dec"]], "enc")
+  ]},
+  { id: "punycode", category: "encoding", title: "Punycode 변환", tags: ["IDN", "도메인"], fields: [
+    input("domain", "도메인", "예: 한글.com 또는 xn--bj0bj06e.com"),
+    select("mode", "작업", [["Unicode -> Punycode","enc"],["Punycode -> Unicode","dec"]], "enc")
+  ]},
+  { id: "imageBase64", category: "encoding", title: "이미지 Base64 변환", tags: ["Data URI", "Image"], fields: [
+    file("file", "파일"),
+    area("dataUri", "데이터 URI", "data:image/png;base64,..."),
+    select("mode", "작업", [["파일 -> Data URI","fileToData"],["Data URI -> 미리보기","dataToPreview"]], "fileToData")
+  ]},
+
+  { id: "timestamp", category: "datetime", title: "Unix Timestamp 변환", tags: ["초", "밀리초"], fields: [
+    input("value", "Timestamp", String(Math.floor(Date.now() / 1000))),
+    select("unit", "단위", [["자동 인식","auto"],["초","s"],["밀리초","ms"]], "auto"),
+    input("dateText", "날짜 입력", "2024-01-01 09:00:00"),
+    select("mode", "작업", [["Timestamp -> 날짜","toDate"],["날짜 -> Timestamp","toTs"]], "toDate")
+  ]},
+  { id: "timezone", category: "datetime", title: "타임존 변환", tags: ["UTC", "KST"], fields: [
+    input("dateText", "날짜/시간", "2024-01-01 09:00:00"),
+    select("from", "From", tzOptions, "0"),
+    select("to", "To", tzOptions, "540")
+  ]},
+  { id: "dateFormat", category: "datetime", title: "날짜 포맷 변환", tags: ["YYYY-MM-DD"], fields: [
+    input("dateText", "날짜", "2024-01-01 09:05:07"),
+    select("format", "출력 포맷", [["YYYY-MM-DD","YYYY-MM-DD"],["YYYY/MM/DD","YYYY/MM/DD"],["MM/DD/YYYY","MM/DD/YYYY"],["DD/MM/YYYY","DD/MM/YYYY"],["YYYY.MM.DD HH:mm:ss","YYYY.MM.DD HH:mm:ss"],["ISO 8601","ISO"]], "MM/DD/YYYY")
+  ]},
+  { id: "dateDiff", category: "datetime", title: "날짜 계산", tags: ["D-day", "차이"], fields: [
+    input("start", "시작일", "2024-01-01"),
+    input("end", "종료일", "2024-12-31"),
+    input("addDays", "시작일에 더할 일수", "100")
+  ]},
+  { id: "cron", category: "datetime", title: "Cron 표현식 해석", tags: ["0 9 * * 1"], fields: [
+    input("expr", "Cron", "0 9 * * 1"),
+    select("count", "다음 실행 수", [["5개","5"],["10개","10"],["20개","20"]], "5"),
+    select("tz", "타임존", tzOptions, "540")
+  ]},
+
+  { id: "hashText", category: "crypto", title: "MD5 / SHA 해시 생성", tags: ["MD5", "SHA"], fields: [
+    area("input", "입력", "hello"),
+    select("alg", "알고리즘", [["MD5","MD5"],["SHA1","SHA-1"],["SHA256","SHA-256"],["SHA384","SHA-384"],["SHA512","SHA-512"]], "SHA-256")
+  ]},
+  { id: "hmac", category: "crypto", title: "HMAC 생성", tags: ["Secret"], fields: [
+    area("input", "메시지", "message"),
+    input("key", "비밀키", "secret"),
+    select("alg", "알고리즘", [["HMAC-MD5","MD5"],["HMAC-SHA1","SHA-1"],["HMAC-SHA256","SHA-256"],["HMAC-SHA512","SHA-512"]], "SHA-256")
+  ]},
+  { id: "fileHash", category: "crypto", title: "파일 해시 체크섬 계산", tags: ["File"], fields: [
+    file("file", "파일"),
+    select("alg", "알고리즘", [["MD5","MD5"],["SHA1","SHA-1"],["SHA256","SHA-256"],["SHA512","SHA-512"]], "SHA-256")
+  ]},
+  { id: "bcrypt", category: "crypto", title: "bcrypt 해시 생성", tags: ["bcryptjs"], fields: [
+    input("password", "비밀번호", "password"),
+    select("rounds", "Cost", [["8","8"],["10","10"],["12","12"]], "10")
+  ]},
+  { id: "uuid", category: "crypto", title: "UUID 생성", tags: ["v1", "v4", "v7"], fields: [
+    select("version", "버전", [["v1","v1"],["v4","v4"],["v7","v7"]], "v4"),
+    select("count", "개수", [["1","1"],["5","5"],["10","10"]], "5")
+  ]},
+  { id: "random", category: "crypto", title: "랜덤 비밀번호/토큰 생성", tags: ["Password", "Token"], fields: [
+    select("kind", "종류", [["비밀번호","password"],["Hex 토큰","hex"],["Base64 URL 토큰","base64url"]], "password"),
+    input("length", "길이", "32"),
+    checkbox("upper", "대문자", true),
+    checkbox("lower", "소문자", true),
+    checkbox("number", "숫자", true),
+    checkbox("symbol", "특수문자", true)
+  ]},
+
+  { id: "case", category: "text", title: "대소문자/케이스 변환", tags: ["camel", "snake"], fields: [
+    area("input", "입력", "hello world sample_text"),
+    select("target", "출력", [["camelCase","camel"],["snake_case","snake"],["PascalCase","pascal"],["kebab-case","kebab"],["UPPER CASE","upper"],["lower case","lower"],["Title Case","title"]], "camel")
+  ]},
+  { id: "json", category: "text", title: "JSON 포맷팅 / 압축 / 검사", tags: ["JSON"], fields: [
+    area("input", "JSON", "{\"hello\":\"world\",\"n\":1}"),
+    select("mode", "작업", [["포맷팅","format"],["압축","minify"],["유효성 검사","validate"]], "format")
+  ]},
+  { id: "jsonPath", category: "text", title: "JSONPath / jq 테스트", tags: ["JSONPath", "jq"], fields: [
+    area("input", "JSON", "{\"items\":[{\"name\":\"alpha\"},{\"name\":\"beta\"}]}"),
+    input("path", "경로", "$.items[0].name")
+  ]},
+  { id: "jsonSchema", category: "text", title: "JSON Schema 검사", tags: ["Schema", "JSON"], fields: [
+    area("input", "JSON", "{\"name\":\"jinny\",\"count\":3}"),
+    area("schema", "스키마", "{\"type\":\"object\",\"required\":[\"name\"],\"properties\":{\"name\":{\"type\":\"string\"},\"count\":{\"type\":\"number\"}}}")
+  ]},
+  { id: "xmlJson", category: "text", title: "XML / JSON 변환", tags: ["XML"], fields: [
+    area("input", "입력", "<root><name>jinny</name></root>"),
+    select("mode", "작업", [["XML -> JSON","xmlToJson"],["JSON -> XML","jsonToXml"]], "xmlToJson"),
+    input("root", "루트명", "root")
+  ]},
+  { id: "yamlJson", category: "text", title: "YAML / JSON 변환", tags: ["YAML"], fields: [
+    area("input", "입력", "name: jinny\ncount: 3"),
+    select("mode", "작업", [["YAML -> JSON","yamlToJson"],["JSON -> YAML","jsonToYaml"]], "yamlToJson")
+  ]},
+  { id: "csvJson", category: "text", title: "CSV / JSON 변환", tags: ["CSV"], fields: [
+    area("input", "입력", "name,age\njinny,3"),
+    select("mode", "작업", [["CSV -> JSON","csvToJson"],["JSON -> CSV","jsonToCsv"]], "csvToJson")
+  ]},
+  { id: "markdownHtml", category: "text", title: "Markdown / HTML 변환", tags: ["MD"], fields: [
+    area("input", "Markdown", "# 제목\n\n**bold** and [link](https://example.com)"),
+    select("mode", "작업", [["Markdown -> HTML","mdToHtml"],["HTML 태그 제거","htmlToText"]], "mdToHtml")
+  ]},
+  { id: "newline", category: "text", title: "줄바꿈 변환", tags: ["CRLF", "LF"], fields: [
+    area("input", "입력", "a\nb\nc"),
+    select("target", "출력", [["LF","lf"],["CRLF","crlf"],["CR","cr"]], "lf")
+  ]},
+  { id: "counts", category: "text", title: "문자 수 / 바이트 수 / 줄 수", tags: ["Count"], fields: [
+    area("input", "입력", "hello\n한글")
+  ]},
+  { id: "dedupeLines", category: "text", title: "중복 줄 제거", tags: ["Unique"], fields: [
+    area("input", "입력", "b\na\nb\na\nc"),
+    checkbox("trim", "앞뒤 공백 무시", true)
+  ]},
+  { id: "sortLines", category: "text", title: "줄 정렬", tags: ["Sort"], fields: [
+    area("input", "입력", "b\na\nc"),
+    select("order", "순서", [["오름차순","asc"],["내림차순","desc"]], "asc"),
+    checkbox("numeric", "숫자 정렬", false)
+  ]},
+  { id: "diffText", category: "text", title: "Diff 도구", tags: ["Diff"], fields: [
+    area("left", "왼쪽", "alpha\nbeta\ngamma"),
+    area("right", "오른쪽", "alpha\nbeta changed\ngamma"),
+    checkbox("trim", "앞뒤 공백 무시", false)
+  ]},
+
+  { id: "radix", category: "number", title: "진수 변환", tags: ["2", "8", "10", "16"], fields: [
+    input("value", "값", "255"),
+    select("from", "입력 진수", [["2진수","2"],["8진수","8"],["10진수","10"],["16진수","16"]], "10")
+  ]},
+  { id: "numberFormat", category: "number", title: "숫자 포맷", tags: ["1,000"], fields: [
+    input("value", "숫자", "1000000.5"),
+    select("mode", "작업", [["콤마 추가","format"],["콤마 제거","parse"]], "format")
+  ]},
+  { id: "fileSize", category: "number", title: "파일 크기 단위 변환", tags: ["Byte", "GB"], fields: [
+    input("value", "값", "1024"),
+    select("from", "From", [["Byte","B"],["KB","KB"],["MB","MB"],["GB","GB"],["TB","TB"]], "B"),
+    select("to", "To", [["Byte","B"],["KB","KB"],["MB","MB"],["GB","GB"],["TB","TB"]], "KB"),
+    select("base", "기준", [["1024","1024"],["1000","1000"]], "1024")
+  ]},
+  { id: "lengthUnit", category: "number", title: "길이 단위 변환", tags: ["km", "mile"], fields: [
+    input("value", "값", "1"),
+    select("from", "From", [["m","m"],["km","km"],["mile","mile"],["inch","inch"],["ft","ft"],["cm","cm"]], "km"),
+    select("to", "To", [["m","m"],["km","km"],["mile","mile"],["inch","inch"],["ft","ft"],["cm","cm"]], "mile")
+  ]},
+  { id: "temperature", category: "number", title: "온도 단위 변환", tags: ["C", "F", "K"], fields: [
+    input("value", "값", "25"),
+    select("from", "From", [["Celsius","C"],["Fahrenheit","F"],["Kelvin","K"]], "C"),
+    select("to", "To", [["Celsius","C"],["Fahrenheit","F"],["Kelvin","K"]], "F")
+  ]},
+  { id: "dataRate", category: "number", title: "데이터 속도 단위 변환", tags: ["Mbps", "MBps"], fields: [
+    input("value", "값", "100"),
+    select("from", "From", [["bps","bps"],["Kbps","Kbps"],["Mbps","Mbps"],["Gbps","Gbps"],["Bps","Bps"],["KBps","KBps"],["MBps","MBps"],["GBps","GBps"]], "Mbps"),
+    select("to", "To", [["bps","bps"],["Kbps","Kbps"],["Mbps","Mbps"],["Gbps","Gbps"],["Bps","Bps"],["KBps","KBps"],["MBps","MBps"],["GBps","GBps"]], "MBps")
+  ]},
+  { id: "noiseMeter", category: "number", title: "소음(데시벨) 측정기", tags: ["dB", "마이크", "Live"], fields: [
+    input("offset", "보정 오프셋(dB)", "100")
+  ]},
+
+  { id: "ipInfo", category: "network", title: "IP 주소 정보 조회", tags: ["Country", "ISP"], fields: [
+    input("ip", "IP 주소", "8.8.8.8")
+  ]},
+  { id: "urlParser", category: "network", title: "URL 파서", tags: ["URL", "Query"], fields: [
+    input("url", "URL", "https://example.com:8443/path/to/page?foo=1&bar=hello#section")
+  ]},
+  { id: "ipInteger", category: "network", title: "IP / 정수 변환", tags: ["IPv4"], fields: [
+    input("value", "IPv4 또는 정수", "192.168.0.1"),
+    select("mode", "작업", [["IP -> 정수","ipToInt"],["정수 -> IP","intToIp"]], "ipToInt")
+  ]},
+  { id: "subnet", category: "network", title: "서브넷 마스크 계산", tags: ["CIDR"], fields: [
+    input("cidr", "CIDR", "192.168.0.10/24")
+  ]},
+  { id: "mac", category: "network", title: "MAC 주소 포맷 변환", tags: ["MAC"], fields: [
+    input("value", "MAC", "aa:bb:cc:dd:ee:ff"),
+    select("format", "출력", [["AA:BB:CC:DD:EE:FF","colonUpper"],["aa:bb:cc:dd:ee:ff","colonLower"],["AA-BB-CC-DD-EE-FF","dashUpper"],["aabb.ccdd.eeff","cisco"],["AABBCCDDEEFF","plainUpper"],["aabbccddeeff","plainLower"]], "colonUpper")
+  ]},
+  { id: "dns", category: "network", title: "DNS 조회", tags: ["A", "TXT"], fields: [
+    input("name", "도메인", "example.com"),
+    select("type", "레코드", [["A","A"],["AAAA","AAAA"],["CNAME","CNAME"],["MX","MX"],["NS","NS"],["TXT","TXT"],["SOA","SOA"]], "A")
+  ]},
+  { id: "jwtDecode", category: "network", title: "JWT 디코딩", tags: ["Payload"], fields: [
+    area("token", "JWT", "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjMiLCJleHAiOjE3MDQwNjcyMDB9.")
+  ]},
+  { id: "httpStatus", category: "network", title: "HTTP 상태 코드 설명", tags: ["HTTP"], fields: [
+    input("code", "상태 코드", "404")
+  ]},
+  { id: "httpHeaders", category: "network", title: "HTTP Header 파서", tags: ["Header", "Cookie"], fields: [
+    area("raw", "헤더", "HTTP/1.1 200 OK\ncontent-type: application/json\ncache-control: max-age=60, public\nset-cookie: sid=abc; Path=/; HttpOnly")
+  ]},
+  { id: "userAgent", category: "network", title: "User-Agent 파싱", tags: ["UA"], fields: [
+    area("ua", "User-Agent", navigator.userAgent)
+  ]},
+
+  { id: "colorConvert", category: "color", title: "HEX / RGB / HSL 변환", tags: ["HEX", "RGB"], fields: [
+    input("value", "색상", "#0f766e")
+  ]},
+  { id: "palette", category: "color", title: "색상 팔레트 생성", tags: ["Palette"], fields: [
+    input("value", "기준 색상", "#0f766e")
+  ]},
+  { id: "contrast", category: "color", title: "색상 대비 비율 계산", tags: ["WCAG"], fields: [
+    input("fg", "전경색", "#111827"),
+    input("bg", "배경색", "#ffffff")
+  ]},
+  { id: "cssColor", category: "color", title: "CSS 색상명 / HEX 변환", tags: ["CSS"], fields: [
+    input("value", "색상명 또는 HEX", "rebeccapurple")
+  ]},
+
+  { id: "regex", category: "code", title: "정규식 테스터", tags: ["RegExp"], fields: [
+    input("pattern", "패턴", "\\b\\w+\\b"),
+    input("flags", "플래그", "gi"),
+    input("replacement", "치환", "[$&]"),
+    area("text", "테스트 텍스트", "Hello hello 123")
+  ]},
+  { id: "jwtEncode", category: "code", title: "JWT 인코딩/디코딩", tags: ["HS256"], fields: [
+    area("header", "Header JSON", "{\"alg\":\"HS256\",\"typ\":\"JWT\"}"),
+    area("payload", "Payload JSON", "{\"sub\":\"123\",\"name\":\"jinny\"}"),
+    input("secret", "HS256 Secret", "secret"),
+    select("mode", "작업", [["인코딩","enc"],["디코딩","dec"]], "enc")
+  ]},
+  { id: "sqlFormat", category: "code", title: "SQL 포맷팅", tags: ["SQL"], fields: [
+    area("input", "SQL", "select id,name from users where active=1 order by id desc")
+  ]},
+  { id: "minify", category: "code", title: "HTML/CSS/JS 압축", tags: ["Minify"], fields: [
+    area("input", "코드", "function hello() {\n  console.log('hi');\n}"),
+    select("kind", "종류", [["HTML","html"],["CSS","css"],["JS","js"]], "js")
+  ]},
+  { id: "qr", category: "code", title: "QR코드 생성", tags: ["QR"], fields: [
+    area("data", "데이터", "https://example.com"),
+    select("size", "크기", [["160","160"],["240","240"],["320","320"]], "240")
+  ]},
+  { id: "barcode", category: "code", title: "바코드 생성", tags: ["Code128"], fields: [
+    input("data", "데이터", BARCODE_DEFAULT_DATA),
+    select("format", "형식", [["Code128","Code128"],["Code39","Code39"],["EAN13","EAN13"],["UPC-A","UPCA"]], "Code128")
+  ]}
+];
+
+function area(name, label, placeholder) { return { type: "textarea", name, label, placeholder: placeholder || "", wide: true }; }
+function input(name, label, placeholder) { return { type: "input", name, label, placeholder: placeholder || "" }; }
+function select(name, label, options, value) { return { type: "select", name, label, options, value }; }
+function checkbox(name, label, checked) { return { type: "checkbox", name, label, checked: !!checked }; }
+function file(name, label) { return { type: "file", name, label, wide: true }; }
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+let toastTimer = 0;
+let activeCategory = categories[0][0];
+let soloToolId = null;
+let eventsBound = false;
+const noiseMeters = new Map();
+const INPUT_TEXTAREA_MAX_HEIGHT = 320;
+let recentToolIds = loadRecentTools();
+let quickCollapsed = loadQuickCollapsed();
+
+function loadQuickCollapsed() {
+  try {
+    return localStorage.getItem(QUICK_COLLAPSE_STORAGE_KEY) === "1";
+  } catch (_) {
+    return false;
+  }
+}
+
+function setQuickCollapsed(collapsed) {
+  quickCollapsed = collapsed;
+  try {
+    localStorage.setItem(QUICK_COLLAPSE_STORAGE_KEY, collapsed ? "1" : "0");
+  } catch (_) {
+    // Collapse state still works in-memory without persisted storage.
+  }
+  applyQuickCollapsed();
+}
+
+function applyQuickCollapsed() {
+  const panel = document.getElementById("toolQuickPanel");
+  const toggle = document.getElementById("quickToggle");
+  if (!panel) return;
+  panel.classList.toggle("collapsed", quickCollapsed);
+  if (toggle) {
+    toggle.textContent = uiText(quickCollapsed ? "quickPanelExpand" : "quickPanelCollapse");
+    toggle.setAttribute("aria-expanded", quickCollapsed ? "false" : "true");
+  }
+}
+
+function loadRecentTools() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECENT_STORAGE_KEY) || "[]");
+    if (!Array.isArray(raw)) return [];
+    const valid = new Set(tools.map(t => t.id));
+    return raw.filter(id => valid.has(id)).slice(0, MAX_RECENT);
+  } catch (_) {
+    return [];
+  }
+}
+
+function recordRecentTool(id) {
+  if (!id) return;
+  recentToolIds = [id, ...recentToolIds.filter(x => x !== id)].slice(0, MAX_RECENT);
+  try {
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recentToolIds));
+  } catch (_) {
+    // Recent list still works in-memory without persisted storage.
+  }
+  renderRecentPanel();
+}
+
+function removeRecentTool(id) {
+  recentToolIds = recentToolIds.filter(x => x !== id);
+  try {
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recentToolIds));
+  } catch (_) {
+    // Recent list still works in-memory without persisted storage.
+  }
+  renderRecentPanel();
+}
+
+function renderRecentPanel() {
+  const panel = document.getElementById("recentPanel");
+  const buttons = document.getElementById("recentButtons");
+  if (!panel || !buttons) return;
+  const recentTools = recentToolIds
+    .map(id => tools.find(t => t.id === id))
+    .filter(Boolean);
+  panel.classList.toggle("hidden", recentTools.length === 0);
+  buttons.innerHTML = recentTools.map(recentButtonHtml).join("");
+}
+
+function recentButtonHtml(tool) {
+  const id = escapeHtml(tool.id);
+  const title = escapeHtml(localText(tool.title));
+  return `<span class="recent-tool-chip"><button class="tool-jump-btn" data-recent="${id}">${title}</button><button class="recent-remove-btn" type="button" data-recent-remove="${id}" aria-label="${escapeHtml(uiText("recentRemoveAria"))}: ${title}" title="${escapeHtml(uiText("recentRemoveAria"))}">x</button></span>`;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+}
+
+function initLanguage() {
+  try {
+    const saved = localStorage.getItem(LANG_STORAGE_KEY);
+    if (SUPPORTED_LANGS.has(saved)) return saved;
+  } catch (_) {
+    // Ignore storage failures in private or restricted browser contexts.
+  }
+  return "ko";
+}
+
+function uiText(key) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || I18N.ko[key] || key;
+}
+
+function localText(value) {
+  const text = String(value ?? "");
+  return currentLang === "en" ? EN_LABELS[text] || text : text;
+}
+
+function langText(ko, en) {
+  return currentLang === "en" ? en : ko;
+}
+
+function searchTextVariant(value) {
+  const text = String(value ?? "");
+  const en = EN_LABELS[text];
+  return en && en !== text ? `${text} ${en}` : text;
+}
+
+function toolSearchText(tool) {
+  const parts = [tool.title, ...tool.tags];
+  for (const field of tool.fields) {
+    parts.push(field.label, field.placeholder);
+    if (field.options) {
+      for (const [label] of field.options) parts.push(label);
+    }
+  }
+  return parts.map(searchTextVariant).join(" ").toLowerCase();
+}
+
+function formatToolCount(count) {
+  if (currentLang === "en") return `${count} ${count === 1 ? "tool" : "tools"}`;
+  return `${count}개 도구`;
+}
+
+function formatSearchResultCount(count) {
+  if (currentLang === "en") return `${count} ${count === 1 ? "search result" : "search results"}`;
+  return `${count}개 검색 결과`;
+}
+
+function applyLanguageText() {
+  document.documentElement.lang = currentLang;
+  document.title = uiText("documentTitle");
+  const title = document.querySelector(".title-wrap h1");
+  const subtitle = document.querySelector(".title-wrap p");
+  const search = document.getElementById("toolSearch");
+  const nav = document.getElementById("sideNav");
+  const topButton = document.getElementById("topButton");
+  const langGroup = document.getElementById("languageToggle");
+
+  if (title) title.textContent = uiText("appTitle");
+  if (subtitle) subtitle.textContent = uiText("appSubtitle");
+  if (search) search.placeholder = uiText("searchPlaceholder");
+  if (nav) nav.setAttribute("aria-label", uiText("navAria"));
+  if (topButton) topButton.setAttribute("aria-label", uiText("topAria"));
+  if (langGroup) langGroup.setAttribute("aria-label", uiText("languageAria"));
+
+  document.querySelectorAll(".lang-btn").forEach(button => {
+    const active = button.dataset.lang === currentLang;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.setAttribute("aria-label", button.dataset.lang === "ko" ? uiText("koLabel") : uiText("enLabel"));
+    button.title = button.getAttribute("aria-label");
+  });
+}
+
+function setLanguage(lang) {
+  if (!SUPPORTED_LANGS.has(lang) || lang === currentLang) return;
+  stopAllNoiseMeters(false);
+  const state = captureToolState();
+  currentLang = lang;
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+  } catch (_) {
+    // Language switching still works without persisted storage.
+  }
+  render(state);
+  showToast(uiText("languageChanged"));
+}
+
+function captureToolState() {
+  const state = {};
+  document.querySelectorAll(".tool-card").forEach(card => {
+    const values = {};
+    card.querySelectorAll("[data-field]").forEach(el => {
+      if (el.type === "file") return;
+      values[el.dataset.field] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    state[card.dataset.tool] = {
+      values,
+      output: card.querySelector(".output")?.value || "",
+      resultQuery: card.querySelector(".result-search")?.value || "",
+      preview: card.querySelector(".preview")?.innerHTML || ""
+    };
+  });
+  return state;
+}
+
+function restoreToolState(state) {
+  if (!state) return;
+  document.querySelectorAll(".tool-card").forEach(card => {
+    const item = state[card.dataset.tool];
+    if (!item) return;
+    card.querySelectorAll("[data-field]").forEach(el => {
+      if (!(el.dataset.field in item.values) || el.type === "file") return;
+      if (el.type === "checkbox") el.checked = !!item.values[el.dataset.field];
+      else el.value = item.values[el.dataset.field];
+      if (el.tagName === "TEXTAREA") autoResizeTextarea(el, INPUT_TEXTAREA_MAX_HEIGHT);
+    });
+    const output = card.querySelector(".output");
+    const preview = card.querySelector(".preview");
+    if (output) {
+      output.value = item.output || "";
+      autoResizeTextarea(output);
+    }
+    const resultSearch = card.querySelector(".result-search");
+    if (resultSearch) resultSearch.value = item.resultQuery || "";
+    updateResultHighlight(card);
+    if (preview) {
+      preview.innerHTML = item.preview || "";
+      preview.classList.toggle("on", !!item.preview);
+    }
+  });
+}
+
+function render(state) {
+  applyLanguageText();
+  const nav = document.getElementById("sideNav");
+  const main = document.getElementById("main");
+  const counts = new Map(categories.map(([id]) => [id, tools.filter(t => t.category === id).length]));
+  const navItems = [[ALL_CATEGORY, uiText("allTools")], ...categories.map(([id, name]) => [id, localText(name)])];
+  counts.set(ALL_CATEGORY, tools.length);
+  nav.innerHTML = navItems.map(([id, name]) => `<button class="nav-btn" data-target="${id}"><span>${escapeHtml(name)}</span><span>${counts.get(id)}</span></button>`).join("");
+  main.innerHTML = `<section id="recentPanel" class="quick-panel recent-panel hidden">
+    <div class="quick-panel-head"><h2>${escapeHtml(uiText("recentPanelTitle"))}</h2></div>
+    <div id="recentButtons" class="tool-jumps" aria-label="${escapeHtml(uiText("recentPanelAria"))}"></div>
+  </section>
+  <section id="toolQuickPanel" class="quick-panel">
+    <div class="quick-panel-head"><h2>${escapeHtml(uiText("quickPanelTitle"))}</h2><div class="quick-panel-head-right"><span id="toolQuickCount" class="quick-panel-count"></span><button type="button" id="quickToggle" class="quick-toggle-btn" data-quick-toggle aria-expanded="true"></button></div></div>
+    <div id="toolQuickButtons" class="tool-jumps" aria-label="${escapeHtml(uiText("quickPanelAria"))}"></div>
+  </section>` + categories.map(([id, name]) => {
+    const categoryTools = tools.filter(t => t.category === id);
+    const cards = categoryTools.map(toolHtml).join("");
+    return `<section id="${id}" class="category" data-category="${id}">
+      <div class="category-head"><h2>${escapeHtml(localText(name))}</h2><span class="category-count">${formatToolCount(counts.get(id))}</span></div>
+      <div class="tools-grid">${cards}</div>
+    </section>`;
+  }).join("");
+
+  bindEvents();
+  restoreToolState(state);
+  setActiveCategory(activeCategory, false);
+  renderRecentPanel();
+}
+
+function bindEvents() {
+  if (eventsBound) return;
+  document.getElementById("sideNav").addEventListener("click", onNavClick);
+  document.getElementById("main").addEventListener("click", onMainClick);
+  document.getElementById("main").addEventListener("input", onMainInput);
+  document.getElementById("main").addEventListener("change", onMainChange);
+  document.getElementById("toolSearch").addEventListener("input", filterTools);
+  document.querySelectorAll(".lang-btn").forEach(button => {
+    button.addEventListener("click", () => setLanguage(button.dataset.lang));
+  });
+  window.addEventListener("beforeunload", () => stopAllNoiseMeters(false));
+  setupTopButton();
+  eventsBound = true;
+}
+
+function onNavClick(e) {
+  const btn = e.target.closest(".nav-btn");
+  if (!btn) return;
+  setActiveCategory(btn.dataset.target);
+}
+
+function toolHtml(tool) {
+  return `<article class="tool-card" data-tool="${tool.id}" data-search="${escapeHtml(toolSearchText(tool))}">
+    <div class="tool-top">
+      <h3 class="tool-title">${escapeHtml(localText(tool.title))}</h3>
+      <div class="tool-tags">${tool.tags.map(tag => `<span class="tag">${escapeHtml(localText(tag))}</span>`).join("")}</div>
+    </div>
+    <div class="fields">${tool.fields.map(fieldHtml).join("")}</div>
+    <div class="actions">
+      <button class="btn primary" data-action="run">${escapeHtml(uiText("run"))}</button>
+      <button class="btn" data-action="copy">${escapeHtml(uiText("copy"))}</button>
+      <button class="btn" data-action="clear">${escapeHtml(uiText("clear"))}</button>
+    </div>
+    <div class="result-tools">
+      <input class="result-search" type="search" placeholder="${escapeHtml(uiText("resultSearchPlaceholder"))}" aria-label="${escapeHtml(uiText("resultSearchAria"))}">
+      <span class="result-match-count" aria-live="polite"></span>
+    </div>
+    <textarea class="output" readonly placeholder="${escapeHtml(uiText("resultPlaceholder"))}"></textarea>
+    <div class="result-highlight" aria-live="polite"></div>
+    <div class="preview" aria-live="polite"></div>
+  </article>`;
+}
+
+function toolQuickButtonHtml(tool) {
+  return `<button class="tool-jump-btn" data-jump="${escapeHtml(tool.id)}" data-search="${escapeHtml(toolSearchText(tool))}">${escapeHtml(localText(tool.title))}</button>`;
+}
+
+function fieldHtml(f) {
+  const wide = f.wide || f.type === "textarea" ? " wide" : "";
+  const label = localText(f.label);
+  const placeholder = localText(f.placeholder);
+  if (f.type === "textarea") {
+    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><textarea data-field="${f.name}" placeholder="${escapeHtml(placeholder)}">${escapeHtml(placeholder || "")}</textarea></div>`;
+  }
+  if (f.type === "select") {
+    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><select data-field="${f.name}">${f.options.map(([optionLabel, value]) => `<option value="${escapeHtml(value)}"${value === f.value ? " selected" : ""}>${escapeHtml(localText(optionLabel))}</option>`).join("")}</select></div>`;
+  }
+  if (f.type === "checkbox") {
+    return `<div class="field check"><input type="checkbox" data-field="${f.name}"${f.checked ? " checked" : ""}><label>${escapeHtml(label)}</label></div>`;
+  }
+  if (f.type === "file") {
+    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input type="file" data-field="${f.name}"></div>`;
+  }
+  return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"></div>`;
+}
+
+async function onMainClick(e) {
+  const recentRemoveButton = e.target.closest("button[data-recent-remove]");
+  if (recentRemoveButton) {
+    removeRecentTool(recentRemoveButton.dataset.recentRemove);
+    return;
+  }
+  const recentButton = e.target.closest("button[data-recent]");
+  if (recentButton) {
+    showSingleTool(recentButton.dataset.recent);
+    return;
+  }
+  const quickToggle = e.target.closest("button[data-quick-toggle]");
+  if (quickToggle) {
+    setQuickCollapsed(!quickCollapsed);
+    return;
+  }
+  const jumpButton = e.target.closest("button[data-jump]");
+  if (jumpButton) {
+    showSingleTool(jumpButton.dataset.jump, { keepCategory: true });
+    return;
+  }
+  const button = e.target.closest("button[data-action]");
+  if (!button) return;
+  const card = button.closest(".tool-card");
+  const action = button.dataset.action;
+  if (action === "run") {
+    await runTool(card);
+  } else if (action === "noiseStop") {
+    stopNoiseMeter(card, true);
+  } else if (action === "noiseRestart") {
+    await runTool(card);
+  } else if (action === "copy") {
+    const output = card.querySelector(".output").value;
+    if (!output) return showToast(uiText("noCopyResult"), true);
+    await navigator.clipboard.writeText(output);
+    showToast(uiText("copiedResult"));
+  } else if (action === "clear") {
+    stopNoiseMeter(card, false);
+    card.querySelectorAll("textarea[data-field], input[data-field]").forEach(el => {
+      if (el.type === "checkbox") return;
+      if (el.type === "file") el.value = "";
+      else el.value = "";
+      if (el.tagName === "TEXTAREA") autoResizeTextarea(el, INPUT_TEXTAREA_MAX_HEIGHT);
+    });
+    const resultSearch = card.querySelector(".result-search");
+    if (resultSearch) resultSearch.value = "";
+    setOutput(card, "");
+    setPreview(card, "");
+  }
+}
+
+function onMainInput(e) {
+  if (e.target.matches(".result-search")) {
+    updateResultHighlight(e.target.closest(".tool-card"));
+    return;
+  }
+  if (e.target.matches("textarea[data-field]")) {
+    autoResizeTextarea(e.target, INPUT_TEXTAREA_MAX_HEIGHT);
+  }
+}
+
+function onMainChange(e) {
+  if (e.target.matches('select[data-field="format"]')) {
+    const card = e.target.closest(".tool-card");
+    if (card && card.dataset.tool === "barcode") applyBarcodeFormatSample(card);
+  }
+}
+
+function showSingleTool(id, options = {}) {
+  if (!id) return;
+  const search = document.getElementById("toolSearch");
+  if (search) search.value = "";
+  soloToolId = id;
+  const tool = tools.find(t => t.id === id);
+  if (!options.keepCategory) {
+    activeCategory = ALL_CATEGORY;
+  } else if (activeCategory !== ALL_CATEGORY && tool && tool.category !== activeCategory) {
+    activeCategory = tool.category;
+  }
+  document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.target === activeCategory));
+  filterTools();
+  const target = document.querySelector(`.tool-card[data-tool="${id}"]`);
+  if (target) target.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+async function runTool(card) {
+  const id = card.dataset.tool;
+  try {
+    setOutput(card, uiText("processing"));
+    setPreview(card, "");
+    await handlers[id](card, readFields(card));
+    recordRecentTool(id);
+  } catch (err) {
+    setOutput(card, err && err.message ? err.message : String(err));
+    showToast(uiText("genericError"), true);
+  }
+}
+
+function readFields(card) {
+  const values = {};
+  card.querySelectorAll("[data-field]").forEach(el => {
+    const name = el.dataset.field;
+    if (el.type === "checkbox") values[name] = el.checked;
+    else if (el.type === "file") values[name] = el.files && el.files[0] ? el.files[0] : null;
+    else values[name] = el.value;
+  });
+  return values;
+}
+
+function setOutput(card, value) {
+  const output = card.querySelector(".output");
+  output.value = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  autoResizeTextarea(output);
+  updateResultHighlight(card);
+}
+
+function updateResultHighlight(card) {
+  if (!card) return;
+  const search = card.querySelector(".result-search");
+  const output = card.querySelector(".output");
+  const highlight = card.querySelector(".result-highlight");
+  const count = card.querySelector(".result-match-count");
+  if (!search || !output || !highlight || !count) return;
+  const query = search.value.trim();
+  if (!query || !output.value) {
+    highlight.innerHTML = "";
+    highlight.classList.remove("on");
+    count.textContent = query ? formatResultMatchCount(0) : "";
+    return;
+  }
+  const result = highlightLiteral(output.value, query);
+  highlight.innerHTML = result.html;
+  highlight.classList.add("on");
+  count.textContent = formatResultMatchCount(result.count);
+}
+
+function highlightLiteral(text, query) {
+  const re = new RegExp(escapeRegExp(query), "gi");
+  let out = "", last = 0, count = 0, m;
+  while ((m = re.exec(text))) {
+    out += escapeHtml(text.slice(last, m.index)) + `<mark class="match">${escapeHtml(m[0])}</mark>`;
+    last = m.index + m[0].length;
+    count++;
+    if (m[0] === "") re.lastIndex++;
+  }
+  out += escapeHtml(text.slice(last));
+  return { html: out, count };
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function formatResultMatchCount(count) {
+  if (currentLang === "en") return `${count} ${count === 1 ? "match" : "matches"}`;
+  return `${count}개 일치`;
+}
+
+function setPreview(card, html) {
+  const preview = card.querySelector(".preview");
+  preview.innerHTML = html || "";
+  preview.classList.toggle("on", !!html);
+}
+
+async function startNoiseMeter(card, offset) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error(langText("이 브라우저는 마이크 입력을 지원하지 않습니다.", "This browser does not support microphone input."));
+  }
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    throw new Error(langText("이 브라우저는 Web Audio API를 지원하지 않습니다.", "This browser does not support the Web Audio API."));
+  }
+
+  stopNoiseMeter(card, false);
+  const calibration = Number.isFinite(offset) ? offset : 100;
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+    video: false
+  });
+  let audioContext;
+  try {
+    audioContext = new AudioContextClass();
+    if (audioContext.state === "suspended") await audioContext.resume();
+    const source = audioContext.createMediaStreamSource(stream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.72;
+    source.connect(analyser);
+
+    const useFloat = typeof analyser.getFloatTimeDomainData === "function";
+    const data = useFloat ? new Float32Array(analyser.fftSize) : new Uint8Array(analyser.fftSize);
+    const state = { stream, audioContext, source, analyser, data, useFloat, calibration, raf: 0, last: null, nextOutputAt: 0, history: [], viewPoints: 240, capPoints: 36000, nextSampleAt: 0, startAt: 0, warmupMs: 1000 };
+    noiseMeters.set(card, state);
+    setOutput(card, langText("측정 중...\n마이크 권한을 허용하면 값이 갱신됩니다.", "Measuring...\nValues will update after microphone permission is allowed."));
+    setPreview(card, noiseMeterHtml());
+
+    const tick = () => {
+      if (!noiseMeters.has(card)) return;
+      updateNoiseMeter(card, state);
+      state.raf = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch (err) {
+    for (const track of stream.getTracks()) track.stop();
+    if (audioContext) {
+      try { audioContext.close(); } catch (_) {}
+    }
+    throw err;
+  }
+}
+
+function updateNoiseMeter(card, state) {
+  if (state.useFloat) state.analyser.getFloatTimeDomainData(state.data);
+  else state.analyser.getByteTimeDomainData(state.data);
+
+  let sum = 0, peak = 0;
+  for (let i = 0; i < state.data.length; i++) {
+    const sample = state.useFloat ? state.data[i] : (state.data[i] - 128) / 128;
+    sum += sample * sample;
+    peak = Math.max(peak, Math.abs(sample));
+  }
+  const rms = Math.sqrt(sum / state.data.length);
+  const dbfs = 20 * Math.log10(Math.max(rms, 0.00000001));
+  const db = Math.max(0, Math.min(140, dbfs + state.calibration));
+  state.last = { db, dbfs, peak, at: new Date() };
+
+  const level = card.querySelector("[data-noise-level]");
+  const sub = card.querySelector("[data-noise-sub]");
+  const bar = card.querySelector("[data-noise-bar]");
+  if (level) level.textContent = `${formatNoiseNumber(db)} dB`;
+  if (sub) sub.textContent = `dBFS ${formatNoiseNumber(dbfs)} / peak ${peak.toFixed(3)}`;
+  if (bar) {
+    bar.style.width = `${Math.min(100, (db / 120) * 100)}%`;
+    bar.style.background = noiseColor(db);
+  }
+
+  const now = Date.now();
+  if (!state.startAt) state.startAt = now;
+  const warmedUp = now - state.startAt >= state.warmupMs;
+  if (warmedUp && now >= state.nextSampleAt) {
+    state.history.push(db);
+    if (state.history.length > state.capPoints) state.history.shift();
+    state.nextSampleAt = now + 100;
+    drawNoiseGraph(card, state, false);
+  }
+  if (now >= state.nextOutputAt) {
+    setOutput(card, formatNoiseOutput(state, langText("측정 중", "Measuring")));
+    state.nextOutputAt = now + 700;
+  }
+}
+
+function drawNoiseGraph(card, state, isFinal) {
+  const canvas = card.querySelector("[data-noise-graph]");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.clientWidth || 320;
+  const cssH = canvas.clientHeight || 100;
+  const pxW = Math.round(cssW * dpr);
+  const pxH = Math.round(cssH * dpr);
+  if (canvas.width !== pxW || canvas.height !== pxH) {
+    canvas.width = pxW;
+    canvas.height = pxH;
+  }
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const w = canvas.width, h = canvas.height, maxDb = 120;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.lineWidth = Math.max(1, dpr);
+  ctx.strokeStyle = "rgba(100,112,119,0.22)";
+  ctx.fillStyle = "rgba(100,112,119,0.85)";
+  ctx.font = `${Math.round(10 * dpr)}px Consolas, monospace`;
+  ctx.textBaseline = "bottom";
+  for (const g of [30, 60, 90, 120]) {
+    const y = h - (g / maxDb) * h;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 0.5);
+    ctx.lineTo(w, y + 0.5);
+    ctx.stroke();
+    ctx.fillText(String(g), 3 * dpr, y - 2 * dpr);
+  }
+
+  const all = state.history;
+  const hist = isFinal ? all : all.slice(-state.viewPoints);
+  if (hist.length < 2) return;
+  const len = hist.length;
+  const denom = isFinal ? Math.max(len - 1, 1) : (state.viewPoints - 1);
+  const stepX = w / denom;
+  const xAt = (i) => isFinal ? i * stepX : w - (len - 1 - i) * stepX;
+  const yAt = (db) => h - (Math.min(Math.max(db, 0), maxDb) / maxDb) * h;
+
+  // filled area under the line
+  ctx.beginPath();
+  ctx.moveTo(xAt(0), h);
+  for (let i = 0; i < len; i++) ctx.lineTo(xAt(i), yAt(hist[i]));
+  ctx.lineTo(xAt(len - 1), h);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(15,118,110,0.12)";
+  ctx.fill();
+
+  // line
+  ctx.beginPath();
+  for (let i = 0; i < len; i++) {
+    const x = xAt(i), y = yAt(hist[i]);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.lineWidth = Math.max(1.5, 1.5 * dpr);
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = noiseCanvasColor(hist[len - 1]);
+  ctx.stroke();
+
+  // latest point marker
+  const lx = xAt(len - 1), ly = yAt(hist[len - 1]);
+  ctx.beginPath();
+  ctx.arc(lx, ly, Math.max(2, 2.5 * dpr), 0, Math.PI * 2);
+  ctx.fillStyle = noiseCanvasColor(hist[len - 1]);
+  ctx.fill();
+}
+
+function noiseCanvasColor(db) {
+  if (db >= 90) return "#b91c1c";
+  if (db >= 70) return "#a16207";
+  return "#0f766e";
+}
+
+function stopNoiseMeter(card, showResult) {
+  const state = card ? noiseMeters.get(card) : null;
+  if (!state) return false;
+  if (state.raf) cancelAnimationFrame(state.raf);
+  try { state.source.disconnect(); } catch (_) {}
+  for (const track of state.stream.getTracks()) track.stop();
+  try { state.audioContext.close(); } catch (_) {}
+  noiseMeters.delete(card);
+  if (showResult) {
+    setOutput(card, formatNoiseOutput(state, langText("정지", "Stopped")));
+    drawNoiseGraph(card, state, true);
+    const label = card.querySelector("[data-noise-graph-label]");
+    if (label) label.textContent = langText("전체 구간", "Full range");
+    const span = card.querySelector("[data-noise-graph-span]");
+    if (span) span.textContent = `${(state.history.length * 0.1).toFixed(1)}s`;
+    const btn = card.querySelector("button[data-action='noiseStop']");
+    if (btn) {
+      btn.dataset.action = "noiseRestart";
+      btn.textContent = uiText("remeasure");
+    }
+  } else {
+    setPreview(card, "");
+  }
+  return true;
+}
+
+function stopAllNoiseMeters(showResult) {
+  for (const card of [...noiseMeters.keys()]) stopNoiseMeter(card, showResult);
+}
+
+function noiseMeterHtml() {
+  return `<div class="noise-meter">
+    <div class="noise-meter-head">
+      <div>
+        <div class="noise-meter-value" data-noise-level>--.- dB</div>
+        <div class="noise-meter-sub" data-noise-sub>${escapeHtml(langText("마이크 입력 대기 중", "Waiting for microphone input"))}</div>
+      </div>
+      <button class="btn" type="button" data-action="noiseStop">${escapeHtml(uiText("stop"))}</button>
+    </div>
+    <div class="noise-meter-bar" aria-hidden="true"><span data-noise-bar></span></div>
+    <div class="noise-meter-scale"><span>0</span><span>30</span><span>60</span><span>90</span><span>120 dB</span></div>
+    <canvas class="noise-meter-graph" data-noise-graph aria-hidden="true"></canvas>
+    <div class="noise-meter-graph-cap"><span data-noise-graph-label>${escapeHtml(langText("최근 시계열", "Recent timeline"))}</span><span data-noise-graph-span>~24s</span></div>
+    <p class="noise-meter-note">${escapeHtml(langText("마이크와 브라우저 gain 기반 추정치입니다. 보정된 소음계가 아닙니다.", "Estimated from microphone and browser gain. This is not a calibrated sound level meter."))}</p>
+  </div>`;
+}
+
+function formatNoiseOutput(state, status) {
+  const last = state.last || {};
+  const lines = [
+    `${langText("상태", "Status")}: ${status}`,
+    `${langText("추정 소음", "Estimated noise")}: ${formatNoiseNumber(last.db)} dB`,
+    `dBFS: ${formatNoiseNumber(last.dbfs)}`,
+    `Peak: ${Number.isFinite(last.peak) ? last.peak.toFixed(4) : "----"}`
+  ];
+  const stats = noiseStats(state.history);
+  if (stats) {
+    lines.push(`${langText("최고", "Max")}: ${formatNoiseNumber(stats.max)} dB / ${langText("최저", "Min")}: ${formatNoiseNumber(stats.min)} dB / ${langText("평균", "Avg")}: ${formatNoiseNumber(stats.avg)} dB`);
+    lines.push(`${langText("측정 구간", "Duration")}: ${(stats.count * 0.1).toFixed(1)}s (${stats.count} ${langText("샘플", "samples")})`);
+  }
+  lines.push(`${langText("보정 오프셋", "Calibration offset")}: ${formatNoiseNumber(state.calibration)} dB`);
+  lines.push(langText("참고: 기기별 마이크 감도와 자동 보정에 따라 실제 SPL과 다를 수 있습니다.", "Note: actual SPL may differ depending on microphone sensitivity and device processing."));
+  return lines.join("\n");
+}
+
+function noiseStats(history) {
+  if (!history || !history.length) return null;
+  let min = Infinity, max = -Infinity, sum = 0;
+  for (const v of history) {
+    if (v > 0 && v < min) min = v;
+    if (v > max) max = v;
+    sum += v;
+  }
+  if (!Number.isFinite(min)) min = max;
+  return { min, max, avg: sum / history.length, count: history.length };
+}
+
+function formatNoiseNumber(value) {
+  return Number.isFinite(value) ? value.toFixed(1) : "--.-";
+}
+
+function noiseColor(db) {
+  if (db >= 90) return "var(--red)";
+  if (db >= 70) return "var(--amber)";
+  return "var(--accent)";
+}
+
+function applyBarcodeFormatSample(card) {
+  const data = card.querySelector('[data-field="data"]');
+  const format = card.querySelector('[data-field="format"]');
+  if (!data || !format) return;
+  const spec = BARCODE_FORMAT_SAMPLES[format.value];
+  const knownSamples = [BARCODE_DEFAULT_DATA, ...Object.values(BARCODE_FORMAT_SAMPLES).map(item => item.sample)];
+  const current = data.value.trim();
+  if (spec) {
+    data.placeholder = `${langText("샘플", "Sample")}: ${spec.sample}`;
+    if (!current || knownSamples.includes(current)) data.value = spec.sample;
+  } else {
+    data.placeholder = BARCODE_DEFAULT_DATA;
+    if (knownSamples.includes(current)) data.value = BARCODE_DEFAULT_DATA;
+  }
+}
+
+function validateBarcodeData(format, data) {
+  if (!data) {
+    return {
+      ok: false,
+      message: `${langText("바코드 데이터를 입력하세요.", "Enter barcode data.")}\n\n${barcodeSampleText()}`
+    };
+  }
+  const spec = BARCODE_FORMAT_SAMPLES[format];
+  if (!spec || spec.pattern.test(data)) return { ok: true };
+  return {
+    ok: false,
+    message: [
+      `${barcodeFormatLabel(format)} ${langText("입력 형식 오류", "input format error")}`,
+      `${langText("필요 조건", "Required")}: ${langText(spec.koRule, spec.enRule)}`,
+      `${langText("샘플", "Sample")}: ${spec.sample}`,
+      "",
+      barcodeSampleText()
+    ].join("\n")
+  };
+}
+
+function barcodeSampleText() {
+  return [
+    `${langText("데이터 샘플", "Data samples")}:`,
+    `- EAN13: ${BARCODE_FORMAT_SAMPLES.EAN13.sample} (${langText(BARCODE_FORMAT_SAMPLES.EAN13.koRule, BARCODE_FORMAT_SAMPLES.EAN13.enRule)})`,
+    `- UPC-A: ${BARCODE_FORMAT_SAMPLES.UPCA.sample} (${langText(BARCODE_FORMAT_SAMPLES.UPCA.koRule, BARCODE_FORMAT_SAMPLES.UPCA.enRule)})`
+  ].join("\n");
+}
+
+function barcodeSampleHtml() {
+  return `<table class="mini-table">
+    <thead><tr><th>${escapeHtml(langText("형식", "Format"))}</th><th>${escapeHtml(langText("샘플", "Sample"))}</th><th>${escapeHtml(langText("필요 조건", "Required"))}</th></tr></thead>
+    <tbody>
+      <tr><td>EAN13</td><td>${BARCODE_FORMAT_SAMPLES.EAN13.sample}</td><td>${escapeHtml(langText(BARCODE_FORMAT_SAMPLES.EAN13.koRule, BARCODE_FORMAT_SAMPLES.EAN13.enRule))}</td></tr>
+      <tr><td>UPC-A</td><td>${BARCODE_FORMAT_SAMPLES.UPCA.sample}</td><td>${escapeHtml(langText(BARCODE_FORMAT_SAMPLES.UPCA.koRule, BARCODE_FORMAT_SAMPLES.UPCA.enRule))}</td></tr>
+    </tbody>
+  </table>`;
+}
+
+function barcodeFormatLabel(format) {
+  return format === "UPCA" ? "UPC-A" : format;
+}
+
+function queryJsonPath(root, path) {
+  let p = String(path || "$").trim();
+  if (!p || p === "$" || p === ".") return [root];
+  if (p.startsWith(".")) p = "$" + p;
+  if (!p.startsWith("$")) p = "$." + p;
+  const tokens = [];
+  const re = /\.([A-Za-z_$][\w$-]*)|\[['"]([^'"]+)['"]\]|\[(\d+|\*)\]|\.\*/g;
+  let m;
+  while ((m = re.exec(p))) {
+    if (m[1]) tokens.push({ type: "key", value: m[1] });
+    else if (m[2]) tokens.push({ type: "key", value: m[2] });
+    else if (m[3]) tokens.push({ type: m[3] === "*" ? "wild" : "index", value: Number(m[3]) });
+    else tokens.push({ type: "wild" });
+  }
+  let current = [root];
+  for (const token of tokens) {
+    const next = [];
+    for (const item of current) {
+      if (token.type === "key" && item != null && Object.prototype.hasOwnProperty.call(Object(item), token.value)) {
+        next.push(item[token.value]);
+      } else if (token.type === "index" && Array.isArray(item) && token.value < item.length) {
+        next.push(item[token.value]);
+      } else if (token.type === "wild" && item != null) {
+        if (Array.isArray(item)) next.push(...item);
+        else if (typeof item === "object") next.push(...Object.values(item));
+      }
+    }
+    current = next;
+  }
+  return current;
+}
+
+function jsonPathPreviewHtml(result) {
+  return `<table class="mini-table"><tbody><tr><th>${escapeHtml(langText("결과 수", "Result count"))}</th><td>${result.length}</td></tr></tbody></table>`;
+}
+
+function validateJsonSchema(value, schema, path = "$") {
+  const errors = [];
+  if (!schema || typeof schema !== "object") return errors;
+  const types = Array.isArray(schema.type) ? schema.type : schema.type ? [schema.type] : [];
+  if (types.length && !types.some(type => jsonSchemaTypeMatches(value, type))) {
+    errors.push(`${path}: ${langText("타입 불일치", "type mismatch")} (${types.join("|")})`);
+    return errors;
+  }
+  if (schema.enum && !schema.enum.some(v => JSON.stringify(v) === JSON.stringify(value))) errors.push(`${path}: enum`);
+  if ("const" in schema && JSON.stringify(schema.const) !== JSON.stringify(value)) errors.push(`${path}: const`);
+  if (typeof value === "number") {
+    if (typeof schema.minimum === "number" && value < schema.minimum) errors.push(`${path}: minimum ${schema.minimum}`);
+    if (typeof schema.maximum === "number" && value > schema.maximum) errors.push(`${path}: maximum ${schema.maximum}`);
+  }
+  if (typeof value === "string") {
+    if (typeof schema.minLength === "number" && value.length < schema.minLength) errors.push(`${path}: minLength ${schema.minLength}`);
+    if (typeof schema.maxLength === "number" && value.length > schema.maxLength) errors.push(`${path}: maxLength ${schema.maxLength}`);
+    if (schema.pattern && !(new RegExp(schema.pattern).test(value))) errors.push(`${path}: pattern ${schema.pattern}`);
+  }
+  if (Array.isArray(value)) {
+    if (typeof schema.minItems === "number" && value.length < schema.minItems) errors.push(`${path}: minItems ${schema.minItems}`);
+    if (typeof schema.maxItems === "number" && value.length > schema.maxItems) errors.push(`${path}: maxItems ${schema.maxItems}`);
+    if (schema.items) value.forEach((item, i) => errors.push(...validateJsonSchema(item, schema.items, `${path}[${i}]`)));
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    for (const key of schema.required || []) {
+      if (!Object.prototype.hasOwnProperty.call(value, key)) errors.push(`${path}.${key}: ${langText("필수 값 누락", "required value missing")}`);
+    }
+    if (schema.properties && typeof schema.properties === "object") {
+      for (const [key, childSchema] of Object.entries(schema.properties)) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) errors.push(...validateJsonSchema(value[key], childSchema, `${path}.${key}`));
+      }
+    }
+  }
+  return errors;
+}
+
+function jsonSchemaTypeMatches(value, type) {
+  if (type === "array") return Array.isArray(value);
+  if (type === "null") return value === null;
+  if (type === "integer") return Number.isInteger(value);
+  if (type === "number") return typeof value === "number" && Number.isFinite(value);
+  if (type === "object") return value !== null && typeof value === "object" && !Array.isArray(value);
+  return typeof value === type;
+}
+
+function buildLineDiff(left, right, trim) {
+  const a = String(left).split(/\r\n|\r|\n/);
+  const b = String(right).split(/\r\n|\r|\n/);
+  const ak = trim ? a.map(line => line.trim()) : a;
+  const bk = trim ? b.map(line => line.trim()) : b;
+  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      dp[i][j] = ak[i] === bk[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const out = [];
+  let i = 0, j = 0;
+  while (i < a.length || j < b.length) {
+    if (i < a.length && j < b.length && ak[i] === bk[j]) {
+      out.push({ type: "same", text: a[i] });
+      i++; j++;
+    } else if (j < b.length && (i === a.length || dp[i][j + 1] >= dp[i + 1][j])) {
+      out.push({ type: "add", text: b[j++] });
+    } else {
+      out.push({ type: "del", text: a[i++] });
+    }
+  }
+  return out;
+}
+
+function diffPreviewHtml(diff) {
+  return `<table class="mini-table diff-table"><tbody>${diff.map(row => `<tr class="diff-${row.type}"><td>${row.type === "add" ? "+" : row.type === "del" ? "-" : ""}</td><td><pre style="margin:0;white-space:pre-wrap">${escapeHtml(row.text)}</pre></td></tr>`).join("")}</tbody></table>`;
+}
+
+function parseUrlDetails(value) {
+  const url = new URL(String(value).trim(), window.location.href);
+  const params = {};
+  for (const [key, val] of url.searchParams.entries()) {
+    if (Object.prototype.hasOwnProperty.call(params, key)) {
+      if (!Array.isArray(params[key])) params[key] = [params[key]];
+      params[key].push(val);
+    } else params[key] = val;
+  }
+  return {
+    href: url.href,
+    protocol: url.protocol.replace(/:$/, ""),
+    username: url.username,
+    password: url.password ? "(set)" : "",
+    host: url.host,
+    hostname: url.hostname,
+    port: url.port,
+    pathname: url.pathname,
+    search: url.search,
+    hash: url.hash,
+    queryParams: params
+  };
+}
+
+function urlDetailsHtml(parsed) {
+  const rows = Object.entries(parsed).filter(([key]) => key !== "queryParams").map(([key, value]) => `<tr><th>${escapeHtml(key)}</th><td>${escapeHtml(value)}</td></tr>`).join("");
+  const params = Object.entries(parsed.queryParams).map(([key, value]) => `<tr><td>${escapeHtml(key)}</td><td>${escapeHtml(Array.isArray(value) ? value.join(", ") : value)}</td></tr>`).join("");
+  return `<table class="mini-table"><tbody>${rows}</tbody></table>${params ? `<table class="mini-table"><thead><tr><th>query</th><th>value</th></tr></thead><tbody>${params}</tbody></table>` : ""}`;
+}
+
+function parseHttpHeaders(raw) {
+  const lines = String(raw).split(/\r\n|\r|\n/).map(line => line.trim()).filter(Boolean);
+  const startLine = lines[0] && !lines[0].includes(":") ? lines.shift() : "";
+  const headers = {};
+  const list = [];
+  for (const line of lines) {
+    const idx = line.indexOf(":");
+    if (idx < 0) continue;
+    const name = line.slice(0, idx).trim();
+    const key = name.toLowerCase();
+    const value = line.slice(idx + 1).trim();
+    list.push({ name, value });
+    if (headers[key]) {
+      if (!Array.isArray(headers[key])) headers[key] = [headers[key]];
+      headers[key].push(value);
+    } else headers[key] = value;
+  }
+  return {
+    startLine,
+    headers,
+    cacheControl: parseHeaderDirectives(headers["cache-control"]),
+    cookies: list.filter(h => h.name.toLowerCase() === "set-cookie" || h.name.toLowerCase() === "cookie").map(h => parseCookieHeader(h.value))
+  };
+}
+
+function parseHeaderDirectives(value) {
+  const out = {};
+  const text = Array.isArray(value) ? value.join(",") : String(value || "");
+  for (const part of text.split(",")) {
+    if (!part.trim()) continue;
+    const [k, ...rest] = part.trim().split("=");
+    out[k.toLowerCase()] = rest.length ? rest.join("=").replace(/^"|"$/g, "") : true;
+  }
+  return out;
+}
+
+function parseCookieHeader(value) {
+  const parts = String(value).split(";").map(part => part.trim()).filter(Boolean);
+  const [nameValue, ...attrs] = parts;
+  const idx = nameValue.indexOf("=");
+  const cookie = { name: idx >= 0 ? nameValue.slice(0, idx) : nameValue, value: idx >= 0 ? nameValue.slice(idx + 1) : "" };
+  cookie.attributes = Object.fromEntries(attrs.map(attr => {
+    const i = attr.indexOf("=");
+    return i >= 0 ? [attr.slice(0, i).toLowerCase(), attr.slice(i + 1)] : [attr.toLowerCase(), true];
+  }));
+  return cookie;
+}
+
+function httpHeadersHtml(parsed) {
+  const rows = Object.entries(parsed.headers).map(([key, value]) => `<tr><th>${escapeHtml(key)}</th><td>${escapeHtml(Array.isArray(value) ? value.join("\n") : value)}</td></tr>`).join("");
+  return `<table class="mini-table"><tbody>${parsed.startLine ? `<tr><th>start</th><td>${escapeHtml(parsed.startLine)}</td></tr>` : ""}${rows}</tbody></table>`;
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("File read failed."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function imageDataUriPreview(dataUri) {
+  return `<img src="${escapeHtml(dataUri)}" alt="Image preview" style="max-width:100%;height:auto">`;
+}
+
+function showToast(message, error) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.toggle("error", !!error);
+  toast.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("on"), 2600);
+}
+
+function filterTools() {
+  const q = document.getElementById("toolSearch").value.trim().toLowerCase();
+  const hasSearch = q.length > 0;
+  if (hasSearch) soloToolId = null;
+  const solo = soloToolId;
+  document.querySelectorAll(".tool-card").forEach(card => {
+    const hide = solo ? card.dataset.tool !== solo : (hasSearch && !card.dataset.search.includes(q));
+    card.classList.toggle("hidden", hide);
+  });
+  document.querySelectorAll(".category").forEach(section => {
+    const total = section.querySelectorAll(".tool-card").length;
+    const visible = section.querySelectorAll(".tool-card:not(.hidden)").length;
+    const inActiveScope = activeCategory === ALL_CATEGORY || section.dataset.category === activeCategory;
+    const shouldShow = (solo || hasSearch) ? visible > 0 : inActiveScope;
+    section.classList.toggle("hidden", !shouldShow);
+    const count = section.querySelector(".category-count");
+    if (count) count.textContent = (solo || hasSearch) ? `${visible} / ${formatToolCount(total)}` : formatToolCount(total);
+  });
+  updateToolQuickPanel(q);
+  requestAnimationFrame(autoResizeVisibleTextareas);
+}
+
+function setActiveCategory(categoryId, scrollToTop = true) {
+  soloToolId = null;
+  activeCategory = categoryId;
+  document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.target === activeCategory));
+  filterTools();
+  if (scrollToTop) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function setupTopButton() {
+  const button = document.getElementById("topButton");
+  if (!button) return;
+  button.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  window.addEventListener("scroll", updateTopButton, { passive: true });
+  updateTopButton();
+}
+
+function updateTopButton() {
+  const button = document.getElementById("topButton");
+  if (!button) return;
+  button.classList.toggle("on", window.scrollY > 240);
+}
+
+function autoResizeTextarea(textarea, maxHeight) {
+  textarea.style.height = "auto";
+  const nextHeight = Math.ceil(textarea.scrollHeight) + 2;
+  if (maxHeight && nextHeight > maxHeight) {
+    textarea.style.height = `${maxHeight}px`;
+    textarea.style.overflowY = "auto";
+  } else {
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = "hidden";
+  }
+}
+
+function autoResizeVisibleTextareas() {
+  document.querySelectorAll(".tool-card:not(.hidden) textarea").forEach(textarea => {
+    if (textarea.offsetParent === null) return;
+    autoResizeTextarea(textarea, textarea.classList.contains("output") ? 0 : INPUT_TEXTAREA_MAX_HEIGHT);
+  });
+}
+
+function updateToolQuickPanel(query) {
+  const q = String(query || "").trim().toLowerCase();
+  const hasSearch = q.length > 0;
+  const quickPanel = document.getElementById("toolQuickPanel");
+  const quickButtons = document.getElementById("toolQuickButtons");
+  const quickCount = document.getElementById("toolQuickCount");
+  if (!quickPanel || !quickButtons || !quickCount) return;
+  const scopedTools = hasSearch
+    ? tools.filter(tool => toolMatchesSearch(tool, q))
+    : activeCategory === ALL_CATEGORY
+      ? tools
+      : tools.filter(tool => tool.category === activeCategory);
+  quickPanel.classList.toggle("hidden", scopedTools.length === 0);
+  quickButtons.innerHTML = scopedTools.map(toolQuickButtonHtml).join("");
+  quickCount.textContent = hasSearch ? formatSearchResultCount(scopedTools.length) : formatToolCount(scopedTools.length);
+  applyQuickCollapsed();
+}
+
+function toolMatchesSearch(tool, query) {
+  return toolSearchText(tool).includes(query);
+}
+
+const handlers = {
+  base64(card, v) {
+    const bytes = enc.encode(v.input);
+    if (v.mode === "b64enc") return setOutput(card, bytesToBase64(bytes));
+    if (v.mode === "b64uenc") return setOutput(card, toBase64Url(bytesToBase64(bytes)));
+    const input = v.mode === "b64udec" ? fromBase64Url(v.input) : v.input;
+    setOutput(card, dec.decode(base64ToBytes(input)));
+  },
+  url(card, v) {
+    if (v.mode === "enc") {
+      let out = encodeURIComponent(v.input);
+      if (v.space === "plus") out = out.replace(/%20/g, "+");
+      setOutput(card, out);
+    } else {
+      const text = v.space === "plus" ? v.input.replace(/\+/g, "%20") : v.input;
+      setOutput(card, decodeURIComponent(text));
+    }
+  },
+  htmlEntity(card, v) {
+    if (v.mode === "enc") return setOutput(card, escapeHtml(v.input));
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = v.input;
+    setOutput(card, textarea.value);
+  },
+  unicode(card, v) {
+    if (v.mode === "enc") {
+      setOutput(card, [...v.input].map(ch => {
+        const cp = ch.codePointAt(0);
+        return cp <= 0xffff ? "\\u" + cp.toString(16).padStart(4, "0") : "\\u{" + cp.toString(16) + "}";
+      }).join(""));
+    } else {
+      setOutput(card, v.input.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g, (_, braced, short) => String.fromCodePoint(parseInt(braced || short, 16))));
+    }
+  },
+  hex(card, v) {
+    if (v.mode === "enc") {
+      const out = [...enc.encode(v.input)].map(b => b.toString(16).padStart(2, "0"));
+      setOutput(card, v.compact ? out.join("") : out.join(" "));
+    } else {
+      const clean = v.input.replace(/[^0-9a-fA-F]/g, "");
+      if (clean.length % 2) throw new Error(langText("Hex 길이가 짝수여야 합니다.", "Hex length must be even."));
+      if (!clean) return setOutput(card, "");
+      const bytes = new Uint8Array(clean.match(/.{2}/g).map(h => parseInt(h, 16)));
+      setOutput(card, dec.decode(bytes));
+    }
+  },
+  binary(card, v) {
+    if (v.mode === "enc") {
+      setOutput(card, [...enc.encode(v.input)].map(b => b.toString(2).padStart(8, "0")).join(" "));
+    } else {
+      const parts = v.input.trim().split(/\s+/).filter(Boolean);
+      if (parts.some(part => !/^[01]{1,8}$/.test(part))) throw new Error(langText("2진수 바이트는 1~8자리 0/1로 입력하세요.", "Binary bytes must be 1 to 8 digits of 0 or 1."));
+      const bytes = new Uint8Array(parts.map(b => parseInt(b, 2)));
+      setOutput(card, dec.decode(bytes));
+    }
+  },
+  punycode(card, v) {
+    setOutput(card, v.mode === "enc" ? domainToAscii(v.domain) : domainToUnicode(v.domain));
+  },
+
+  timestamp(card, v) {
+    if (v.mode === "toDate") {
+      const rawText = v.value.trim();
+      const raw = Number(rawText);
+      if (!Number.isFinite(raw)) throw new Error(langText("Timestamp 숫자를 입력하세요.", "Enter a numeric timestamp."));
+      const unit = detectTimestampUnit(rawText, raw, v.unit);
+      const ms = unit === "s" ? raw * 1000 : raw;
+      setOutput(card, [
+        `${v.unit === "auto" ? langText("감지 단위", "Detected unit") : langText("선택 단위", "Selected unit")}: ${unit === "ms" ? langText("밀리초", "milliseconds") : langText("초", "seconds")}`,
+        `Local: ${formatDate(new Date(ms))}`,
+        `UTC: ${formatDateOffset(ms, 0)}`,
+        `KST: ${formatDateOffset(ms, 540)}`,
+        `ISO: ${new Date(ms).toISOString()}`
+      ].join("\n"));
+    } else {
+      const d = parseDateLoose(v.dateText);
+      const ms = d.getTime();
+      setOutput(card, `seconds: ${Math.floor(ms / 1000)}\nmilliseconds: ${ms}\nISO: ${d.toISOString()}`);
+    }
+  },
+  timezone(card, v) {
+    const from = Number(v.from);
+    const to = Number(v.to);
+    const parts = parseDateParts(v.dateText);
+    const utcMs = Date.UTC(parts.y, parts.m - 1, parts.d, parts.hh, parts.mm, parts.ss) - from * 60000;
+    setOutput(card, `UTC: ${formatDateOffset(utcMs, 0)}\n${langText("변환 결과", "Converted")}: ${formatDateOffset(utcMs, to)}`);
+  },
+  dateFormat(card, v) {
+    const d = parseDateLoose(v.dateText);
+    setOutput(card, formatByPattern(d, v.format));
+  },
+  dateDiff(card, v) {
+    const start = parseDateLoose(v.start);
+    const end = parseDateLoose(v.end);
+    const diffMs = end.getTime() - start.getTime();
+    const days = diffMs / 86400000;
+    const add = Number(v.addDays || 0);
+    const added = new Date(start.getTime() + add * 86400000);
+    setOutput(card, [
+      `${langText("차이", "Difference")}: ${days.toLocaleString()} ${langText("일", "days")}`,
+      `${langText("시간", "Hours")}: ${(diffMs / 3600000).toLocaleString()}`,
+      `${langText("분", "Minutes")}: ${(diffMs / 60000).toLocaleString()}`,
+      `D-day: ${days >= 0 ? "D-" + Math.ceil(days) : "D+" + Math.abs(Math.floor(days))}`,
+      `${langText("시작일", "Start date")} + ${add} ${langText("일", "days")}: ${formatDate(added).slice(0, 10)}`
+    ].join("\n"));
+  },
+  cron(card, v) {
+    const parsed = parseCron(v.expr);
+    const offset = Number(v.tz || 0);
+    const runs = nextCronRunsOffset(parsed, Number(v.count), offset);
+    setOutput(card, `${describeCron(v.expr)}\n\n${langText("다음 실행", "Next runs")}:\n${runs.map(d => "- " + formatDateOffset(d.getTime(), offset)).join("\n")}`);
+  },
+
+  async hashText(card, v) {
+    setOutput(card, bytesToHex(await digestBytes(v.alg, enc.encode(v.input))));
+  },
+  async hmac(card, v) {
+    setOutput(card, bytesToHex(await hmacBytes(v.alg, enc.encode(v.key), enc.encode(v.input))));
+  },
+  async fileHash(card, v) {
+    if (!v.file) throw new Error(langText("파일을 선택하세요.", "Select a file."));
+    const bytes = new Uint8Array(await v.file.arrayBuffer());
+    const hash = bytesToHex(await digestBytes(v.alg, bytes));
+    setOutput(card, `${v.file.name}\nsize: ${v.file.size.toLocaleString()} bytes\n${v.alg}: ${hash}`);
+  },
+  async bcrypt(card, v) {
+    const bcrypt = await loadBcrypt();
+    const rounds = Math.max(4, Math.min(14, Number(v.rounds) || 10));
+    const hash = bcrypt.hashSync ? bcrypt.hashSync(v.password, rounds) : await bcrypt.hash(v.password, rounds);
+    setOutput(card, hash);
+  },
+  uuid(card, v) {
+    const count = Number(v.count);
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      if (v.version === "v1") out.push(uuidV1());
+      else if (v.version === "v7") out.push(uuidV7());
+      else out.push(crypto.randomUUID());
+    }
+    setOutput(card, out.join("\n"));
+  },
+  random(card, v) {
+    const len = Math.max(1, Math.min(4096, Number(v.length) || 32));
+    if (v.kind === "hex") return setOutput(card, bytesToHex(randomBytes(Math.ceil(len / 2))).slice(0, len));
+    if (v.kind === "base64url") return setOutput(card, toBase64Url(bytesToBase64(randomBytes(Math.ceil(len * 0.75 + 2)))).slice(0, len));
+    let chars = "";
+    if (v.upper) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (v.lower) chars += "abcdefghijklmnopqrstuvwxyz";
+    if (v.number) chars += "0123456789";
+    if (v.symbol) chars += "!@#$%^&*()-_=+[]{};:,.?/|~";
+    if (!chars) throw new Error(langText("문자 종류를 하나 이상 선택하세요.", "Select at least one character type."));
+    const bytes = randomBytes(len);
+    setOutput(card, [...bytes].map(b => chars[b % chars.length]).join(""));
+  },
+
+  case(card, v) {
+    const words = wordsOf(v.input);
+    const map = {
+      camel: words.map((w, i) => i ? cap(w) : w.toLowerCase()).join(""),
+      snake: words.map(w => w.toLowerCase()).join("_"),
+      pascal: words.map(cap).join(""),
+      kebab: words.map(w => w.toLowerCase()).join("-"),
+      upper: v.input.toUpperCase(),
+      lower: v.input.toLowerCase(),
+      title: words.map(cap).join(" ")
+    };
+    setOutput(card, map[v.target]);
+  },
+  json(card, v) {
+    const obj = JSON.parse(v.input);
+    if (v.mode === "format") setOutput(card, JSON.stringify(obj, null, 2));
+    else if (v.mode === "minify") setOutput(card, JSON.stringify(obj));
+    else setOutput(card, langText("유효한 JSON입니다.", "Valid JSON."));
+  },
+  jsonPath(card, v) {
+    const obj = JSON.parse(v.input);
+    const result = queryJsonPath(obj, v.path);
+    setOutput(card, JSON.stringify(result.length === 1 ? result[0] : result, null, 2));
+    setPreview(card, jsonPathPreviewHtml(result));
+  },
+  jsonSchema(card, v) {
+    const obj = JSON.parse(v.input);
+    const schema = JSON.parse(v.schema);
+    const errors = validateJsonSchema(obj, schema);
+    setOutput(card, errors.length ? errors.join("\n") : langText("스키마 검사를 통과했습니다.", "Schema validation passed."));
+    setPreview(card, `<table class="mini-table"><tbody><tr><th>${escapeHtml(langText("결과", "Result"))}</th><td>${escapeHtml(errors.length ? langText("실패", "Failed") : langText("통과", "Passed"))}</td></tr><tr><th>${escapeHtml(langText("오류", "Errors"))}</th><td>${escapeHtml(String(errors.length))}</td></tr></tbody></table>`);
+  },
+  xmlJson(card, v) {
+    if (v.mode === "xmlToJson") {
+      const doc = new DOMParser().parseFromString(v.input, "application/xml");
+      const err = doc.querySelector("parsererror");
+      if (err) throw new Error(langText("XML 파싱 오류", "XML parse error."));
+      setOutput(card, JSON.stringify(xmlNodeToJson(doc.documentElement), null, 2));
+    } else {
+      setOutput(card, jsonToXml(JSON.parse(v.input), v.root || "root"));
+    }
+  },
+  yamlJson(card, v) {
+    if (v.mode === "yamlToJson") setOutput(card, JSON.stringify(parseSimpleYaml(v.input), null, 2));
+    else setOutput(card, jsonToYaml(JSON.parse(v.input)));
+  },
+  csvJson(card, v) {
+    if (v.mode === "csvToJson") setOutput(card, JSON.stringify(csvToJson(v.input), null, 2));
+    else setOutput(card, jsonToCsv(JSON.parse(v.input)));
+  },
+  markdownHtml(card, v) {
+    if (v.mode === "mdToHtml") {
+      const html = markdownToHtml(v.input);
+      setOutput(card, html);
+      setPreview(card, html);
+    } else {
+      const div = document.createElement("div");
+      div.innerHTML = v.input;
+      setOutput(card, div.textContent || "");
+    }
+  },
+  newline(card, v) {
+    const normalized = v.input.replace(/\r\n|\r|\n/g, "\n");
+    const sep = v.target === "crlf" ? "\r\n" : v.target === "cr" ? "\r" : "\n";
+    setOutput(card, normalized.split("\n").join(sep));
+  },
+  counts(card, v) {
+    const bytes = enc.encode(v.input).length;
+    const lines = v.input.length ? v.input.split(/\r\n|\r|\n/).length : 0;
+    const words = (v.input.match(/\S+/g) || []).length;
+    setOutput(card, `${langText("문자 수", "Characters")}: ${[...v.input].length}\nUTF-16 length: ${v.input.length}\nUTF-8 bytes: ${bytes}\n${langText("줄 수", "Lines")}: ${lines}\n${langText("단어 수", "Words")}: ${words}`);
+  },
+  dedupeLines(card, v) {
+    const seen = new Set();
+    const out = [];
+    for (const line of v.input.split(/\r\n|\r|\n/)) {
+      const key = v.trim ? line.trim() : line;
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(line);
+      }
+    }
+    setOutput(card, out.join("\n"));
+  },
+  sortLines(card, v) {
+    const lines = v.input.split(/\r\n|\r|\n/);
+    lines.sort((a, b) => v.numeric ? Number(a) - Number(b) : a.localeCompare(b, "ko"));
+    if (v.order === "desc") lines.reverse();
+    setOutput(card, lines.join("\n"));
+  },
+  diffText(card, v) {
+    const diff = buildLineDiff(v.left, v.right, v.trim);
+    setOutput(card, diff.map(row => `${row.type === "add" ? "+" : row.type === "del" ? "-" : " "} ${row.text}`).join("\n"));
+    setPreview(card, diffPreviewHtml(diff));
+  },
+
+  radix(card, v) {
+    const n = parseBigIntBase(v.value.trim(), Number(v.from));
+    setOutput(card, `${localText("2진수")}: ${n.toString(2)}\n${localText("8진수")}: ${n.toString(8)}\n${localText("10진수")}: ${n.toString(10)}\n${localText("16진수")}: ${n.toString(16).toUpperCase()}`);
+  },
+  numberFormat(card, v) {
+    if (v.mode === "parse") return setOutput(card, v.value.replace(/,/g, ""));
+    const n = Number(v.value.replace(/,/g, ""));
+    if (!Number.isFinite(n)) throw new Error(langText("숫자를 입력하세요.", "Enter a number."));
+    setOutput(card, n.toLocaleString());
+  },
+  fileSize(card, v) {
+    const units = ["B","KB","MB","GB","TB"];
+    const base = Number(v.base);
+    const bytes = Number(v.value) * Math.pow(base, units.indexOf(v.from));
+    const out = bytes / Math.pow(base, units.indexOf(v.to));
+    setOutput(card, `${formatNumber(out)} ${v.to}\n${formatNumber(bytes)} bytes`);
+  },
+  lengthUnit(card, v) {
+    const toMeters = { m: 1, km: 1000, mile: 1609.344, inch: 0.0254, ft: 0.3048, cm: 0.01 };
+    const meters = Number(v.value) * toMeters[v.from];
+    setOutput(card, `${formatNumber(meters / toMeters[v.to])} ${v.to}\n${formatNumber(meters)} m`);
+  },
+  temperature(card, v) {
+    let c = Number(v.value);
+    if (v.from === "F") c = (c - 32) * 5 / 9;
+    if (v.from === "K") c = c - 273.15;
+    const out = v.to === "F" ? c * 9 / 5 + 32 : v.to === "K" ? c + 273.15 : c;
+    setOutput(card, `${formatNumber(out)} ${v.to}\n${formatNumber(c)} C`);
+  },
+  dataRate(card, v) {
+    const factors = { bps: 1, Kbps: 1e3, Mbps: 1e6, Gbps: 1e9, Bps: 8, KBps: 8e3, MBps: 8e6, GBps: 8e9 };
+    const bps = Number(v.value) * factors[v.from];
+    setOutput(card, `${formatNumber(bps / factors[v.to])} ${v.to}\n${formatNumber(bps)} bps`);
+  },
+  async noiseMeter(card, v) {
+    await startNoiseMeter(card, Number(v.offset));
+  },
+
+  async ipInfo(card, v) {
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(v.ip.trim())}`);
+    const data = await res.json();
+    if (data.success === false) throw new Error(data.message || langText("IP 조회 실패", "IP lookup failed."));
+    setOutput(card, JSON.stringify({
+      ip: data.ip,
+      country: data.country,
+      region: data.region,
+      city: data.city,
+      isp: data.connection && data.connection.isp,
+      org: data.connection && data.connection.org,
+      timezone: data.timezone && data.timezone.id,
+      latitude: data.latitude,
+      longitude: data.longitude
+    }, null, 2));
+  },
+  urlParser(card, v) {
+    const parsed = parseUrlDetails(v.url);
+    setOutput(card, JSON.stringify(parsed, null, 2));
+    setPreview(card, urlDetailsHtml(parsed));
+  },
+  ipInteger(card, v) {
+    if (v.mode === "ipToInt") setOutput(card, String(ipToInt(v.value)));
+    else setOutput(card, intToIp(BigInt(v.value)));
+  },
+  subnet(card, v) {
+    const [ip, prefixText] = v.cidr.split("/");
+    const prefix = Number(prefixText);
+    if (!ip || prefix < 0 || prefix > 32) throw new Error(langText("예: 192.168.0.10/24", "Example: 192.168.0.10/24"));
+    const ipNum = ipToInt(ip);
+    const mask = prefix === 0 ? 0n : (0xffffffffn << BigInt(32 - prefix)) & 0xffffffffn;
+    const network = ipNum & mask;
+    const broadcast = network | (~mask & 0xffffffffn);
+    const hosts = prefix >= 31 ? broadcast - network + 1n : broadcast - network - 1n;
+    setOutput(card, [
+      `IP: ${ip}`,
+      `Prefix: /${prefix}`,
+      `Mask: ${intToIp(mask)}`,
+      `Network: ${intToIp(network)}`,
+      `Broadcast: ${intToIp(broadcast)}`,
+      `First host: ${intToIp(prefix >= 31 ? network : network + 1n)}`,
+      `Last host: ${intToIp(prefix >= 31 ? broadcast : broadcast - 1n)}`,
+      `Hosts: ${hosts.toString()}`
+    ].join("\n"));
+  },
+  mac(card, v) {
+    const clean = v.value.replace(/[^0-9a-fA-F]/g, "");
+    if (clean.length !== 12) throw new Error(langText("MAC 주소는 12자리 Hex여야 합니다.", "MAC address must be 12 hexadecimal digits."));
+    const upper = clean.toUpperCase();
+    const lower = clean.toLowerCase();
+    const pairs = upper.match(/.{2}/g);
+    const lowerPairs = lower.match(/.{2}/g);
+    const out = {
+      colonUpper: pairs.join(":"),
+      colonLower: lowerPairs.join(":"),
+      dashUpper: pairs.join("-"),
+      cisco: lower.match(/.{4}/g).join("."),
+      plainUpper: upper,
+      plainLower: lower
+    };
+    setOutput(card, out[v.format]);
+  },
+  async dns(card, v) {
+    const url = `https://dns.google/resolve?name=${encodeURIComponent(v.name.trim())}&type=${encodeURIComponent(v.type)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    setOutput(card, JSON.stringify(data.Answer || data, null, 2));
+  },
+  jwtDecode(card, v) {
+    setOutput(card, JSON.stringify(decodeJwt(v.token), null, 2));
+  },
+  httpStatus(card, v) {
+    const info = httpStatusMap[String(v.code).trim()];
+    setOutput(card, info ? `${v.code} ${info[0]}\n${info[currentLang === "en" ? 2 : 1]}` : langText("등록되지 않은 상태 코드입니다.", "Unknown status code."));
+  },
+  httpHeaders(card, v) {
+    const parsed = parseHttpHeaders(v.raw);
+    setOutput(card, JSON.stringify(parsed, null, 2));
+    setPreview(card, httpHeadersHtml(parsed));
+  },
+  userAgent(card, v) {
+    setOutput(card, JSON.stringify(parseUserAgent(v.ua), null, 2));
+  },
+
+  colorConvert(card, v) {
+    const rgb = parseColor(v.value);
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+    setOutput(card, `HEX: ${hex}\nRGB: rgb(${rgb.r}, ${rgb.g}, ${rgb.b})\nHSL: hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`);
+    setPreview(card, `<div class="swatches"><div class="swatch" style="background:${hex}"><span>${hex}</span></div></div>`);
+  },
+  palette(card, v) {
+    const rgb = parseColor(v.value);
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const colors = [
+      ["base", hslToHex(hsl.h, hsl.s, hsl.l)],
+      ["complement", hslToHex(hsl.h + 180, hsl.s, hsl.l)],
+      ["analogous -30", hslToHex(hsl.h - 30, hsl.s, hsl.l)],
+      ["analogous +30", hslToHex(hsl.h + 30, hsl.s, hsl.l)],
+      ["triad 120", hslToHex(hsl.h + 120, hsl.s, hsl.l)],
+      ["triad 240", hslToHex(hsl.h + 240, hsl.s, hsl.l)],
+      ["tint", hslToHex(hsl.h, Math.max(0, hsl.s - 8), Math.min(96, hsl.l + 22))],
+      ["shade", hslToHex(hsl.h, hsl.s, Math.max(8, hsl.l - 24))]
+    ];
+    setOutput(card, colors.map(([name, hex]) => `${name}: ${hex}`).join("\n"));
+    setPreview(card, `<div class="swatches">${colors.map(([name, hex]) => `<div class="swatch" style="background:${hex}"><span>${escapeHtml(name)}<br>${hex}</span></div>`).join("")}</div>`);
+  },
+  contrast(card, v) {
+    const fg = parseColor(v.fg);
+    const bg = parseColor(v.bg);
+    const ratio = contrastRatio(fg, bg);
+    setOutput(card, [
+      `${langText("대비 비율", "Contrast ratio")}: ${ratio.toFixed(2)}:1`,
+      `WCAG AA ${langText("일반 텍스트", "normal text")}: ${ratio >= 4.5 ? langText("통과", "pass") : langText("실패", "fail")}`,
+      `WCAG AA ${langText("큰 텍스트", "large text")}: ${ratio >= 3 ? langText("통과", "pass") : langText("실패", "fail")}`,
+      `WCAG AAA ${langText("일반 텍스트", "normal text")}: ${ratio >= 7 ? langText("통과", "pass") : langText("실패", "fail")}`
+    ].join("\n"));
+    setPreview(card, `<div style="padding:16px;border-radius:8px;background:${rgbToHex(bg.r,bg.g,bg.b)};color:${rgbToHex(fg.r,fg.g,fg.b)};font-weight:700">Contrast Sample</div>`);
+  },
+  cssColor(card, v) {
+    const value = v.value.trim();
+    const rgb = parseColor(value);
+    const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+    const exactName = CSS_COLOR_NAMES.find(name => {
+      const c = parseColor(name);
+      return rgbToHex(c.r, c.g, c.b).toLowerCase() === hex.toLowerCase();
+    });
+    setOutput(card, `HEX: ${hex}\nCSS name: ${exactName || langText("(정확히 일치하는 표준 이름 없음)", "(no exact standard name)")}`);
+    setPreview(card, `<div class="swatches"><div class="swatch" style="background:${hex}"><span>${escapeHtml(value)}<br>${hex}</span></div></div>`);
+  },
+
+  regex(card, v) {
+    const flags = v.flags.includes("g") ? v.flags : v.flags + "g";
+    const re = new RegExp(v.pattern, flags);
+    const rows = [];
+    let match;
+    while ((match = re.exec(v.text)) && rows.length < 200) {
+      rows.push({ match: match[0], index: match.index, groups: match.slice(1) });
+      if (match[0] === "") re.lastIndex++;
+    }
+    const replaced = v.text.replace(new RegExp(v.pattern, flags), v.replacement || "");
+    setOutput(card, JSON.stringify({ matches: rows, replaced }, null, 2));
+    setPreview(card, highlightRegex(v.text, new RegExp(v.pattern, flags)));
+  },
+  async jwtEncode(card, v) {
+    if (v.mode === "dec") return setOutput(card, JSON.stringify(decodeJwt(v.header), null, 2));
+    const header = JSON.parse(v.header);
+    const payload = JSON.parse(v.payload);
+    const body = `${base64UrlJson(header)}.${base64UrlJson(payload)}`;
+    let sig = "";
+    if (header.alg === "HS256") {
+      sig = toBase64Url(bytesToBase64(await hmacBytes("SHA-256", enc.encode(v.secret), enc.encode(body))));
+    } else if (header.alg && header.alg !== "none") {
+      throw new Error(langText("현재 인코딩은 alg none 또는 HS256만 지원합니다.", "Encoding currently supports only alg none or HS256."));
+    }
+    setOutput(card, `${body}.${sig}`);
+  },
+  sqlFormat(card, v) {
+    setOutput(card, formatSql(v.input));
+  },
+  minify(card, v) {
+    setOutput(card, minifyCode(v.input, v.kind));
+  },
+  qr(card, v) {
+    const size = Number(v.size) || 240;
+    const url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(v.data)}`;
+    setOutput(card, url);
+    setPreview(card, `<img src="${url}" width="${size}" height="${size}" alt="QR code">`);
+  },
+  async imageBase64(card, v) {
+    if (v.mode === "fileToData") {
+      if (!v.file) throw new Error(langText("이미지 파일을 선택하세요.", "Select an image file."));
+      const dataUri = await readFileAsDataURL(v.file);
+      setOutput(card, dataUri);
+      setPreview(card, imageDataUriPreview(dataUri));
+    } else {
+      const dataUri = v.dataUri.trim();
+      if (!/^data:image\/[a-z0-9.+-]+;base64,/i.test(dataUri)) throw new Error(langText("이미지 Data URI를 입력하세요.", "Enter an image Data URI."));
+      setOutput(card, dataUri);
+      setPreview(card, imageDataUriPreview(dataUri));
+    }
+  },
+  barcode(card, v) {
+    const data = String(v.data || "").trim();
+    const validation = validateBarcodeData(v.format, data);
+    if (!validation.ok) {
+      setOutput(card, validation.message);
+      setPreview(card, barcodeSampleHtml());
+      return;
+    }
+    const url = `https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(data)}&code=${encodeURIComponent(v.format)}&translate-esc=on`;
+    setOutput(card, url);
+    setPreview(card, `<img src="${url}" alt="Barcode" style="max-width:100%;height:auto">`);
+  }
+};
+
+function bytesToBase64(bytes) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+}
+function base64ToBytes(str) {
+  const clean = str.replace(/\s/g, "");
+  const bin = atob(clean);
+  return Uint8Array.from(bin, ch => ch.charCodeAt(0));
+}
+function toBase64Url(str) { return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, ""); }
+function fromBase64Url(str) {
+  const base = str.replace(/-/g, "+").replace(/_/g, "/");
+  return base + "=".repeat((4 - base.length % 4) % 4);
+}
+function bytesToHex(bytes) { return [...bytes].map(b => b.toString(16).padStart(2, "0")).join(""); }
+function randomBytes(length) {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return bytes;
+}
+
+function parseDateLoose(text) {
+  const s = String(text || "").trim();
+  if (!s) throw new Error(langText("날짜를 입력하세요.", "Enter a date."));
+  const normalized = s.replace(" ", "T");
+  const d = new Date(normalized);
+  if (Number.isNaN(d.getTime())) throw new Error(langText("날짜 형식을 확인하세요.", "Check the date format."));
+  return d;
+}
+function detectTimestampUnit(rawText, raw, selectedUnit) {
+  if (selectedUnit === "s" || selectedUnit === "ms") return selectedUnit;
+  const digits = rawText.replace(/[^\d]/g, "");
+  return digits.length >= 13 || Math.abs(raw) >= 1e12 ? "ms" : "s";
+}
+function parseDateParts(text) {
+  const m = String(text).trim().match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T](\d{1,2}):?(\d{2})?:?(\d{2})?)?$/);
+  if (!m) throw new Error(langText("예: 2024-01-01 09:00:00", "Example: 2024-01-01 09:00:00"));
+  return { y: +m[1], m: +m[2], d: +m[3], hh: +(m[4] || 0), mm: +(m[5] || 0), ss: +(m[6] || 0) };
+}
+function pad2(n) { return String(n).padStart(2, "0"); }
+function formatDate(d) {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+function formatDateOffset(ms, offsetMinutes) {
+  const d = new Date(ms + offsetMinutes * 60000);
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMinutes);
+  return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())} UTC${sign}${pad2(Math.floor(abs / 60))}:${pad2(abs % 60)}`;
+}
+function formatByPattern(d, pattern) {
+  if (pattern === "ISO") return d.toISOString();
+  const map = {
+    YYYY: d.getFullYear(),
+    MM: pad2(d.getMonth() + 1),
+    DD: pad2(d.getDate()),
+    HH: pad2(d.getHours()),
+    mm: pad2(d.getMinutes()),
+    ss: pad2(d.getSeconds())
+  };
+  return pattern.replace(/YYYY|MM|DD|HH|mm|ss/g, token => map[token]);
+}
+
+function parseCron(expr) {
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length !== 5) throw new Error(langText("Cron은 5필드 형식이어야 합니다: minute hour day month weekday", "Cron must use five fields: minute hour day month weekday"));
+  return {
+    minute: parseCronField(parts[0], 0, 59),
+    hour: parseCronField(parts[1], 0, 23),
+    day: parseCronField(parts[2], 1, 31),
+    month: parseCronField(parts[3], 1, 12),
+    weekday: parseCronField(parts[4].replace(/7/g, "0"), 0, 6)
+  };
+}
+function parseCronField(part, min, max) {
+  const set = new Set();
+  for (const piece of part.split(",")) {
+    const [rangePart, stepText] = piece.split("/");
+    const step = Number(stepText || 1);
+    let start, end;
+    if (rangePart === "*") [start, end] = [min, max];
+    else if (rangePart.includes("-")) [start, end] = rangePart.split("-").map(Number);
+    else start = end = Number(rangePart);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || step < 1) throw new Error(langText("Cron 필드 형식 오류", "Invalid cron field format."));
+    for (let i = start; i <= end; i += step) if (i >= min && i <= max) set.add(i);
+  }
+  return set;
+}
+function nextCronRuns(parsed, count) {
+  const out = [];
+  const d = new Date();
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() + 1);
+  const max = 366 * 24 * 60 * 2;
+  for (let i = 0; i < max && out.length < count; i++) {
+    if (parsed.minute.has(d.getMinutes()) && parsed.hour.has(d.getHours()) && parsed.day.has(d.getDate()) && parsed.month.has(d.getMonth() + 1) && parsed.weekday.has(d.getDay())) {
+      out.push(new Date(d));
+    }
+    d.setMinutes(d.getMinutes() + 1);
+  }
+  if (!out.length) throw new Error(langText("향후 2년 안의 실행 시간을 찾지 못했습니다.", "No run time was found within the next two years."));
+  return out;
+}
+function nextCronRunsOffset(parsed, count, offsetMinutes) {
+  const out = [];
+  let ms = Math.floor(Date.now() / 60000) * 60000 + 60000;
+  const max = 366 * 24 * 60 * 2;
+  for (let i = 0; i < max && out.length < count; i++, ms += 60000) {
+    const d = new Date(ms + offsetMinutes * 60000);
+    if (parsed.minute.has(d.getUTCMinutes()) && parsed.hour.has(d.getUTCHours()) && parsed.day.has(d.getUTCDate()) && parsed.month.has(d.getUTCMonth() + 1) && parsed.weekday.has(d.getUTCDay())) {
+      out.push(new Date(ms));
+    }
+  }
+  if (!out.length) throw new Error(langText("향후 2년 안의 실행 시간을 찾지 못했습니다.", "No run time was found within the next two years."));
+  return out;
+}
+function describeCron(expr) {
+  const parts = expr.trim().split(/\s+/);
+  if (currentLang === "en") {
+    const dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    if (parts.join(" ") === "0 9 * * 1") return "Every Monday at 09:00";
+    const min = parts[0] === "*" ? "every minute" : `minute ${parts[0]}`;
+    const hour = parts[1] === "*" ? "every hour" : `hour ${parts[1]}`;
+    const day = parts[2] === "*" ? "every day" : `day ${parts[2]}`;
+    const month = parts[3] === "*" ? "every month" : `month ${parts[3]}`;
+    const week = parts[4] === "*" ? "" : `${dow[Number(parts[4].replace("7", "0"))] || parts[4]}`;
+    return [month, day, week, hour, min].filter(Boolean).join(", ");
+  }
+  const dow = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+  if (parts.join(" ") === "0 9 * * 1") return "매주 월요일 오전 9시";
+  const min = parts[0] === "*" ? "매분" : `${parts[0]}분`;
+  const hour = parts[1] === "*" ? "매시간" : `${parts[1]}시`;
+  const day = parts[2] === "*" ? "매일" : `매월 ${parts[2]}일`;
+  const month = parts[3] === "*" ? "매월" : `${parts[3]}월`;
+  const week = parts[4] === "*" ? "" : `${dow[Number(parts[4].replace("7", "0"))] || parts[4]}`;
+  return [month, day, week, hour, min].filter(Boolean).join(" ");
+}
+
+async function digestBytes(alg, bytes) {
+  if (alg === "MD5") return md5(bytes);
+  return new Uint8Array(await crypto.subtle.digest(alg, bytes));
+}
+async function hmacBytes(alg, keyBytes, msgBytes) {
+  if (alg === "MD5") return hmacMd5(keyBytes, msgBytes);
+  const key = await crypto.subtle.importKey("raw", keyBytes, { name: "HMAC", hash: alg }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, msgBytes));
+}
+function md5(input) {
+  const msg = input instanceof Uint8Array ? input : new Uint8Array(input);
+  const bitLen = BigInt(msg.length) * 8n;
+  const len = (((msg.length + 8) >> 6) + 1) * 64;
+  const bytes = new Uint8Array(len);
+  bytes.set(msg);
+  bytes[msg.length] = 0x80;
+  for (let i = 0; i < 8; i++) bytes[len - 8 + i] = Number((bitLen >> BigInt(8 * i)) & 0xffn);
+  let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+  const s = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+  const K = Array.from({ length: 64 }, (_, i) => Math.floor(Math.abs(Math.sin(i + 1)) * 2 ** 32) >>> 0);
+  for (let i = 0; i < bytes.length; i += 64) {
+    const M = Array.from({ length: 16 }, (_, j) => bytes[i + j * 4] | (bytes[i + j * 4 + 1] << 8) | (bytes[i + j * 4 + 2] << 16) | (bytes[i + j * 4 + 3] << 24));
+    let A = a0, B = b0, C = c0, D = d0;
+    for (let j = 0; j < 64; j++) {
+      let F, g;
+      if (j < 16) { F = (B & C) | (~B & D); g = j; }
+      else if (j < 32) { F = (D & B) | (~D & C); g = (5 * j + 1) % 16; }
+      else if (j < 48) { F = B ^ C ^ D; g = (3 * j + 5) % 16; }
+      else { F = C ^ (B | ~D); g = (7 * j) % 16; }
+      const tmp = D;
+      D = C;
+      C = B;
+      B = (B + rotl((A + F + K[j] + M[g]) >>> 0, s[j])) >>> 0;
+      A = tmp;
+    }
+    a0 = (a0 + A) >>> 0;
+    b0 = (b0 + B) >>> 0;
+    c0 = (c0 + C) >>> 0;
+    d0 = (d0 + D) >>> 0;
+  }
+  const out = new Uint8Array(16);
+  [a0,b0,c0,d0].forEach((n, i) => {
+    out[i * 4] = n & 255;
+    out[i * 4 + 1] = (n >>> 8) & 255;
+    out[i * 4 + 2] = (n >>> 16) & 255;
+    out[i * 4 + 3] = (n >>> 24) & 255;
+  });
+  return out;
+}
+function rotl(x, c) { return (x << c) | (x >>> (32 - c)); }
+function hmacMd5(key, msg) {
+  if (key.length > 64) key = md5(key);
+  const ipad = new Uint8Array(64);
+  const opad = new Uint8Array(64);
+  ipad.fill(0x36);
+  opad.fill(0x5c);
+  key.forEach((b, i) => { ipad[i] ^= b; opad[i] ^= b; });
+  const inner = new Uint8Array(ipad.length + msg.length);
+  inner.set(ipad); inner.set(msg, ipad.length);
+  const innerHash = md5(inner);
+  const outer = new Uint8Array(opad.length + innerHash.length);
+  outer.set(opad); outer.set(innerHash, opad.length);
+  return md5(outer);
+}
+async function loadBcrypt() {
+  if (window.dcodeIO && window.dcodeIO.bcrypt) return window.dcodeIO.bcrypt;
+  if (window.bcrypt) return window.bcrypt;
+  await new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(langText("bcryptjs 로드 실패: 인터넷 연결 또는 CDN 접근을 확인하세요.", "Failed to load bcryptjs. Check the internet connection or CDN access.")));
+    document.head.appendChild(script);
+  });
+  const bcrypt = (window.dcodeIO && window.dcodeIO.bcrypt) || window.bcrypt;
+  if (!bcrypt) throw new Error(langText("bcryptjs 객체를 찾지 못했습니다.", "Could not find the bcryptjs object."));
+  return bcrypt;
+}
+
+let uuidClockSeq = crypto.getRandomValues(new Uint8Array(2));
+let uuidNode = crypto.getRandomValues(new Uint8Array(6));
+uuidNode[0] |= 0x01;
+function uuidV1() {
+  const gregorianOffset = 12219292800000n;
+  const now100ns = (BigInt(Date.now()) + gregorianOffset) * 10000n + BigInt(Math.floor(Math.random() * 10000));
+  const timeLow = Number(now100ns & 0xffffffffn);
+  const timeMid = Number((now100ns >> 32n) & 0xffffn);
+  const timeHi = Number((now100ns >> 48n) & 0x0fffn) | 0x1000;
+  const seq = ((uuidClockSeq[0] << 8) | uuidClockSeq[1]) & 0x3fff;
+  const b = new Uint8Array(16);
+  writeHexInt(b, 0, timeLow, 4);
+  writeHexInt(b, 4, timeMid, 2);
+  writeHexInt(b, 6, timeHi, 2);
+  b[8] = (seq >>> 8) | 0x80;
+  b[9] = seq & 255;
+  b.set(uuidNode, 10);
+  return uuidString(b);
+}
+function uuidV7() {
+  const b = randomBytes(16);
+  const ts = BigInt(Date.now());
+  for (let i = 5; i >= 0; i--) b[5 - i] = Number((ts >> BigInt(i * 8)) & 255n);
+  b[6] = (b[6] & 0x0f) | 0x70;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  return uuidString(b);
+}
+function writeHexInt(bytes, offset, value, size) {
+  for (let i = size - 1; i >= 0; i--) bytes[offset + size - 1 - i] = (value >>> (i * 8)) & 255;
+}
+function uuidString(b) {
+  const h = bytesToHex(b);
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+}
+
+function wordsOf(text) {
+  return String(text).replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(/[^A-Za-z0-9가-힣]+/).filter(Boolean);
+}
+function cap(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
+
+function xmlNodeToJson(node) {
+  const obj = {};
+  if (node.attributes && node.attributes.length) {
+    obj["@attributes"] = {};
+    for (const attr of node.attributes) obj["@attributes"][attr.name] = attr.value;
+  }
+  const children = [...node.childNodes].filter(n => n.nodeType !== 8);
+  if (children.length === 1 && children[0].nodeType === 3) return children[0].nodeValue.trim();
+  for (const child of children) {
+    if (child.nodeType === 3) {
+      const text = child.nodeValue.trim();
+      if (text) obj["#text"] = text;
+    } else if (child.nodeType === 1) {
+      const value = xmlNodeToJson(child);
+      if (obj[child.nodeName]) {
+        if (!Array.isArray(obj[child.nodeName])) obj[child.nodeName] = [obj[child.nodeName]];
+        obj[child.nodeName].push(value);
+      } else obj[child.nodeName] = value;
+    }
+  }
+  return { [node.nodeName]: obj };
+}
+function jsonToXml(value, name) {
+  if (Array.isArray(value)) return value.map(item => jsonToXml(item, name)).join("");
+  if (value !== null && typeof value === "object") {
+    const attrs = value["@attributes"] ? Object.entries(value["@attributes"]).map(([k, v]) => ` ${k}="${escapeHtml(v)}"`).join("") : "";
+    const body = Object.entries(value).filter(([k]) => k !== "@attributes").map(([k, v]) => k === "#text" ? escapeHtml(v) : jsonToXml(v, k)).join("");
+    return `<${name}${attrs}>${body}</${name}>`;
+  }
+  return `<${name}>${escapeHtml(value ?? "")}</${name}>`;
+}
+
+function parseSimpleYaml(text) {
+  const lines = text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith("#"));
+  const root = {};
+  for (const line of lines) {
+    const m = line.match(/^\s*([^:]+):\s*(.*)$/);
+    if (!m) continue;
+    root[m[1].trim()] = parseYamlValue(m[2].trim());
+  }
+  return root;
+}
+function parseYamlValue(value) {
+  if (value === "") return null;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  if (value === "null") return null;
+  if (/^-?\d+(\.\d+)?$/.test(value)) return Number(value);
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) return value.slice(1, -1);
+  return value;
+}
+function jsonToYaml(obj, indent = 0) {
+  const pad = " ".repeat(indent);
+  if (Array.isArray(obj)) return obj.map(v => `${pad}- ${typeof v === "object" && v !== null ? "\n" + jsonToYaml(v, indent + 2) : yamlScalar(v)}`).join("\n");
+  if (obj && typeof obj === "object") {
+    return Object.entries(obj).map(([k, v]) => `${pad}${k}: ${typeof v === "object" && v !== null ? "\n" + jsonToYaml(v, indent + 2) : yamlScalar(v)}`).join("\n");
+  }
+  return pad + yamlScalar(obj);
+}
+function yamlScalar(v) {
+  if (typeof v === "string") return /[:#\n]/.test(v) ? JSON.stringify(v) : v;
+  return String(v);
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [], cell = "", quote = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quote = false;
+      else cell += ch;
+    } else {
+      if (ch === '"') quote = true;
+      else if (ch === ",") { row.push(cell); cell = ""; }
+      else if (ch === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+      else if (ch !== "\r") cell += ch;
+    }
+  }
+  row.push(cell);
+  rows.push(row);
+  return rows;
+}
+function csvToJson(text) {
+  const rows = parseCsv(text);
+  const header = rows.shift() || [];
+  return rows.filter(r => r.some(c => c !== "")).map(row => Object.fromEntries(header.map((h, i) => [h, row[i] ?? ""])));
+}
+function jsonToCsv(arr) {
+  if (!Array.isArray(arr)) throw new Error(langText("JSON 배열을 입력하세요.", "Enter a JSON array."));
+  const keys = [...new Set(arr.flatMap(obj => Object.keys(obj)))];
+  const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  return [keys.map(esc).join(","), ...arr.map(obj => keys.map(k => esc(obj[k])).join(","))].join("\n");
+}
+
+function markdownToHtml(md) {
+  const lines = md.split(/\r?\n/);
+  let html = "", inList = false;
+  for (let line of lines) {
+    if (/^\s*[-*]\s+/.test(line)) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += `<li>${inlineMd(line.replace(/^\s*[-*]\s+/, ""))}</li>`;
+      continue;
+    }
+    if (inList) { html += "</ul>"; inList = false; }
+    if (/^#{1,6}\s/.test(line)) {
+      const level = line.match(/^#+/)[0].length;
+      html += `<h${level}>${inlineMd(line.slice(level).trim())}</h${level}>`;
+    } else if (line.trim()) {
+      html += `<p>${inlineMd(line)}</p>`;
+    }
+  }
+  if (inList) html += "</ul>";
+  return html;
+}
+function inlineMd(text) {
+  return escapeHtml(text)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+}
+
+function parseBigIntBase(value, base) {
+  const chars = "0123456789abcdef";
+  let n = 0n;
+  for (const ch of value.toLowerCase().replace(/^0x/, "")) {
+    const digit = chars.indexOf(ch);
+    if (digit < 0 || digit >= base) throw new Error(langText("입력 값과 진수가 맞지 않습니다.", "The input value does not match the selected base."));
+    n = n * BigInt(base) + BigInt(digit);
+  }
+  return n;
+}
+function formatNumber(n) {
+  return Number(n).toLocaleString(undefined, { maximumFractionDigits: 8 });
+}
+
+function ipToInt(ip) {
+  const parts = String(ip).trim().split(".").map(Number);
+  if (parts.length !== 4 || parts.some(p => !Number.isInteger(p) || p < 0 || p > 255)) throw new Error(langText("IPv4 형식 오류", "Invalid IPv4 format."));
+  return parts.reduce((acc, p) => (acc << 8n) + BigInt(p), 0n);
+}
+function intToIp(n) {
+  n = BigInt(n);
+  if (n < 0n || n > 0xffffffffn) throw new Error(langText("0 ~ 4294967295 범위여야 합니다.", "Value must be in the range 0 to 4294967295."));
+  return [24n,16n,8n,0n].map(s => Number((n >> s) & 255n)).join(".");
+}
+
+function decodeJwt(token) {
+  const parts = token.trim().split(".");
+  if (parts.length < 2) throw new Error(langText("JWT는 header.payload.signature 형식이어야 합니다.", "JWT must use the header.payload.signature format."));
+  const header = JSON.parse(dec.decode(base64ToBytes(fromBase64Url(parts[0]))));
+  const payload = JSON.parse(dec.decode(base64ToBytes(fromBase64Url(parts[1]))));
+  const dates = {};
+  const dateDetails = {};
+  for (const key of ["iat", "nbf", "exp"]) {
+    if (payload[key] !== undefined && payload[key] !== null && Number.isFinite(Number(payload[key]))) {
+      const d = new Date(Number(payload[key]) * 1000);
+      dates[key] = formatDate(d);
+      dateDetails[key] = describeJwtTime(key, d);
+    }
+  }
+  return { header, payload, dates, dateDetails, signature: parts[2] || "" };
+}
+function describeJwtTime(key, date) {
+  const diff = date.getTime() - Date.now();
+  const seconds = Math.round(diff / 1000);
+  const abs = Math.abs(seconds);
+  const days = Math.floor(abs / 86400);
+  const hours = Math.floor((abs % 86400) / 3600);
+  const minutes = Math.floor((abs % 3600) / 60);
+  const relative = days ? `${days}d ${hours}h` : hours ? `${hours}h ${minutes}m` : `${minutes}m`;
+  const status = key === "exp"
+    ? diff < 0 ? langText("만료됨", "expired") : langText("유효", "valid")
+    : key === "nbf"
+      ? diff > 0 ? langText("아직 사용 전", "not active yet") : langText("사용 가능", "active")
+      : diff > 0 ? langText("미래 시간", "future time") : langText("발급됨", "issued");
+  return {
+    local: formatDate(date),
+    iso: date.toISOString(),
+    status,
+    relative: diff < 0 ? `${relative} ${langText("전", "ago")}` : `${relative} ${langText("남음", "left")}`,
+    seconds
+  };
+}
+function base64UrlJson(obj) {
+  return toBase64Url(bytesToBase64(enc.encode(JSON.stringify(obj))));
+}
+
+const httpStatusMap = {
+  100:["Continue","요청의 첫 부분을 받았고 계속 진행할 수 있습니다.","The first part of the request was received and processing can continue."],
+  101:["Switching Protocols","프로토콜 전환을 승인했습니다.","The server accepted the protocol switch."],
+  200:["OK","요청이 성공했습니다.","The request succeeded."],
+  201:["Created","새 리소스가 생성되었습니다.","A new resource was created."],
+  202:["Accepted","요청을 접수했지만 처리는 완료되지 않았습니다.","The request was accepted, but processing is not complete."],
+  204:["No Content","성공했지만 응답 본문이 없습니다.","The request succeeded, but there is no response body."],
+  301:["Moved Permanently","리소스가 영구 이동했습니다.","The resource has moved permanently."],
+  302:["Found","리소스가 임시 이동했습니다.","The resource has moved temporarily."],
+  304:["Not Modified","캐시된 리소스를 사용할 수 있습니다.","The cached resource can be used."],
+  307:["Temporary Redirect","메서드를 유지하는 임시 리다이렉트입니다.","Temporary redirect while preserving the request method."],
+  308:["Permanent Redirect","메서드를 유지하는 영구 리다이렉트입니다.","Permanent redirect while preserving the request method."],
+  400:["Bad Request","요청 형식이 잘못되었습니다.","The request syntax is invalid."],
+  401:["Unauthorized","인증이 필요합니다.","Authentication is required."],
+  403:["Forbidden","권한이 없습니다.","Permission is denied."],
+  404:["Not Found","리소스를 찾을 수 없습니다.","The resource was not found."],
+  405:["Method Not Allowed","허용되지 않은 HTTP 메서드입니다.","The HTTP method is not allowed."],
+  409:["Conflict","리소스 상태 충돌이 있습니다.","There is a conflict with the resource state."],
+  422:["Unprocessable Content","문법은 맞지만 의미상 처리할 수 없습니다.","The syntax is valid, but the content cannot be processed semantically."],
+  429:["Too Many Requests","요청 횟수 제한을 초과했습니다.","The request rate limit was exceeded."],
+  500:["Internal Server Error","서버 내부 오류입니다.","The server encountered an internal error."],
+  502:["Bad Gateway","상위 서버에서 잘못된 응답을 받았습니다.","An invalid response was received from an upstream server."],
+  503:["Service Unavailable","서버가 일시적으로 요청을 처리할 수 없습니다.","The server is temporarily unable to handle the request."],
+  504:["Gateway Timeout","상위 서버 응답 시간이 초과되었습니다.","The upstream server response timed out."]
+};
+
+function parseUserAgent(ua) {
+  const browser = /Edg\/([\d.]+)/.exec(ua) ? ["Edge", RegExp.$1] :
+    /Chrome\/([\d.]+)/.exec(ua) ? ["Chrome", RegExp.$1] :
+    /Firefox\/([\d.]+)/.exec(ua) ? ["Firefox", RegExp.$1] :
+    /Version\/([\d.]+).*Safari/.exec(ua) ? ["Safari", RegExp.$1] :
+    /MSIE ([\d.]+)|Trident.*rv:([\d.]+)/.exec(ua) ? ["Internet Explorer", RegExp.$1 || RegExp.$2] : ["Unknown", ""];
+  const os = /Windows NT 10/.test(ua) ? "Windows 10/11" :
+    /Windows NT 6\.1/.test(ua) ? "Windows 7" :
+    /Mac OS X ([\d_]+)/.test(ua) ? "macOS " + RegExp.$1.replace(/_/g, ".") :
+    /Android ([\d.]+)/.test(ua) ? "Android " + RegExp.$1 :
+    /iPhone OS ([\d_]+)/.test(ua) ? "iOS " + RegExp.$1.replace(/_/g, ".") :
+    /Linux/.test(ua) ? "Linux" : "Unknown";
+  return { browser: browser[0], browserVersion: browser[1], os, mobile: /Mobile|Android|iPhone|iPad/.test(ua), raw: ua };
+}
+
+function parseColor(value) {
+  const s = value.trim();
+  let m = s.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (m) {
+    let hex = m[1];
+    if (hex.length === 3) hex = hex.split("").map(ch => ch + ch).join("");
+    return { r: parseInt(hex.slice(0,2), 16), g: parseInt(hex.slice(2,4), 16), b: parseInt(hex.slice(4,6), 16) };
+  }
+  m = s.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+  if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+  m = s.match(/^hsl\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)$/i);
+  if (m) return hslToRgb(+m[1], +m[2], +m[3]);
+  const el = document.createElement("span");
+  el.style.color = s;
+  if (!el.style.color) throw new Error(langText("색상을 해석할 수 없습니다.", "Could not parse the color."));
+  document.body.appendChild(el);
+  const computed = getComputedStyle(el).color;
+  el.remove();
+  m = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) throw new Error(langText("색상을 해석할 수 없습니다.", "Could not parse the color."));
+  return { r: +m[1], g: +m[2], b: +m[3] };
+}
+function rgbToHex(r, g, b) {
+  return "#" + [r,g,b].map(n => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0")).join("").toUpperCase();
+}
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h, s: s * 100, l: l * 100 };
+}
+function hslToRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360 / 360;
+  s /= 100; l /= 100;
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return { r: v, g: v, b: v };
+  }
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return { r: Math.round(hue2rgb(p, q, h + 1/3) * 255), g: Math.round(hue2rgb(p, q, h) * 255), b: Math.round(hue2rgb(p, q, h - 1/3) * 255) };
+}
+function hslToHex(h, s, l) {
+  const rgb = hslToRgb(h, s, l);
+  return rgbToHex(rgb.r, rgb.g, rgb.b);
+}
+function relLum(c) {
+  const f = v => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+}
+function contrastRatio(a, b) {
+  const l1 = relLum(a), l2 = relLum(b);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+function highlightRegex(text, re) {
+  let out = "", last = 0, m, count = 0;
+  while ((m = re.exec(text)) && count++ < 200) {
+    out += escapeHtml(text.slice(last, m.index)) + `<mark class="match">${escapeHtml(m[0])}</mark>`;
+    last = m.index + m[0].length;
+    if (m[0] === "") re.lastIndex++;
+  }
+  out += escapeHtml(text.slice(last));
+  return `<pre style="white-space:pre-wrap;margin:0;font-family:var(--font-mono);font-size:12px">${out}</pre>`;
+}
+function formatSql(sql) {
+  const keywords = ["SELECT","FROM","WHERE","INNER JOIN","LEFT JOIN","RIGHT JOIN","FULL JOIN","JOIN","GROUP BY","ORDER BY","HAVING","LIMIT","OFFSET","VALUES","SET","UPDATE","INSERT INTO","DELETE FROM","AND","OR"];
+  let out = sql.replace(/\s+/g, " ").trim();
+  for (const kw of keywords.sort((a,b) => b.length - a.length)) {
+    out = out.replace(new RegExp("\\b" + kw.replace(" ", "\\s+") + "\\b", "ig"), "\n" + kw);
+  }
+  out = out.replace(/,\s*/g, ",\n  ").trim();
+  return out;
+}
+function minifyCode(code, kind) {
+  if (kind === "html") return code.replace(/<!--[\s\S]*?-->/g, "").replace(/>\s+</g, "><").replace(/\s{2,}/g, " ").trim();
+  if (kind === "css") return code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s*([{}:;,>+~])\s*/g, "$1").replace(/\s{2,}/g, " ").trim();
+  return code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1").replace(/\s+/g, " ").replace(/\s*([{}();,:=+\-*/<>])\s*/g, "$1").trim();
+}
+
+const puny = (() => {
+  const base = 36, tMin = 1, tMax = 26, skew = 38, damp = 700, initialBias = 72, initialN = 128, delimiter = "-";
+  const adapt = (delta, points, first) => {
+    delta = first ? Math.floor(delta / damp) : delta >> 1;
+    delta += Math.floor(delta / points);
+    let k = 0;
+    while (delta > ((base - tMin) * tMax) >> 1) {
+      delta = Math.floor(delta / (base - tMin));
+      k += base;
+    }
+    return k + Math.floor(((base - tMin + 1) * delta) / (delta + skew));
+  };
+  const digit = d => String.fromCharCode(d + 22 + 75 * (d < 26));
+  const value = cp => cp - 48 < 10 ? cp - 22 : cp - 65 < 26 ? cp - 65 : cp - 97 < 26 ? cp - 97 : base;
+  function encode(input) {
+    const cps = [...input].map(ch => ch.codePointAt(0));
+    let n = initialN, delta = 0, bias = initialBias, out = "";
+    for (const cp of cps) if (cp < 0x80) out += String.fromCharCode(cp);
+    let handled = out.length;
+    const basic = handled;
+    if (basic) out += delimiter;
+    while (handled < cps.length) {
+      let m = Infinity;
+      for (const cp of cps) if (cp >= n && cp < m) m = cp;
+      delta += (m - n) * (handled + 1);
+      n = m;
+      for (const cp of cps) {
+        if (cp < n) delta++;
+        if (cp === n) {
+          let q = delta;
+          for (let k = base; ; k += base) {
+            const t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
+            if (q < t) break;
+            out += digit(t + ((q - t) % (base - t)));
+            q = Math.floor((q - t) / (base - t));
+          }
+          out += digit(q);
+          bias = adapt(delta, handled + 1, handled === basic);
+          delta = 0;
+          handled++;
+        }
+      }
+      delta++;
+      n++;
+    }
+    return out;
+  }
+  function decode(input) {
+    let n = initialN, i = 0, bias = initialBias;
+    const out = [];
+    const dash = input.lastIndexOf(delimiter);
+    if (dash > -1) {
+      for (let j = 0; j < dash; j++) out.push(input.charCodeAt(j));
+    }
+    let index = dash > -1 ? dash + 1 : 0;
+    while (index < input.length) {
+      const oldi = i;
+      let w = 1;
+      for (let k = base; ; k += base) {
+        const d = value(input.charCodeAt(index++));
+        i += d * w;
+        const t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
+        if (d < t) break;
+        w *= base - t;
+      }
+      const len = out.length + 1;
+      bias = adapt(i - oldi, len, oldi === 0);
+      n += Math.floor(i / len);
+      i %= len;
+      out.splice(i, 0, n);
+      i++;
+    }
+    return String.fromCodePoint(...out);
+  }
+  return { encode, decode };
+})();
+function domainToAscii(domain) {
+  return domain.split(".").map(label => /^[\x00-\x7f]*$/.test(label) ? label : "xn--" + puny.encode(label)).join(".");
+}
+function domainToUnicode(domain) {
+  return domain.split(".").map(label => label.toLowerCase().startsWith("xn--") ? puny.decode(label.slice(4)) : label).join(".");
+}
+
+const CSS_COLOR_NAMES = "aliceblue,antiquewhite,aqua,aquamarine,azure,beige,bisque,black,blanchedalmond,blue,blueviolet,brown,burlywood,cadetblue,chartreuse,chocolate,coral,cornflowerblue,cornsilk,crimson,cyan,darkblue,darkcyan,darkgoldenrod,darkgray,darkgreen,darkgrey,darkkhaki,darkmagenta,darkolivegreen,darkorange,darkorchid,darkred,darksalmon,darkseagreen,darkslateblue,darkslategray,darkslategrey,darkturquoise,darkviolet,deeppink,deepskyblue,dimgray,dimgrey,dodgerblue,firebrick,floralwhite,forestgreen,fuchsia,gainsboro,ghostwhite,gold,goldenrod,gray,green,greenyellow,grey,honeydew,hotpink,indianred,indigo,ivory,khaki,lavender,lavenderblush,lawngreen,lemonchiffon,lightblue,lightcoral,lightcyan,lightgoldenrodyellow,lightgray,lightgreen,lightgrey,lightpink,lightsalmon,lightseagreen,lightskyblue,lightslategray,lightslategrey,lightsteelblue,lightyellow,lime,limegreen,linen,magenta,maroon,mediumaquamarine,mediumblue,mediumorchid,mediumpurple,mediumseagreen,mediumslateblue,mediumspringgreen,mediumturquoise,mediumvioletred,midnightblue,mintcream,mistyrose,moccasin,navajowhite,navy,oldlace,olive,olivedrab,orange,orangered,orchid,palegoldenrod,palegreen,paleturquoise,palevioletred,papayawhip,peachpuff,peru,pink,plum,powderblue,purple,rebeccapurple,red,rosybrown,royalblue,saddlebrown,salmon,sandybrown,seagreen,seashell,sienna,silver,skyblue,slateblue,slategray,slategrey,snow,springgreen,steelblue,tan,teal,thistle,tomato,turquoise,violet,wheat,white,whitesmoke,yellow,yellowgreen".split(",");
+
+render();
+</script>
+</body>
+</html>
