@@ -33,6 +33,8 @@
 
   /* ---------------------------------------------------------------- 토큰 */
 
+  const t = (key, params) => global.DBSchemaI18n.t(key, params);
+
   function isSpace(ch) {
     return ch === " " || ch === "\t" || ch === "\n" || ch === "\r" || ch === "\f" || ch === "\v";
   }
@@ -739,12 +741,12 @@
 
     const parts = readName(cursor);
     if (!parts.length) {
-      context.warnings.push("이름을 읽을 수 없는 CREATE TABLE 문을 건너뛰었습니다.");
+      context.warnings.push(t("parse.noName"));
       return;
     }
 
     if (!cursor.isPunct("(")) {
-      context.warnings.push(`${parts[parts.length - 1]}: 컬럼 정의가 없어 건너뛰었습니다.`);
+      context.warnings.push(t("parse.noColumns", { table: parts[parts.length - 1] }));
       return;
     }
 
@@ -756,7 +758,7 @@
     const table = createTable(parts, context.tables.length);
     const existing = context.byQualified.get(table.qualified.toLowerCase());
     if (existing) {
-      context.warnings.push(`${table.qualified}: 같은 이름의 테이블이 여러 번 정의되어 마지막 정의만 사용합니다.`);
+      context.warnings.push(t("parse.duplicate", { table: table.qualified }));
       const index = context.tables.indexOf(existing);
       if (index !== -1) context.tables.splice(index, 1);
     }
@@ -1254,7 +1256,7 @@
 
     const source = String(text || "");
     if (source.length > MAX_INPUT_CHARS) {
-      context.warnings.push(`입력이 너무 커서 앞쪽 ${Math.round(MAX_INPUT_CHARS / 1024 / 1024)}MB만 해석했습니다.`);
+      context.warnings.push(t("parse.tooLarge", { mb: Math.round(MAX_INPUT_CHARS / 1024 / 1024) }));
     }
 
     const statements = splitStatements(tokenize(source.slice(0, MAX_INPUT_CHARS)));
@@ -1284,12 +1286,12 @@
             break;
         }
       } catch (error) {
-        context.warnings.push(`구문 해석 중 오류가 발생해 한 문장을 건너뛰었습니다: ${error.message}`);
+        context.warnings.push(t("parse.statementError", { message: error.message }));
       }
     }
 
     if (context.truncated) {
-      context.warnings.push(`테이블이 ${MAX_TABLES}개를 넘어 이후 정의는 표시하지 않습니다.`);
+      context.warnings.push(t("parse.tooManyTables", { count: MAX_TABLES }));
     }
 
     return finalize(context, settings);

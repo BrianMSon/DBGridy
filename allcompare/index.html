@@ -11,7 +11,7 @@
 </head>
 <body>
   <header class="app-header">
-    <a class="brand" href="#" aria-label="AllCompare 홈">
+    <a class="brand" href="#" data-i18n-attr="aria-label:header.brandHome">
       <span class="brand-mark" aria-hidden="true">
         <span>A</span>
         <span>C</span>
@@ -22,9 +22,13 @@
     <div class="header-actions">
       <span class="privacy-note">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.9 8.7 7 10 4.1-1.3 7-5.3 7-10V6l-7-3Zm0 4.2 3 1.3V11c0 2.7-1.4 5.2-3 6.4-1.6-1.2-3-3.7-3-6.4V8.5l3-1.3Z"/></svg>
-        파일은 브라우저 밖으로 나가지 않아요
+        <span data-i18n="header.privacy">파일은 브라우저 밖으로 나가지 않아요</span>
       </span>
-      <button class="icon-button" id="themeButton" type="button" aria-label="다크 모드 전환" title="화면 테마 전환">
+      <div class="lang-switch" id="langSwitch" role="group" data-i18n-attr="aria-label:header.language">
+        <button type="button" data-lang="ko" data-i18n-attr="title:header.languageKo">KO</button>
+        <button type="button" data-lang="en" data-i18n-attr="title:header.languageEn">EN</button>
+      </div>
+      <button class="icon-button" id="themeButton" type="button" aria-label="다크 모드 전환" data-i18n-attr="title:header.themeTitle" title="화면 테마 전환">
         <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0-5v3m0 14v3M4.9 4.9 7 7m10 10 2.1 2.1M2 12h3m14 0h3M4.9 19.1 7 17m10-10 2.1-2.1"/></svg>
       </button>
     </div>
@@ -34,24 +38,24 @@
     <section class="hero" aria-labelledby="pageTitle">
       <div>
         <p class="eyebrow"><span>01</span> UNIVERSAL FILE DIFF</p>
-        <h1 id="pageTitle">파일은 달라도,<br><em>차이는 선명하게.</em></h1>
+        <h1 id="pageTitle" data-i18n-html="hero.title">파일은 달라도,<br><em>차이는 선명하게.</em></h1>
       </div>
       <div class="hero-copy">
-        <p>확장자 대신 실제 내용을 읽습니다. 텍스트, Office, PDF, 압축파일은 구조와 내용을, 이미지는 픽셀을, 그 밖의 파일은 HEX로 비교하세요.</p>
-        <div class="format-row" aria-label="지원 형식 예시">
+        <p data-i18n="hero.copy">확장자 대신 실제 내용을 읽습니다. 텍스트, Office, PDF, 압축파일은 구조와 내용을, 이미지는 픽셀을, 그 밖의 파일은 HEX로 비교하세요.</p>
+        <div class="format-row" data-i18n-attr="aria-label:hero.formats">
           <span>TXT</span><span>DOCX</span><span>PDF</span><span>PPTX</span><span>XLSX</span><span>ZIP</span><span>IMG</span><span>HEX</span><span>+ ANY FILE</span>
         </div>
       </div>
     </section>
 
-    <section class="compare-workspace" aria-label="파일 비교 작업 영역">
+    <section class="compare-workspace" data-i18n-attr="aria-label:workspace.label">
       <div class="input-grid">
         <article class="file-panel" id="leftDropzone" data-side="left">
           <div class="panel-kicker">
             <span class="side-label source">SOURCE</span>
             <div class="panel-actions">
-              <button class="text-button" id="leftFormatButton" type="button">자동 정리</button>
-              <button class="text-button muted" id="leftClearButton" type="button">비우기</button>
+              <button class="text-button" id="leftFormatButton" type="button" data-i18n="panel.format">자동 정리</button>
+              <button class="text-button muted" id="leftClearButton" type="button" data-i18n="panel.clear">비우기</button>
             </div>
           </div>
           <div class="file-title-row">
@@ -61,20 +65,20 @@
             </div>
             <label class="file-picker" for="leftFileInput">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"/></svg>
-              파일 열기
+              <span data-i18n="panel.open">파일 열기</span>
             </label>
             <input id="leftFileInput" type="file" multiple hidden>
           </div>
           <figure class="image-preview" id="leftImagePreview" hidden>
-            <div><img id="leftImage" alt="원본 이미지 미리보기" draggable="false"></div>
+            <div><img id="leftImage" alt="원본 이미지 미리보기" data-i18n-attr="alt:panel.sourceImageAlt" draggable="false"></div>
             <figcaption id="leftImageCaption"></figcaption>
           </figure>
-          <textarea id="leftText" spellcheck="false" aria-label="원본 텍스트" placeholder="파일을 놓거나 비교할 텍스트를 붙여넣으세요."></textarea>
+          <textarea id="leftText" spellcheck="false" data-i18n-attr="aria-label:panel.sourceText;placeholder:panel.textPlaceholder" aria-label="원본 텍스트" placeholder="파일을 놓거나 비교할 텍스트를 붙여넣으세요."></textarea>
           <div class="file-footer">
-            <span>파일 1개/2개 드롭 · 붙여넣기 가능</span>
-            <label>인코딩
-              <select id="leftEncoding" aria-label="원본 파일 인코딩">
-                <option value="auto">자동 감지</option>
+            <span data-i18n="panel.sourceFooter">파일 1개/2개 드롭 · 붙여넣기 가능</span>
+            <label><span data-i18n="panel.encoding">인코딩</span>
+              <select id="leftEncoding" data-i18n-attr="aria-label:panel.sourceEncoding" aria-label="원본 파일 인코딩">
+                <option value="auto" data-i18n="encoding.auto">자동 감지</option>
                 <option value="utf-8">UTF-8</option>
                 <option value="euc-kr">EUC-KR</option>
                 <option value="utf-16le">UTF-16 LE</option>
@@ -84,12 +88,12 @@
             </label>
           </div>
           <div class="drop-overlay" aria-hidden="true">
-            <strong>한 개 또는 두 파일 놓기</strong>
-            <span>두 파일이면 SOURCE / TARGET에 자동 배치합니다</span>
+            <strong data-i18n="drop.title">한 개 또는 두 파일 놓기</strong>
+            <span data-i18n="drop.hint">두 파일이면 SOURCE / TARGET에 자동 배치합니다</span>
           </div>
         </article>
 
-        <button class="swap-button" id="swapButton" type="button" aria-label="원본과 대상 바꾸기" title="원본과 대상 바꾸기 · 이 영역에도 파일 드롭 가능">
+        <button class="swap-button" id="swapButton" type="button" data-i18n-attr="aria-label:swap.label;title:swap.title" aria-label="원본과 대상 바꾸기" title="원본과 대상 바꾸기 · 이 영역에도 파일 드롭 가능">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7-3 3 3 3m-3-3h16M17 17l3-3-3-3m3 3H4"/></svg>
         </button>
 
@@ -97,8 +101,8 @@
           <div class="panel-kicker">
             <span class="side-label target">TARGET</span>
             <div class="panel-actions">
-              <button class="text-button" id="rightFormatButton" type="button">자동 정리</button>
-              <button class="text-button muted" id="rightClearButton" type="button">비우기</button>
+              <button class="text-button" id="rightFormatButton" type="button" data-i18n="panel.format">자동 정리</button>
+              <button class="text-button muted" id="rightClearButton" type="button" data-i18n="panel.clear">비우기</button>
             </div>
           </div>
           <div class="file-title-row">
@@ -108,20 +112,20 @@
             </div>
             <label class="file-picker" for="rightFileInput">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"/></svg>
-              파일 열기
+              <span data-i18n="panel.open">파일 열기</span>
             </label>
             <input id="rightFileInput" type="file" multiple hidden>
           </div>
           <figure class="image-preview" id="rightImagePreview" hidden>
-            <div><img id="rightImage" alt="대상 이미지 미리보기" draggable="false"></div>
+            <div><img id="rightImage" alt="대상 이미지 미리보기" data-i18n-attr="alt:panel.targetImageAlt" draggable="false"></div>
             <figcaption id="rightImageCaption"></figcaption>
           </figure>
-          <textarea id="rightText" spellcheck="false" aria-label="대상 텍스트" placeholder="파일을 놓거나 비교할 텍스트를 붙여넣으세요."></textarea>
+          <textarea id="rightText" spellcheck="false" data-i18n-attr="aria-label:panel.targetText;placeholder:panel.textPlaceholder" aria-label="대상 텍스트" placeholder="파일을 놓거나 비교할 텍스트를 붙여넣으세요."></textarea>
           <div class="file-footer">
-            <span>모든 파일 · 최대 100 MB</span>
-            <label>인코딩
-              <select id="rightEncoding" aria-label="대상 파일 인코딩">
-                <option value="auto">자동 감지</option>
+            <span data-i18n="panel.targetFooter">모든 파일 · 최대 100 MB</span>
+            <label><span data-i18n="panel.encoding">인코딩</span>
+              <select id="rightEncoding" data-i18n-attr="aria-label:panel.targetEncoding" aria-label="대상 파일 인코딩">
+                <option value="auto" data-i18n="encoding.auto">자동 감지</option>
                 <option value="utf-8">UTF-8</option>
                 <option value="euc-kr">EUC-KR</option>
                 <option value="utf-16le">UTF-16 LE</option>
@@ -131,34 +135,34 @@
             </label>
           </div>
           <div class="drop-overlay" aria-hidden="true">
-            <strong>한 개 또는 두 파일 놓기</strong>
-            <span>두 파일이면 SOURCE / TARGET에 자동 배치합니다</span>
+            <strong data-i18n="drop.title">한 개 또는 두 파일 놓기</strong>
+            <span data-i18n="drop.hint">두 파일이면 SOURCE / TARGET에 자동 배치합니다</span>
           </div>
         </article>
       </div>
 
       <div class="compare-controls">
         <fieldset class="option-list">
-          <legend>비교 규칙</legend>
-          <label class="check-control"><input id="trimWhitespace" type="checkbox" checked><span>앞뒤 공백 무시</span></label>
-          <label class="check-control"><input id="collapseWhitespace" type="checkbox"><span>연속 공백 무시</span></label>
-          <label class="check-control"><input id="ignoreCase" type="checkbox"><span>대소문자 무시</span></label>
-          <label class="check-control"><input id="ignoreBlank" type="checkbox"><span>빈 줄 무시</span></label>
+          <legend data-i18n="options.legend">비교 규칙</legend>
+          <label class="check-control"><input id="trimWhitespace" type="checkbox" checked><span data-i18n="options.trim">앞뒤 공백 무시</span></label>
+          <label class="check-control"><input id="collapseWhitespace" type="checkbox"><span data-i18n="options.collapse">연속 공백 무시</span></label>
+          <label class="check-control"><input id="ignoreCase" type="checkbox"><span data-i18n="options.case">대소문자 무시</span></label>
+          <label class="check-control"><input id="ignoreBlank" type="checkbox"><span data-i18n="options.blank">빈 줄 무시</span></label>
           <label class="sort-control">
-            <span>정렬</span>
-            <select id="sortMode" aria-label="정렬 후 비교 기준">
-              <option value="none">원본 순서</option>
-              <option value="line-asc">전체 라인 ↑</option>
-              <option value="line-desc">전체 라인 ↓</option>
-              <option value="field-asc">첫 필드 ↑</option>
-              <option value="field-desc">첫 필드 ↓</option>
+            <span data-i18n="options.sort">정렬</span>
+            <select id="sortMode" data-i18n-attr="aria-label:options.sortLabel" aria-label="정렬 후 비교 기준">
+              <option value="none" data-i18n="sort.none">원본 순서</option>
+              <option value="line-asc" data-i18n="sort.lineAsc">전체 라인 ↑</option>
+              <option value="line-desc" data-i18n="sort.lineDesc">전체 라인 ↓</option>
+              <option value="field-asc" data-i18n="sort.fieldAsc">첫 필드 ↑</option>
+              <option value="field-desc" data-i18n="sort.fieldDesc">첫 필드 ↓</option>
             </select>
           </label>
         </fieldset>
         <div class="primary-actions">
           <span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
           <button class="compare-button" id="compareButton" type="button">
-            차이 비교하기
+            <span data-i18n="action.compare">차이 비교하기</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
           </button>
         </div>
@@ -169,7 +173,7 @@
       <div class="results-topline">
         <div>
           <p class="eyebrow"><span>02</span> COMPARISON RESULT</p>
-          <h2 id="resultsTitle">비교 결과</h2>
+          <h2 id="resultsTitle" data-i18n="results.title">비교 결과</h2>
         </div>
         <div class="result-state" id="resultState">
           <span class="result-dot"></span>
@@ -177,66 +181,66 @@
         </div>
       </div>
 
-      <div class="stats-grid" aria-label="비교 통계">
+      <div class="stats-grid" data-i18n-attr="aria-label:results.statsLabel">
         <div class="stat-cell">
-          <span>유사도</span>
+          <span data-i18n="stat.similarity">유사도</span>
           <strong id="similarityStat">64%</strong>
           <div class="meter"><i id="similarityMeter" style="width:64%"></i></div>
         </div>
         <div class="stat-cell added">
-          <span>추가</span>
+          <span data-i18n="stat.added">추가</span>
           <strong id="addedStat">+1</strong>
-          <small>새로운 라인</small>
+          <small data-i18n="stat.addedNote">새로운 라인</small>
         </div>
         <div class="stat-cell changed">
-          <span>변경</span>
+          <span data-i18n="stat.changed">변경</span>
           <strong id="changedStat">~3</strong>
-          <small>수정된 라인</small>
+          <small data-i18n="stat.changedNote">수정된 라인</small>
         </div>
         <div class="stat-cell removed">
-          <span>삭제</span>
+          <span data-i18n="stat.removed">삭제</span>
           <strong id="removedStat">−0</strong>
-          <small>사라진 라인</small>
+          <small data-i18n="stat.removedNote">사라진 라인</small>
         </div>
         <div class="stat-cell total">
-          <span>검사</span>
+          <span data-i18n="stat.total">검사</span>
           <strong id="totalStat">11</strong>
-          <small>정렬된 라인</small>
+          <small data-i18n="stat.totalNote">정렬된 라인</small>
         </div>
       </div>
 
       <div class="result-toolbar">
-        <div class="segmented" aria-label="결과 보기 방식">
-          <button type="button" class="active" data-view="split">나란히</button>
-          <button type="button" data-view="unified">한 줄로</button>
+        <div class="segmented" data-i18n-attr="aria-label:view.label">
+          <button type="button" class="active" data-view="split" data-i18n="view.split">나란히</button>
+          <button type="button" data-view="unified" data-i18n="view.unified">한 줄로</button>
         </div>
         <div class="toolbar-spacer"></div>
-        <label class="compact-field">문맥
+        <label class="compact-field"><span data-i18n="context.label">문맥</span>
           <select id="contextSelect">
-            <option value="3">3줄</option>
-            <option value="5">5줄</option>
-            <option value="all">모두</option>
+            <option value="3" data-i18n="context.3">3줄</option>
+            <option value="5" data-i18n="context.5">5줄</option>
+            <option value="all" data-i18n="context.all">모두</option>
           </select>
         </label>
-        <output class="diff-position" id="diffPosition" aria-live="polite" aria-label="현재 차이 위치">— / 5</output>
-        <button class="tool-button" id="prevDiffButton" type="button" title="이전 차이">
+        <output class="diff-position" id="diffPosition" aria-live="polite" data-i18n-attr="aria-label:position.label" aria-label="현재 차이 위치">— / 5</output>
+        <button class="tool-button" id="prevDiffButton" type="button" data-i18n-attr="title:nav.prevTitle" title="이전 차이">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg>
-          이전
+          <span data-i18n="nav.prev">이전</span>
         </button>
-        <button class="tool-button" id="nextDiffButton" type="button" title="다음 차이">
-          다음
+        <button class="tool-button" id="nextDiffButton" type="button" data-i18n-attr="title:nav.nextTitle" title="다음 차이">
+          <span data-i18n="nav.next">다음</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
         </button>
       </div>
 
-      <section class="image-diff-panel" id="imageDiffPanel" aria-label="이미지 픽셀 차이" hidden>
+      <section class="image-diff-panel" id="imageDiffPanel" data-i18n-attr="aria-label:imageDiff.label" hidden>
         <div>
           <span>PIXEL DIFFERENCE</span>
-          <strong id="imageDiffTitle">시각적 차이 마스크</strong>
+          <strong id="imageDiffTitle" data-i18n="imageDiff.title">시각적 차이 마스크</strong>
           <p id="imageDiffMeta"></p>
         </div>
         <figure>
-          <img id="imageDiffImage" alt="변경된 이미지 픽셀을 표시하는 차이 마스크" draggable="false">
+          <img id="imageDiffImage" alt="변경된 이미지 픽셀을 표시하는 차이 마스크" data-i18n-attr="alt:imageDiff.alt" draggable="false">
         </figure>
       </section>
 
@@ -245,33 +249,33 @@
           <div><span class="source-dot"></span><strong id="leftDiffTitle">before.config.json</strong></div>
           <div><span class="target-dot"></span><strong id="rightDiffTitle">after.config.json</strong></div>
         </div>
-        <div class="diff-body" id="diffBody" tabindex="0" aria-label="파일 차이">
+        <div class="diff-body" id="diffBody" tabindex="0" data-i18n-attr="aria-label:diff.bodyLabel">
           <div id="diffRows"></div>
-          <aside class="diff-map" id="diffMap" aria-label="차이 위치 미니맵"></aside>
+          <aside class="diff-map" id="diffMap" data-i18n-attr="aria-label:diff.mapLabel"></aside>
         </div>
       </div>
 
       <div class="result-footer">
-        <p id="resultFootnote">모든 비교는 이 탭 안에서만 처리됩니다.</p>
+        <p id="resultFootnote" data-i18n="result.footnoteIdle">모든 비교는 이 탭 안에서만 처리됩니다.</p>
         <div>
           <button class="secondary-button" id="copyButton" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8h10v12H9zM5 4h10v4M5 4v12h4"/></svg>
-            패치 복사
+            <span data-i18n="action.copyPatch">패치 복사</span>
           </button>
           <button class="secondary-button dark" id="exportButton" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
-            CSV 내보내기
+            <span data-i18n="action.exportCsv">CSV 내보내기</span>
           </button>
         </div>
       </div>
     </section>
 
-    <section class="how-it-works" aria-label="AllCompare 특징">
+    <section class="how-it-works" data-i18n-attr="aria-label:features.label">
       <p class="eyebrow"><span>03</span> BUILT FOR FOCUS</p>
       <div class="feature-grid">
-        <article><span>01</span><h3>텍스트부터 바이너리까지</h3><p>Office·PDF·압축파일은 내용을, 이미지는 픽셀을 비교하고 나머지 형식은 전체 바이트를 HEX로 스캔합니다.</p></article>
-        <article><span>02</span><h3>맥락 있는 정렬</h3><p>추가·삭제된 줄을 정렬해 양쪽 위치를 유지하고, 바뀐 구간만 한 번 더 강조합니다.</p></article>
-        <article><span>03</span><h3>완전한 로컬 처리</h3><p>업로드 서버와 계정이 없습니다. 선택한 파일은 현재 브라우저 메모리 안에서만 비교됩니다.</p></article>
+        <article><span>01</span><h3 data-i18n="feature.1.title">텍스트부터 바이너리까지</h3><p data-i18n="feature.1.body">Office·PDF·압축파일은 내용을, 이미지는 픽셀을 비교하고 나머지 형식은 전체 바이트를 HEX로 스캔합니다.</p></article>
+        <article><span>02</span><h3 data-i18n="feature.2.title">맥락 있는 정렬</h3><p data-i18n="feature.2.body">추가·삭제된 줄을 정렬해 양쪽 위치를 유지하고, 바뀐 구간만 한 번 더 강조합니다.</p></article>
+        <article><span>03</span><h3 data-i18n="feature.3.title">완전한 로컬 처리</h3><p data-i18n="feature.3.body">업로드 서버와 계정이 없습니다. 선택한 파일은 현재 브라우저 메모리 안에서만 비교됩니다.</p></article>
       </div>
     </section>
   </main>
@@ -284,6 +288,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="i18n.js"></script>
   <script src="binary-reader.js"></script>
   <script src="excel-reader.js"></script>
   <script src="app.js"></script>

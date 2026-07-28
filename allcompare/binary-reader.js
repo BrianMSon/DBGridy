@@ -14,6 +14,10 @@
   const BINARY_EXTENSION_PATTERN =
     /\.(?:pdf|docx?|docm|dotx|dotm|pptx?|pptm|potx|potm|ppsx|ppsm|xlsb?|xlam|zip|jar|war|apk|epub|odt|ods|odp|pages|numbers|key|rar|7z|gz|gzip|tgz|tar|bz2|xz|zst|png|jpe?g|gif|webp|bmp|tiff?|ico|cur|heic|heif|avif|svg|mp3|wav|flac|aac|ogg|m4a|mp4|m4v|mov|avi|mkv|webm|woff2?|ttf|otf|eot|exe|dll|so|dylib|bin|dat|db|sqlite|class|wasm|psd|ai)$/i;
 
+  function t(key, params) {
+    return global.AllCompareI18n ? global.AllCompareI18n.t(key, params) : key;
+  }
+
   function normalizeArchivePath(path) {
     return String(path || "").replaceAll("\\", "/").replace(/^\/+/, "");
   }
@@ -121,7 +125,7 @@
 
       for (let index = 0; index < entryCount; index += 1) {
         if (offset + 46 > this.bytes.length || this.view.getUint32(offset, true) !== 0x02014b50) {
-          throw new Error("ZIP 중앙 디렉터리를 읽지 못했습니다.");
+          throw new Error(t("reader.zipCentralDirectory"));
         }
 
         const flags = this.view.getUint16(offset + 8, true);
@@ -160,7 +164,7 @@
           return offset;
         }
       }
-      throw new Error("올바른 ZIP 구조가 아닙니다.");
+      throw new Error(t("reader.zipStructure"));
     }
 
     has(path) {
@@ -181,10 +185,10 @@
         return new Uint8Array();
       }
       if ((entry.flags & 0x0001) !== 0) {
-        throw new Error(`암호화된 ZIP 항목은 열 수 없습니다: ${normalizedPath}`);
+        throw new Error(t("reader.zipEncrypted", { path: normalizedPath }));
       }
       if (entry.uncompressedSize > MAX_ARCHIVE_ENTRY_BYTES) {
-        throw new Error(`압축 해제할 내부 파일이 너무 큽니다: ${normalizedPath}`);
+        throw new Error(t("reader.zipEntryTooLarge", { path: normalizedPath }));
       }
 
       const localOffset = entry.localHeaderOffset;
@@ -192,7 +196,7 @@
         localOffset + 30 > this.bytes.length ||
         this.view.getUint32(localOffset, true) !== 0x04034b50
       ) {
-        throw new Error(`ZIP 내부 파일 헤더가 손상되었습니다: ${normalizedPath}`);
+        throw new Error(t("reader.zipHeaderDamaged", { path: normalizedPath }));
       }
 
       const fileNameLength = this.view.getUint16(localOffset + 26, true);
@@ -205,10 +209,10 @@
       }
       if (entry.compressionMethod !== 8) {
         throw new Error(
-          `지원하지 않는 ZIP 압축 방식(${entry.compressionMethod})입니다: ${normalizedPath}`
+          t("reader.zipMethod", { method: entry.compressionMethod, path: normalizedPath })
         );
       }
-      return decompress(compressed, "deflate-raw", `ZIP 내부 파일 ${normalizedPath}`);
+      return decompress(compressed, "deflate-raw", t("reader.zipEntryLabel", { path: normalizedPath }));
     }
 
     async text(path) {
@@ -219,27 +223,29 @@
 
   async function decompress(bytes, format, label) {
     if (typeof DecompressionStream === "undefined") {
-      throw new Error(`${label} 압축 해제를 지원하는 최신 브라우저가 필요합니다.`);
+      throw new Error(t("reader.decompressUnsupported", { label }));
     }
     try {
       const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream(format));
       const result = new Uint8Array(await new Response(stream).arrayBuffer());
       if (result.byteLength > MAX_ARCHIVE_ENTRY_BYTES) {
-        throw new Error(`${label}의 압축 해제 결과가 너무 큽니다.`);
+        const oversized = new Error(t("reader.decompressTooLarge", { label }));
+        oversized.oversized = true;
+        throw oversized;
       }
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("너무 큽니다")) {
+      if (error?.oversized) {
         throw error;
       }
-      throw new Error(`${label}의 압축을 풀지 못했습니다.`);
+      throw new Error(t("reader.decompressFailed", { label }));
     }
   }
 
   function parseXml(xml, path) {
     const documentNode = new DOMParser().parseFromString(xml, "application/xml");
     if (documentNode.querySelector("parsererror")) {
-      throw new Error(`문서 XML을 읽지 못했습니다: ${path}`);
+      throw new Error(t("reader.xmlFailed", { path }));
     }
     return documentNode;
   }
@@ -261,7 +267,7 @@
 
   async function sha256(buffer) {
     if (!global.crypto?.subtle) {
-      return "사용 불가";
+      return t("reader.hashUnavailable");
     }
     const digest = await global.crypto.subtle.digest("SHA-256", buffer);
     return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
@@ -331,7 +337,7 @@
       const image = await new Promise((resolve, reject) => {
         const element = new Image();
         element.onload = () => resolve(element);
-        element.onerror = () => reject(new Error("이미지를 디코딩하지 못했습니다."));
+        element.onerror = () => reject(new Error(t("reader.imageDecodeFailed")));
         element.src = url;
       });
       return {
@@ -350,13 +356,13 @@
     const bytes = new Uint8Array(buffer);
     const mimeType = imageMimeType(bytes, fileName);
     if (!mimeType) {
-      throw new Error("이미지 형식을 확인하지 못했습니다.");
+      throw new Error(t("reader.imageFormatUnknown"));
     }
 
     const decoded = await decodeImageSource(new Blob([buffer], { type: mimeType }));
     if (!decoded.width || !decoded.height) {
       decoded.close();
-      throw new Error("이미지 크기를 확인하지 못했습니다.");
+      throw new Error(t("reader.imageSizeUnknown"));
     }
 
     const scale = Math.min(
@@ -372,7 +378,7 @@
     const context = canvas.getContext("2d", { willReadFrequently: true });
     if (!context) {
       decoded.close();
-      throw new Error("이미지 픽셀을 읽을 수 없습니다.");
+      throw new Error(t("reader.imagePixelsUnavailable"));
     }
     context.clearRect(0, 0, sampleWidth, sampleHeight);
     context.drawImage(decoded.source, 0, 0, sampleWidth, sampleHeight);
@@ -389,8 +395,8 @@
     const format = imageFormatName(mimeType, fileName);
     const icoEntries = mimeType === "image/x-icon" ? readIcoEntries(bytes) : [];
     const sampleLabel = scale < 1
-      ? `${sampleWidth}×${sampleHeight} (${(scale * 100).toFixed(1)}% 축소)`
-      : `${sampleWidth}×${sampleHeight} (원본 크기)`;
+      ? `${sampleWidth}×${sampleHeight} (${t("reader.imageScaled", { percent: (scale * 100).toFixed(1) })})`
+      : `${sampleWidth}×${sampleHeight} (${t("reader.imageOriginal")})`;
     const lines = [
       ...binaryHeader(fileName, `${format} image`, buffer, hash),
       `# Dimensions: ${decoded.width}×${decoded.height}`,
@@ -489,7 +495,7 @@
       ? "word/document.xml"
       : archive.pathsMatching(/\/document\.xml$/i)[0];
     if (!documentPath) {
-      throw new Error("Word 본문을 찾지 못했습니다.");
+      throw new Error(t("reader.wordBodyMissing"));
     }
 
     sections.push("# Document body", ...wordXmlLines(await archive.text(documentPath), documentPath));
@@ -528,7 +534,7 @@
     const slidePaths = archive.pathsMatching(/^ppt\/slides\/slide\d+\.xml$/i)
       .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
     if (!slidePaths.length) {
-      throw new Error("PowerPoint 슬라이드를 찾지 못했습니다.");
+      throw new Error(t("reader.pptSlidesMissing"));
     }
 
     const lines = [];
@@ -551,7 +557,9 @@
       text: `${binaryHeader(fileName, "PowerPoint OOXML", buffer, hash)
         .concat(`# Slides: ${slidePaths.length}`, "", lines)
         .join("\n")}\n`,
-      encoding: `PowerPoint · ${slidePaths.length}슬라이드`,
+      encoding: t("encodingLabel.pptx", { count: slidePaths.length }),
+      encodingKey: "encodingLabel.pptx",
+      encodingParams: { count: slidePaths.length },
       kind: "document",
       hash
     };
@@ -560,7 +568,7 @@
   async function readOpenDocument(archive, buffer, fileName, hash) {
     const contentXml = await archive.text("content.xml");
     if (!contentXml) {
-      throw new Error("OpenDocument 본문을 찾지 못했습니다.");
+      throw new Error(t("reader.odfBodyMissing"));
     }
     const documentNode = parseXml(contentXml, "content.xml");
     const lines = [];
@@ -607,7 +615,9 @@
     }
     return {
       text: `${lines.join("\n")}\n`,
-      encoding: `ZIP · ${files.length}파일`,
+      encoding: t("encodingLabel.zip", { count: files.length }),
+      encodingKey: "encodingLabel.zip",
+      encodingParams: { count: files.length },
       kind: "archive",
       hash
     };
@@ -714,14 +724,14 @@
   async function inflatePdfStream(bytes) {
     const ensurePdfLimit = (result) => {
       if (result.byteLength > MAX_PDF_STREAM_BYTES) {
-        throw new Error("PDF 텍스트 스트림이 너무 큽니다.");
+        throw new Error(t("reader.pdfStreamTooLarge"));
       }
       return result;
     };
     try {
-      return ensurePdfLimit(await decompress(bytes, "deflate", "PDF 스트림"));
+      return ensurePdfLimit(await decompress(bytes, "deflate", t("reader.pdfStreamLabel")));
     } catch {
-      return ensurePdfLimit(await decompress(bytes, "deflate-raw", "PDF 스트림"));
+      return ensurePdfLimit(await decompress(bytes, "deflate-raw", t("reader.pdfStreamLabel")));
     }
   }
 
@@ -788,11 +798,13 @@
       ...metadata,
       "",
       "# Extracted text",
-      ...(uniqueLines.length ? uniqueLines : ["[추출 가능한 텍스트 없음 — 원본 SHA-256으로 바이너리 변경 확인]"])
+      ...(uniqueLines.length ? uniqueLines : [t("reader.pdfNoText")])
     ];
     return {
       text: `${lines.join("\n")}\n`,
-      encoding: `PDF · ${pageCount || "?"}페이지`,
+      encoding: t("encodingLabel.pdf", { pages: pageCount || "?" }),
+      encodingKey: "encodingLabel.pdf",
+      encodingParams: { pages: pageCount || "?" },
       kind: "pdf",
       hash
     };
@@ -830,7 +842,9 @@
     lines.splice(4, 0, `# Entries: ${count}`);
     return {
       text: `${lines.join("\n")}\n`,
-      encoding: `TAR · ${count}파일`,
+      encoding: t("encodingLabel.tar", { count }),
+      encodingKey: "encodingLabel.tar",
+      encodingParams: { count },
       kind: "archive",
       hash
     };
@@ -994,7 +1008,7 @@
     }
     if (isGzip(bytes)) {
       try {
-        const unpacked = await decompress(bytes, "gzip", "GZIP 파일");
+        const unpacked = await decompress(bytes, "gzip", t("reader.gzipLabel"));
         if (isTar(unpacked, fileName.replace(/\.(?:gz|gzip|tgz)$/i, ".tar"))) {
           return readTar(
             unpacked.buffer.slice(unpacked.byteOffset, unpacked.byteOffset + unpacked.byteLength),

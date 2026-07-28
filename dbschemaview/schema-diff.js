@@ -177,13 +177,14 @@
 
   /* ------------------------------------------------------------- 컬럼 비교 */
 
+  // 라벨은 언어가 바뀔 수 있으니 이름표만 들고 있다가 쓸 때 옮긴다.
   const COLUMN_FIELDS = [
-    { key: "type", label: "타입", read: (column) => column.type || "", normalize: normalizeType },
-    { key: "nullable", label: "NULL", read: (column) => (column.nullable ? "NULL" : "NOT NULL") },
-    { key: "defaultValue", label: "기본값", read: (column) => column.defaultValue, normalize: normalizeDefault },
-    { key: "auto", label: "자동 증가", read: (column) => (column.auto ? "AUTO" : "—") },
-    { key: "generated", label: "생성 컬럼", read: (column) => (column.generated ? "GENERATED" : "—") },
-    { key: "comment", label: "설명", read: (column) => column.comment || "" }
+    { key: "type", labelKey: "field.type", read: (column) => column.type || "", normalize: normalizeType },
+    { key: "nullable", labelKey: "field.nullable", read: (column) => (column.nullable ? "NULL" : "NOT NULL") },
+    { key: "defaultValue", labelKey: "field.default", read: (column) => column.defaultValue, normalize: normalizeDefault },
+    { key: "auto", labelKey: "field.auto", read: (column) => (column.auto ? "AUTO" : "—") },
+    { key: "generated", labelKey: "field.generated", read: (column) => (column.generated ? "GENERATED" : "—") },
+    { key: "comment", labelKey: "field.comment", read: (column) => column.comment || "" }
   ];
 
   function columnChanges(source, target) {
@@ -195,7 +196,7 @@
       if (normalize(from) === normalize(to)) continue;
       changes.push({
         field: field.key,
-        label: field.label,
+        label: global.DBSchemaI18n.t(field.labelKey),
         from: from == null ? "" : String(from),
         to: to == null ? "" : String(to)
       });
@@ -300,7 +301,7 @@
       if (relationAction(source) !== relationAction(relation)) {
         changes.push({
           field: "action",
-          label: "참조 동작",
+          label: global.DBSchemaI18n.t("field.action"),
           from: `ON DELETE ${source.onDelete || "NO ACTION"} · ON UPDATE ${source.onUpdate || "NO ACTION"}`,
           to: `ON DELETE ${relation.onDelete || "NO ACTION"} · ON UPDATE ${relation.onUpdate || "NO ACTION"}`
         });

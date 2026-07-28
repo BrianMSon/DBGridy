@@ -166,6 +166,37 @@ svg {
   stroke: none;
 }
 
+.lang-switch {
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  display: flex;
+  gap: 2px;
+}
+
+.lang-switch button {
+  min-width: 34px;
+  height: 30px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: 800 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.lang-switch button:hover {
+  color: var(--ink);
+}
+
+.lang-switch button.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .icon-button {
   width: 38px;
   height: 38px;

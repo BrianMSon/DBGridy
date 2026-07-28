@@ -5,32 +5,12 @@ const MAX_FILE_BYTES = MAX_FILE_MEGABYTES * 1024 * 1024;
 const MAX_EXACT_DIFF_CELLS = 1_500_000;
 const MAX_RENDERED_ROWS = 12_000;
 
-const SAMPLE_LEFT = `{
-  "name": "AllCompare",
-  "version": "1.0.0",
-  "features": [
-    "모든 텍스트 포맷",
-    "로컬 처리",
-    "라인 비교"
-  ],
-  "theme": "paper"
-}`;
-
-const SAMPLE_RIGHT = `{
-  "name": "AllCompare",
-  "version": "1.1.0",
-  "features": [
-    "모든 텍스트 포맷",
-    "브라우저 로컬 처리",
-    "라인 비교",
-    "CSV 내보내기"
-  ],
-  "theme": "ink"
-}`;
+const i18n = globalThis.AllCompareI18n;
+const t = (key, params) => i18n.t(key, params);
 
 const state = {
-  left: createDocumentState("before.config.json", SAMPLE_LEFT),
-  right: createDocumentState("after.config.json", SAMPLE_RIGHT),
+  left: createDocumentState("before.config.json", t("sample.left")),
+  right: createDocumentState("after.config.json", t("sample.right")),
   rows: [],
   differences: [],
   stats: null,
@@ -94,6 +74,7 @@ const elements = {
   copyButton: document.querySelector("#copyButton"),
   exportButton: document.querySelector("#exportButton"),
   themeButton: document.querySelector("#themeButton"),
+  langSwitch: document.querySelector("#langSwitch"),
   toast: document.querySelector("#toast")
 };
 
@@ -104,6 +85,8 @@ function createDocumentState(name, text) {
     buffer: null,
     size: new TextEncoder().encode(text).byteLength,
     encoding: "UTF-8",
+    encodingKey: null,
+    encodingParams: null,
     kind: "text",
     hash: null,
     image: null,
@@ -175,7 +158,7 @@ function updateDocumentUi(side) {
     imageCaption.textContent =
       `${documentState.image.format} · ${documentState.image.width}×${documentState.image.height}` +
       (documentState.image.scale < 1
-        ? ` · ${(documentState.image.scale * 100).toFixed(1)}% 픽셀 샘플`
+        ? t("image.sampleSuffix", { percent: (documentState.image.scale * 100).toFixed(1) })
         : "");
   } else {
     imageElement.removeAttribute("src");
@@ -183,12 +166,18 @@ function updateDocumentUi(side) {
   }
 
   const origin = documentState.source === "sample"
-    ? "샘플"
+    ? t("doc.originSample")
     : documentState.source === "file"
       ? formatBytes(documentState.size)
-      : "직접 입력";
-  const edited = documentState.edited ? " · 편집됨" : "";
-  fileMeta.textContent = `${origin} · ${lineCount(documentState.text)}줄 · ${documentState.encoding}${edited}`;
+      : t("doc.originManual");
+  fileMeta.textContent = t("doc.meta", {
+    origin,
+    lines: lineCount(documentState.text),
+    encoding: documentState.encodingKey
+      ? t(documentState.encodingKey, documentState.encodingParams)
+      : documentState.encoding,
+    edited: documentState.edited
+  });
 }
 
 function releaseDocumentResources(documentState) {
@@ -207,11 +196,14 @@ function renderImageComparison(summary) {
   }
   elements.imageDiffImage.src = summary.diffDataUrl;
   elements.imageDiffTitle.textContent = summary.changedPixels === 0
-    ? "디코딩된 픽셀이 동일합니다"
-    : "변경 픽셀 차이 마스크";
-  elements.imageDiffMeta.textContent =
-    `${summary.changedPixels.toLocaleString()} / ${summary.comparedPixels.toLocaleString()}픽셀 변경` +
-    ` · 차이 ${summary.changePercent.toFixed(4)}% · 영역 ${summary.bounds}`;
+    ? t("imageDiff.identical")
+    : t("imageDiff.changed");
+  elements.imageDiffMeta.textContent = t("imageDiff.meta", {
+    changed: summary.changedPixels.toLocaleString(),
+    compared: summary.comparedPixels.toLocaleString(),
+    percent: summary.changePercent.toFixed(4),
+    bounds: summary.bounds
+  });
 }
 
 function updateAllDocumentUi() {
@@ -668,10 +660,15 @@ function compareNow(shouldScroll = false) {
     ? ""
     : ` · ${elements.sortMode.selectedOptions[0].textContent}`;
   elements.resultFootnote.textContent = hexSummary
-    ? `브라우저 로컬 HEX 전체 스캔 · ${hexSummary.changedBytes.toLocaleString()}바이트 차이 · ${elapsed}ms`
+    ? t("footnote.hex", { bytes: hexSummary.changedBytes.toLocaleString(), elapsed })
     : imageSummary
-      ? `브라우저 로컬 이미지 픽셀 비교 · ${imageSummary.changedPixels.toLocaleString()}픽셀 차이 · ${elapsed}ms`
-      : `브라우저 로컬 처리 · ${result.stats.leftLines.toLocaleString()}줄 ↔ ${result.stats.rightLines.toLocaleString()}줄 · ${elapsed}ms${sortLabel}`;
+      ? t("footnote.image", { pixels: imageSummary.changedPixels.toLocaleString(), elapsed })
+      : t("footnote.text", {
+        left: result.stats.leftLines.toLocaleString(),
+        right: result.stats.rightLines.toLocaleString(),
+        elapsed,
+        sort: sortLabel
+      });
 
   if (shouldScroll) {
     document.querySelector("#resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -740,7 +737,8 @@ function lineMarkup(line, highlightedValue = null) {
   }
   return {
     number: line.number.toLocaleString(),
-    content: highlightedValue ?? (line.content ? escapeHtml(line.content) : `<span aria-label="빈 줄">&nbsp;</span>`)
+    content: highlightedValue ??
+      (line.content ? escapeHtml(line.content) : `<span aria-label="${escapeHtml(t("diff.blankLine"))}">&nbsp;</span>`)
   };
 }
 
@@ -885,8 +883,8 @@ function renderDiffRows() {
   if (state.rows.length === 0) {
     elements.diffRows.innerHTML = `
       <div class="empty-result">
-        <strong>비교할 텍스트가 없습니다</strong>
-        <p>위 입력 칸에 파일을 놓거나 텍스트를 붙여넣으세요.</p>
+        <strong>${escapeHtml(t("diff.emptyTitle"))}</strong>
+        <p>${escapeHtml(t("diff.emptyBody"))}</p>
       </div>`;
     return;
   }
@@ -894,7 +892,7 @@ function renderDiffRows() {
   const visibleRows = visibleRowsWithContext(state.rows);
   elements.diffRows.innerHTML = visibleRows.map((row) => {
     if (row.type === "gap") {
-      return `<div class="diff-gap">${row.hiddenCount.toLocaleString()}개 동일 라인 접힘</div>`;
+      return `<div class="diff-gap">${escapeHtml(t("diff.gap", { count: row.hiddenCount.toLocaleString() }))}</div>`;
     }
     return state.view === "split" ? splitRowMarkup(row) : unifiedRowMarkup(row);
   }).join("");
@@ -930,8 +928,8 @@ function renderStatistics() {
 
   elements.resultState.classList.toggle("identical", differenceCount === 0);
   elements.resultStateText.textContent = differenceCount === 0
-    ? "두 텍스트가 같습니다"
-    : `차이 ${differenceCount.toLocaleString()}개를 찾았습니다`;
+    ? t("result.identical")
+    : t("result.differences", { count: differenceCount.toLocaleString() });
 
   elements.prevDiffButton.disabled = differenceCount === 0;
   elements.nextDiffButton.disabled = differenceCount === 0;
@@ -950,8 +948,8 @@ function updateDifferencePosition() {
   elements.diffPosition.setAttribute(
     "aria-label",
     hasCurrent
-      ? `현재 차이 ${current}, 전체 ${total}`
-      : `선택된 차이 없음, 전체 ${total}`
+      ? t("position.current", { current, total })
+      : t("position.none", { total })
   );
 }
 
@@ -1014,7 +1012,7 @@ function looksBinary(bytes) {
 function decodeBuffer(buffer, requestedEncoding = "auto") {
   const bytes = new Uint8Array(buffer);
   if (looksBinary(bytes)) {
-    throw new Error("이 파일은 바이너리 형식으로 보입니다. 텍스트로 저장한 뒤 다시 시도해 주세요.");
+    throw new Error(t("error.binaryFile"));
   }
 
   if (requestedEncoding !== "auto") {
@@ -1068,7 +1066,10 @@ async function loadFile(side, file, { compare = true, notify = true } = {}) {
     return false;
   }
   if (file.size > MAX_FILE_BYTES) {
-    showToast(`${MAX_FILE_MEGABYTES} MB 이하 파일을 선택해 주세요. 현재 파일: ${formatBytes(file.size)}`);
+    showToast(t("toast.fileTooLarge", {
+      limit: MAX_FILE_MEGABYTES,
+      size: formatBytes(file.size)
+    }));
     return false;
   }
 
@@ -1103,6 +1104,8 @@ async function loadFile(side, file, { compare = true, notify = true } = {}) {
       buffer,
       size: file.size,
       encoding: decoded.encoding,
+      encodingKey: decoded.encodingKey || null,
+      encodingParams: decoded.encodingParams || null,
       kind,
       hash: decoded.hash || null,
       image: decoded.image || null,
@@ -1115,11 +1118,11 @@ async function loadFile(side, file, { compare = true, notify = true } = {}) {
       compareNow(false);
     }
     if (notify) {
-      showToast(`${file.name} 파일을 로컬에서 열었습니다.`);
+      showToast(t("toast.fileOpened", { name: file.name }));
     }
     return true;
   } catch (error) {
-    showToast(error instanceof Error ? error.message : "파일을 읽지 못했습니다.");
+    showToast(error instanceof Error ? error.message : t("error.readFile"));
     return false;
   }
 }
@@ -1145,7 +1148,7 @@ async function loadSelectedFiles(fileList, preferredSide) {
   if (loadedCount === 2) {
     showToast(`${files[0].name} → SOURCE · ${files[1].name} → TARGET`);
   } else if (loadedCount === 1) {
-    showToast("두 파일 중 한 개만 열었습니다. 다른 파일 형식을 확인해 주세요.");
+    showToast(t("toast.onlyOneFile"));
   }
 }
 
@@ -1159,11 +1162,13 @@ function redecodeFile(side) {
     const decoded = decodeBuffer(documentState.buffer, elements[`${side}Encoding`].value);
     documentState.text = decoded.text;
     documentState.encoding = decoded.encoding;
+    documentState.encodingKey = null;
+    documentState.encodingParams = null;
     documentState.edited = false;
     updateDocumentUi(side);
     compareNow(false);
   } catch (error) {
-    showToast(error instanceof Error ? error.message : "선택한 인코딩으로 읽지 못했습니다.");
+    showToast(error instanceof Error ? error.message : t("error.redecode"));
   }
 }
 
@@ -1176,6 +1181,8 @@ function updateManualText(side) {
   documentState.size = new TextEncoder().encode(text).byteLength;
   documentState.source = "manual";
   documentState.encoding = "UTF-8";
+  documentState.encodingKey = null;
+  documentState.encodingParams = null;
   documentState.kind = "text";
   documentState.hash = null;
   documentState.image = null;
@@ -1192,6 +1199,8 @@ function clearDocument(side) {
     buffer: null,
     size: 0,
     encoding: "UTF-8",
+    encodingKey: null,
+    encodingParams: null,
     kind: "text",
     hash: null,
     image: null,
@@ -1208,25 +1217,25 @@ function clearDocument(side) {
 function formatDocument(side) {
   const documentState = state[side];
   if (documentState.kind !== "text") {
-    showToast("문서·아카이브·HEX 보기는 원본 구조를 유지하기 위해 자동 정리하지 않습니다.");
+    showToast(t("toast.formatUnsupported"));
     return;
   }
   const trimmed = documentState.text.trim();
   if (!trimmed) {
-    showToast("정리할 텍스트가 없습니다.");
+    showToast(t("toast.formatEmpty"));
     return;
   }
 
   try {
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
       documentState.text = `${JSON.stringify(JSON.parse(trimmed), null, 2)}\n`;
-      showToast("JSON 들여쓰기를 정리했습니다.");
+      showToast(t("toast.formatJson"));
     } else {
       documentState.text = normalizeLineEndings(documentState.text)
         .split("\n")
         .map((line) => line.replace(/[ \t]+$/g, ""))
         .join("\n");
-      showToast("줄바꿈과 줄 끝 공백을 정리했습니다.");
+      showToast(t("toast.formatText"));
     }
     documentState.buffer = null;
     documentState.size = new TextEncoder().encode(documentState.text).byteLength;
@@ -1238,7 +1247,7 @@ function formatDocument(side) {
     updateDocumentUi(side);
     compareNow(false);
   } catch {
-    showToast("JSON 문법을 확인해 주세요. 원문은 변경하지 않았습니다.");
+    showToast(t("toast.formatJsonError"));
   }
 }
 
@@ -1255,7 +1264,7 @@ function swapDocuments() {
   elements.rightFileInput.value = "";
   updateAllDocumentUi();
   compareNow(false);
-  showToast("원본과 대상의 위치를 바꿨습니다.");
+  showToast(t("toast.swapped"));
 }
 
 function csvEscape(value) {
@@ -1277,7 +1286,7 @@ function downloadBlob(fileName, type, content) {
 
 function exportCsv() {
   if (state.differences.length === 0) {
-    showToast("내보낼 차이가 없습니다.");
+    showToast(t("toast.exportEmpty"));
     return;
   }
 
@@ -1293,7 +1302,7 @@ function exportCsv() {
   const content = [header, ...rows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
   const date = new Date().toISOString().slice(0, 10);
   downloadBlob(`allcompare-${date}.csv`, "text/csv;charset=utf-8", content);
-  showToast(`차이 ${state.differences.length.toLocaleString()}개를 CSV로 내보냈습니다.`);
+  showToast(t("toast.exported", { count: state.differences.length.toLocaleString() }));
 }
 
 function buildUnifiedPatch() {
@@ -1316,13 +1325,13 @@ function buildUnifiedPatch() {
 
 async function copyPatch() {
   if (state.rows.length === 0) {
-    showToast("복사할 결과가 없습니다.");
+    showToast(t("toast.copyEmpty"));
     return;
   }
 
   try {
     await navigator.clipboard.writeText(buildUnifiedPatch());
-    showToast("통합 패치를 클립보드에 복사했습니다.");
+    showToast(t("toast.copied"));
   } catch {
     const textArea = document.createElement("textarea");
     textArea.value = buildUnifiedPatch();
@@ -1332,7 +1341,7 @@ async function copyPatch() {
     textArea.select();
     document.execCommand("copy");
     textArea.remove();
-    showToast("통합 패치를 클립보드에 복사했습니다.");
+    showToast(t("toast.copied"));
   }
 }
 
@@ -1340,7 +1349,7 @@ function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   elements.themeButton.setAttribute(
     "aria-label",
-    theme === "dark" ? "라이트 모드 전환" : "다크 모드 전환"
+    theme === "dark" ? t("header.themeToLight") : t("header.themeToDark")
   );
   try {
     localStorage.setItem("allcompare-theme", theme);
@@ -1358,6 +1367,35 @@ function initializeTheme() {
   }
   const preferredTheme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   setTheme(savedTheme || preferredTheme);
+}
+
+function updateLanguageButtons() {
+  const language = i18n.getLanguage();
+  elements.langSwitch.querySelectorAll("[data-lang]").forEach((button) => {
+    const isActive = button.dataset.lang === language;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function applyLanguage() {
+  const activeDifference = state.activeDifference;
+
+  ["left", "right"].forEach((side) => {
+    if (state[side].source !== "sample") {
+      return;
+    }
+    const text = t(`sample.${side}`);
+    state[side].text = text;
+    state[side].size = new TextEncoder().encode(text).byteLength;
+  });
+
+  updateLanguageButtons();
+  setTheme(document.documentElement.dataset.theme);
+  compareNow(false);
+  if (activeDifference >= 0) {
+    activateDifference(activeDifference);
+  }
 }
 
 function attachDropzone(side) {
@@ -1478,6 +1516,12 @@ function bindEvents() {
   elements.themeButton.addEventListener("click", () => {
     setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
   });
+  elements.langSwitch.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-lang]");
+    if (button) {
+      i18n.setLanguage(button.dataset.lang);
+    }
+  });
 
   document.querySelector("#leftClearButton").addEventListener("click", () => clearDocument("left"));
   document.querySelector("#rightClearButton").addEventListener("click", () => clearDocument("right"));
@@ -1546,6 +1590,8 @@ function bindEvents() {
 
 function initialize() {
   initializeTheme();
+  updateLanguageButtons();
+  i18n.onChange(applyLanguage);
   updateAllDocumentUi();
   bindEvents();
   compareNow(false);

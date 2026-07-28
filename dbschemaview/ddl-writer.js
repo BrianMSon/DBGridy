@@ -14,8 +14,15 @@
     { id: "postgres", label: "PostgreSQL" },
     { id: "mssql", label: "SQL Server" },
     { id: "oracle", label: "Oracle" },
-    { id: "sqlite", label: "SQLite (제한)" }
+    { id: "sqlite", labelKey: "dialect.sqlite" }
   ];
+
+  const t = (key, params) => global.DBSchemaI18n.t(key, params);
+
+  // 방언 이름은 대부분 고유명사라 그대로 두고, 설명이 붙는 것만 옮긴다.
+  function dialectLabel(entry) {
+    return entry.labelKey ? t(entry.labelKey) : entry.label;
+  }
 
   function quoteIdentifier(dialect, name) {
     const text = String(name || "");
@@ -64,20 +71,18 @@
       // SQLite 의 자동 증가는 INTEGER PRIMARY KEY AUTOINCREMENT 한 가지 형태뿐이다.
       if (dialect === "sqlite" && column.auto && options.inlinePrimaryKey) {
         if (!/^integer$/i.test(column.type || "")) {
-          notes.add(`SQLite 자동 증가는 INTEGER 만 허용해 ${column.name} 의 타입을 ${column.type} 에서 INTEGER 로 바꿨습니다.`);
+          notes.add(t("note.sqliteAuto", { column: column.name, type: column.type }));
         }
         return `${q(column.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
       }
       if (dialect === "sqlite" && column.auto) {
-        notes.add(`SQLite 는 기본키가 아닌 ${column.name} 의 자동 증가를 표현하지 못합니다.`);
+        notes.add(t("note.sqliteAutoNonPk", { column: column.name }));
       }
 
       const parts = [q(column.name), column.type || "VARCHAR(255)"];
 
       if (column.generated) {
-        notes.add(
-          `${column.name} 은(는) 생성 컬럼입니다. 계산식은 DDL 원문에 남아 있지 않으므로 직접 채워야 합니다.`
-        );
+        notes.add(t("note.generated", { column: column.name }));
       }
       if (column.defaultValue) parts.push(`DEFAULT ${column.defaultValue}`);
       if (!column.nullable) parts.push("NOT NULL");
@@ -147,7 +152,7 @@
     if (relation.onDelete) parts.push(`ON DELETE ${relation.onDelete}`);
     if (relation.onUpdate) {
       if (writer.dialect === "oracle") {
-        writer.notes.add("Oracle 은 ON UPDATE 를 지원하지 않아 해당 절을 뺐습니다.");
+        writer.notes.add(t("note.oracleOnUpdate"));
       } else {
         parts.push(`ON UPDATE ${relation.onUpdate}`);
       }
@@ -157,7 +162,7 @@
 
   function relationName(writer, relation) {
     if (relation.name) return relation.name;
-    writer.notes.add("이름 없는 외래키는 관례 이름(fk_테이블_컬럼)으로 적었습니다. 실제 제약 이름을 확인하세요.");
+    writer.notes.add(t("note.unnamedFk"));
     return conventionName("fk", relation.fromTable.name, relation.fromColumns);
   }
 
@@ -173,9 +178,7 @@
   function addColumnSql(writer, table, column) {
     const { ref, columnSql } = writer;
     if (!column.nullable && !column.defaultValue && !column.auto) {
-      writer.notes.add(
-        `${table.name}.${column.name} 을(를) NOT NULL 로 추가합니다. 기존 행이 있으면 기본값을 먼저 정해야 합니다.`
-      );
+      writer.notes.add(t("note.notNullAdd", { table: table.name, column: column.name }));
     }
     if (writer.dialect === "oracle") return `ALTER TABLE ${ref(table)} ADD (${columnSql(column)});`;
     if (writer.dialect === "mssql") return `ALTER TABLE ${ref(table)} ADD ${columnSql(column)};`;
@@ -229,9 +232,7 @@
         );
       }
       if (changed.has("defaultValue")) {
-        writer.notes.add(
-          `SQL Server 의 기본값은 이름 있는 제약입니다. ${table.name}.${column.name} 은 기존 DEFAULT 제약을 먼저 지워야 합니다.`
-        );
+        writer.notes.add(t("note.mssqlDefault", { table: table.name, column: column.name }));
         if (column.defaultValue) {
           statements.push(
             `ALTER TABLE ${ref(table)} ADD CONSTRAINT ${q(
@@ -264,7 +265,7 @@
     }
     if (writer.dialect === "mssql") {
       const schema = table.schema || "dbo";
-      if (!table.schema) writer.notes.add("SQL Server 컬럼 설명의 스키마를 dbo 로 가정했습니다.");
+      if (!table.schema) writer.notes.add(t("note.mssqlSchema"));
       return (
         `EXEC sp_addextendedproperty @name = N'MS_Description', @value = N${quoteLiteral(text)}, ` +
         `@level0type = N'SCHEMA', @level0name = N${quoteLiteral(schema)}, ` +
@@ -272,8 +273,8 @@
         `@level2type = N'COLUMN', @level2name = N${quoteLiteral(column.name)};`
       );
     }
-    writer.notes.add("SQLite 는 컬럼 설명 구문이 없어 주석으로만 남겼습니다.");
-    return `-- ${table.name}.${column.name} 설명: ${text}`;
+    writer.notes.add(t("note.sqliteComment"));
+    return `-- ${t("ddl.commentLine", { table: table.name, column: column.name, text })}`;
   }
 
   /* --------------------------------------------------------------- 조립 */
@@ -281,13 +282,13 @@
   function generate(diff, dialectId) {
     const dialect = DIALECTS.some((entry) => entry.id === dialectId) ? dialectId : "mysql";
     const writer = makeWriter(dialect);
-    const label = DIALECTS.find((entry) => entry.id === dialect).label;
+    const label = dialectLabel(DIALECTS.find((entry) => entry.id === dialect));
 
     if (!diff || !diff.tables.length) {
-      return { sql: "-- 비교할 스키마가 없습니다.\n", notes: [], statementCount: 0 };
+      return { sql: `${t("ddl.noSchemas")}\n`, notes: [], statementCount: 0 };
     }
     if (diff.identical) {
-      return { sql: "-- 두 스키마가 같습니다. 생성할 변경이 없습니다.\n", notes: [], statementCount: 0 };
+      return { sql: `${t("ddl.identical")}\n`, notes: [], statementCount: 0 };
     }
 
     const added = diff.tables.filter((table) => table.status === "added");
@@ -312,19 +313,19 @@
       }
     }
     if (fkDrops.length) {
-      writer.section("1. 외래키 제거");
+      writer.section(t("ddl.section.dropFk"));
       for (const line of fkDrops) writer.emit(line);
     }
 
     /* 2. 테이블 삭제 */
     if (removed.length) {
-      writer.section("2. 테이블 삭제 — 데이터가 함께 사라집니다");
+      writer.section(t("ddl.section.dropTable"));
       for (const table of removed) writer.emit(`DROP TABLE ${writer.ref(table.source)};`);
     }
 
     /* 3. 테이블 추가 */
     if (added.length) {
-      writer.section("3. 테이블 추가");
+      writer.section(t("ddl.section.addTable"));
       added.forEach((table, index) => {
         if (index) writer.emit("");
         writer.emit(createTableSql(writer, table.target));
@@ -345,7 +346,7 @@
         if (entry.status === "added") {
           own.push(addColumnSql(writer, table.target, entry.target));
         } else if (entry.status === "removed") {
-          own.push(`-- 데이터가 사라집니다`);
+          own.push(`-- ${t("ddl.dataLoss")}`);
           own.push(dropColumnSql(writer, table.target, entry.name));
         } else if (entry.status === "changed") {
           if (sqlite) {
@@ -358,7 +359,7 @@
       if (own.length) columnLines.push({ table, own });
     }
     if (columnLines.length) {
-      writer.section("4. 컬럼 변경");
+      writer.section(t("ddl.section.columns"));
       columnLines.forEach(({ table, own }, index) => {
         if (index) writer.emit("");
         writer.comment(table.qualified);
@@ -381,9 +382,7 @@
               own.push(`ALTER TABLE ${writer.ref(reference)} DROP PRIMARY KEY;`);
             } else {
               const name = dialect === "postgres" ? `${sanitize(reference.name)}_pkey` : conventionName("pk", reference.name, []);
-              writer.notes.add(
-                `${table.qualified} 의 기본키 제약 이름을 ${name} 으로 가정했습니다. 실제 이름을 확인하세요.`
-              );
+              writer.notes.add(t("note.pkName", { table: table.qualified, name }));
               own.push(dropConstraintSql(writer, reference, name, "pk"));
             }
           }
@@ -400,7 +399,7 @@
         }
         const name = unique.name || conventionName("uq", reference.name, unique.columns);
         if (!unique.name) {
-          writer.notes.add("이름 없는 고유 제약은 관례 이름(uq_테이블_컬럼)으로 적었습니다. 실제 이름을 확인하세요.");
+          writer.notes.add(t("note.unnamedUnique"));
         }
         if (unique.status === "added") {
           own.push(
@@ -416,7 +415,7 @@
       for (const index of table.indexes) {
         const name = index.name || conventionName("idx", reference.name, index.columns);
         if (!index.name) {
-          writer.notes.add("이름 없는 인덱스는 관례 이름(idx_테이블_컬럼)으로 적었습니다. 실제 이름을 확인하세요.");
+          writer.notes.add(t("note.unnamedIndex"));
         }
         if (index.status === "added") {
           own.push(`CREATE INDEX ${writer.q(name)} ON ${writer.ref(reference)} (${writer.columnList(index.columns)});`);
@@ -432,7 +431,7 @@
       if (own.length) keyLines.push({ table, own });
     }
     if (keyLines.length) {
-      writer.section("5. 기본키 · 제약 · 인덱스");
+      writer.section(t("ddl.section.keys"));
       keyLines.forEach(({ table, own }, index) => {
         if (index) writer.emit("");
         writer.comment(table.qualified);
@@ -460,7 +459,7 @@
         }
       }
       if (fkAdds.length) {
-        writer.section("6. 외래키 추가");
+        writer.section(t("ddl.section.addFk"));
         for (const line of fkAdds) writer.emit(line);
       }
     }
@@ -504,28 +503,26 @@
       }
     }
     if (commentLines.length) {
-      writer.section("7. 설명");
+      writer.section(t("ddl.section.comments"));
       for (const line of commentLines) writer.emit(line);
     }
 
     /* SQLite 안내 */
     if (sqlite && recreateNeeded.size) {
-      writer.section("SQLite 제약 — 아래 테이블은 재생성이 필요합니다");
-      writer.comment("SQLite 는 컬럼 타입·기본키·제약 변경을 ALTER 로 처리하지 못합니다.");
-      writer.comment("새 테이블 생성 → INSERT SELECT 로 복사 → 기존 테이블 DROP → RENAME 순서로 바꾸세요.");
+      writer.section(t("ddl.sqliteSection"));
+      writer.comment(t("ddl.sqliteLine1"));
+      writer.comment(t("ddl.sqliteLine2"));
       for (const name of recreateNeeded) writer.comment(`  · ${name}`);
-      writer.notes.add(`SQLite 라서 ${recreateNeeded.size}개 테이블은 ALTER 로 바꾸지 못하고 재생성해야 합니다.`);
+      writer.notes.add(t("note.sqliteRecreate", { count: recreateNeeded.size }));
     }
 
     const stats = diff.stats;
     const header = [
-      "-- DBSchemaView 마이그레이션 스크립트",
-      `-- 방언: ${label}`,
-      "-- 방향: SOURCE → TARGET (기준 스키마를 목표 스키마로 맞춥니다)",
-      `-- 테이블 +${stats.addedTables} / -${stats.removedTables} / ~${stats.changedTables}` +
-        ` · 컬럼 +${stats.addedColumns} / -${stats.removedColumns} / ~${stats.changedColumns}` +
-        ` · 외래키 +${stats.addedRelations} / -${stats.removedRelations}`,
-      "-- DDL 텍스트만 보고 만든 스크립트입니다. 실행 전에 반드시 검토하고 백업하세요.",
+      t("ddl.header"),
+      t("ddl.dialect", { dialect: label }),
+      t("ddl.direction"),
+      t("ddl.counts", stats),
+      t("ddl.caution"),
       "",
       ""
     ];
@@ -540,5 +537,5 @@
     };
   }
 
-  global.DBSchemaDdl = { DIALECTS, generate };
+  global.DBSchemaDdl = { DIALECTS, dialectLabel, generate };
 })(globalThis);

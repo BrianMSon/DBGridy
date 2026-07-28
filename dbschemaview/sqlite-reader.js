@@ -278,16 +278,23 @@
       else if (type === "index") indexes.push(statement);
     });
 
+    const t = (key, params) => global.DBSchemaI18n.t(key, params);
+
     if (context.truncated) {
-      warnings.push("파일 일부를 읽지 못해 일부 테이블이 빠졌을 수 있습니다.");
+      warnings.push(t("sqlite.partial"));
     }
     if (skippedInternal) {
-      warnings.push(`SQLite 내부 테이블 ${skippedInternal}개는 제외했습니다.`);
+      warnings.push(t("sqlite.internalSkipped", { count: skippedInternal }));
     }
 
     const header = [
-      `-- SQLite 데이터베이스에서 추출한 스키마`,
-      `-- 테이블 ${tables.length}개 · 인덱스 ${indexes.length}개 · 페이지 ${pageSize}B · ${encoding.label}`
+      t("sqlite.headerTitle"),
+      t("sqlite.headerMeta", {
+        tables: tables.length,
+        indexes: indexes.length,
+        pageSize,
+        encoding: encoding.label
+      })
     ].join("\n");
 
     const body = [...tables, ...indexes].join("\n\n");

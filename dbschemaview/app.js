@@ -22,226 +22,8 @@ const MAX_SCALE = 2.6;
 const MAX_TEXT_BYTES = 12 * 1024 * 1024;
 const MAX_SQLITE_BYTES = 64 * 1024 * 1024;
 
-const SAMPLE_DDL = `-- 쇼핑몰 예시 스키마
-CREATE TABLE members (
-  member_id   BIGINT       NOT NULL AUTO_INCREMENT COMMENT '회원 번호',
-  email       VARCHAR(255) NOT NULL COMMENT '로그인 이메일',
-  nickname    VARCHAR(40)  NOT NULL,
-  grade       ENUM('BASIC','SILVER','GOLD') NOT NULL DEFAULT 'BASIC',
-  point       INT          NOT NULL DEFAULT 0,
-  joined_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (member_id),
-  UNIQUE KEY uk_members_email (email)
-) COMMENT='회원 마스터';
-
-CREATE TABLE addresses (
-  address_id  BIGINT       NOT NULL AUTO_INCREMENT,
-  member_id   BIGINT       NOT NULL,
-  receiver    VARCHAR(40)  NOT NULL,
-  zipcode     CHAR(5)      NOT NULL,
-  detail      VARCHAR(200) NOT NULL,
-  is_default  TINYINT(1)   NOT NULL DEFAULT 0,
-  PRIMARY KEY (address_id),
-  CONSTRAINT fk_addresses_member FOREIGN KEY (member_id) REFERENCES members (member_id) ON DELETE CASCADE
-);
-
-CREATE TABLE categories (
-  category_id BIGINT      NOT NULL AUTO_INCREMENT,
-  parent_id   BIGINT      NULL COMMENT '상위 분류',
-  name        VARCHAR(60) NOT NULL,
-  depth       INT         NOT NULL DEFAULT 1,
-  PRIMARY KEY (category_id),
-  CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories (category_id)
-);
-
-CREATE TABLE products (
-  product_id  BIGINT        NOT NULL AUTO_INCREMENT,
-  category_id BIGINT        NOT NULL,
-  name        VARCHAR(160)  NOT NULL,
-  price       DECIMAL(12,2) NOT NULL DEFAULT 0.00,
-  stock       INT           NOT NULL DEFAULT 0,
-  status      VARCHAR(20)   NOT NULL DEFAULT 'SALE',
-  created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (product_id),
-  CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories (category_id)
-);
-
-CREATE TABLE product_images (
-  image_id   BIGINT       NOT NULL AUTO_INCREMENT,
-  product_id BIGINT       NOT NULL,
-  url        VARCHAR(500) NOT NULL,
-  sort_order INT          NOT NULL DEFAULT 0,
-  PRIMARY KEY (image_id),
-  CONSTRAINT fk_images_product FOREIGN KEY (product_id) REFERENCES products (product_id) ON DELETE CASCADE
-);
-
-CREATE TABLE orders (
-  order_id    BIGINT        NOT NULL AUTO_INCREMENT,
-  member_id   BIGINT        NOT NULL,
-  address_id  BIGINT        NOT NULL,
-  order_no    VARCHAR(30)   NOT NULL,
-  total_price DECIMAL(14,2) NOT NULL DEFAULT 0.00,
-  status      VARCHAR(20)   NOT NULL DEFAULT 'PLACED',
-  ordered_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (order_id),
-  UNIQUE KEY uk_orders_no (order_no),
-  CONSTRAINT fk_orders_member  FOREIGN KEY (member_id)  REFERENCES members (member_id),
-  CONSTRAINT fk_orders_address FOREIGN KEY (address_id) REFERENCES addresses (address_id)
-);
-
-CREATE TABLE order_items (
-  order_item_id BIGINT        NOT NULL AUTO_INCREMENT,
-  order_id      BIGINT        NOT NULL,
-  product_id    BIGINT        NOT NULL,
-  quantity      INT           NOT NULL DEFAULT 1,
-  unit_price    DECIMAL(12,2) NOT NULL,
-  PRIMARY KEY (order_item_id),
-  CONSTRAINT fk_items_order   FOREIGN KEY (order_id)   REFERENCES orders (order_id) ON DELETE CASCADE,
-  CONSTRAINT fk_items_product FOREIGN KEY (product_id) REFERENCES products (product_id)
-);
-
-CREATE TABLE payments (
-  payment_id BIGINT        NOT NULL AUTO_INCREMENT,
-  order_id   BIGINT        NOT NULL,
-  method     VARCHAR(20)   NOT NULL,
-  amount     DECIMAL(14,2) NOT NULL,
-  paid_at    DATETIME      NULL,
-  PRIMARY KEY (payment_id),
-  UNIQUE KEY uk_payments_order (order_id),
-  CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders (order_id)
-);
-
-CREATE TABLE reviews (
-  review_id  BIGINT   NOT NULL AUTO_INCREMENT,
-  product_id BIGINT   NOT NULL,
-  member_id  BIGINT   NOT NULL,
-  rating     TINYINT  NOT NULL DEFAULT 5,
-  content    TEXT     NULL,
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (review_id),
-  CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products (product_id) ON DELETE CASCADE,
-  CONSTRAINT fk_reviews_member  FOREIGN KEY (member_id)  REFERENCES members (member_id)
-);
-`;
-
-// 비교 모드 샘플. 위 스키마에서 테이블 추가·삭제와 컬럼·제약 변경이 섞여 있다.
-const SAMPLE_DDL_V2 = `-- 쇼핑몰 예시 스키마 v2
-CREATE TABLE members (
-  member_id    BIGINT       NOT NULL AUTO_INCREMENT COMMENT '회원 번호',
-  email        VARCHAR(320) NOT NULL COMMENT '로그인 이메일',
-  nickname     VARCHAR(60)  NOT NULL,
-  grade        ENUM('BASIC','SILVER','GOLD','VIP') NOT NULL DEFAULT 'BASIC',
-  phone        VARCHAR(20)  NULL COMMENT '휴대폰',
-  joined_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  withdrawn_at DATETIME     NULL COMMENT '탈퇴 시각',
-  PRIMARY KEY (member_id),
-  UNIQUE KEY uk_members_email (email)
-) COMMENT='회원 마스터';
-
-CREATE TABLE addresses (
-  address_id  BIGINT       NOT NULL AUTO_INCREMENT,
-  member_id   BIGINT       NOT NULL,
-  receiver    VARCHAR(40)  NOT NULL,
-  zipcode     CHAR(5)      NOT NULL,
-  detail      VARCHAR(200) NOT NULL,
-  is_default  TINYINT(1)   NOT NULL DEFAULT 0,
-  PRIMARY KEY (address_id),
-  CONSTRAINT fk_addresses_member FOREIGN KEY (member_id) REFERENCES members (member_id) ON DELETE CASCADE
-);
-
-CREATE TABLE categories (
-  category_id BIGINT      NOT NULL AUTO_INCREMENT,
-  parent_id   BIGINT      NULL COMMENT '상위 분류',
-  name        VARCHAR(60) NOT NULL,
-  depth       INT         NOT NULL DEFAULT 1,
-  PRIMARY KEY (category_id),
-  CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories (category_id)
-);
-
-CREATE TABLE brands (
-  brand_id BIGINT      NOT NULL AUTO_INCREMENT,
-  name     VARCHAR(80) NOT NULL,
-  country  CHAR(2)     NULL,
-  PRIMARY KEY (brand_id),
-  UNIQUE KEY uk_brands_name (name)
-) COMMENT='브랜드';
-
-CREATE TABLE products (
-  product_id  BIGINT        NOT NULL AUTO_INCREMENT,
-  category_id BIGINT        NOT NULL,
-  brand_id    BIGINT        NULL,
-  name        VARCHAR(160)  NOT NULL,
-  price       DECIMAL(14,2) NOT NULL DEFAULT 0.00,
-  stock       INT           NOT NULL DEFAULT 0,
-  status      VARCHAR(20)   NOT NULL DEFAULT 'SALE',
-  created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (product_id),
-  CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories (category_id),
-  CONSTRAINT fk_products_brand    FOREIGN KEY (brand_id)    REFERENCES brands (brand_id)
-);
-
-CREATE TABLE orders (
-  order_id    BIGINT        NOT NULL AUTO_INCREMENT,
-  member_id   BIGINT        NOT NULL,
-  address_id  BIGINT        NOT NULL,
-  order_no    VARCHAR(30)   NOT NULL,
-  total_price DECIMAL(14,2) NOT NULL DEFAULT 0.00,
-  status      VARCHAR(20)   NOT NULL DEFAULT 'PLACED',
-  ordered_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (order_id),
-  UNIQUE KEY uk_orders_no (order_no),
-  CONSTRAINT fk_orders_member  FOREIGN KEY (member_id)  REFERENCES members (member_id) ON DELETE RESTRICT,
-  CONSTRAINT fk_orders_address FOREIGN KEY (address_id) REFERENCES addresses (address_id)
-);
-
-CREATE INDEX idx_orders_ordered_at ON orders (ordered_at);
-
-CREATE TABLE order_items (
-  order_item_id BIGINT        NOT NULL AUTO_INCREMENT,
-  order_id      BIGINT        NOT NULL,
-  product_id    BIGINT        NOT NULL,
-  quantity      INT           NOT NULL DEFAULT 1,
-  unit_price    DECIMAL(12,2) NOT NULL,
-  PRIMARY KEY (order_item_id),
-  CONSTRAINT fk_items_order   FOREIGN KEY (order_id)   REFERENCES orders (order_id) ON DELETE CASCADE,
-  CONSTRAINT fk_items_product FOREIGN KEY (product_id) REFERENCES products (product_id)
-);
-
-CREATE TABLE payments (
-  payment_id BIGINT        NOT NULL AUTO_INCREMENT,
-  order_id   BIGINT        NOT NULL,
-  method     VARCHAR(20)   NOT NULL,
-  amount     DECIMAL(14,2) NOT NULL,
-  pg_tid     VARCHAR(64)   NULL COMMENT 'PG 거래 번호',
-  paid_at    DATETIME      NULL,
-  PRIMARY KEY (payment_id),
-  UNIQUE KEY uk_payments_order (order_id),
-  CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders (order_id)
-);
-
-CREATE TABLE member_coupons (
-  member_coupon_id BIGINT      NOT NULL AUTO_INCREMENT,
-  member_id        BIGINT      NOT NULL,
-  code             VARCHAR(30) NOT NULL,
-  discount_rate    INT         NOT NULL DEFAULT 0,
-  expires_at       DATETIME    NOT NULL,
-  PRIMARY KEY (member_coupon_id),
-  UNIQUE KEY uk_member_coupons_code (code),
-  CONSTRAINT fk_member_coupons_member FOREIGN KEY (member_id) REFERENCES members (member_id) ON DELETE CASCADE
-);
-
-CREATE TABLE reviews (
-  review_id  BIGINT   NOT NULL AUTO_INCREMENT,
-  product_id BIGINT   NOT NULL,
-  member_id  BIGINT   NOT NULL,
-  rating     TINYINT  NOT NULL DEFAULT 5,
-  content    TEXT     NULL,
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (review_id),
-  CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products (product_id) ON DELETE CASCADE,
-  CONSTRAINT fk_reviews_member  FOREIGN KEY (member_id)  REFERENCES members (member_id)
-);
-`;
+// 샘플 스키마와 화면 문구는 i18n.js 가 언어별로 들고 있다.
+const t = (key, params) => DBSchemaI18n.t(key, params);
 
 const state = {
   schema: null,
@@ -291,6 +73,7 @@ const elements = {
   dialectSelect: document.querySelector("#dialectSelect"),
   hideSameTables: document.querySelector("#hideSameTables"),
   resultsEyebrow: document.querySelector("#resultsEyebrow"),
+  focusStep: document.querySelector("#focusStep"),
   diffLegend: document.querySelector("#diffLegend"),
   compareReport: document.querySelector("#compareReport"),
   changeList: document.querySelector("#changeList"),
@@ -601,7 +384,7 @@ function nodeMarkup(node) {
   if (hidden > 0) {
     const y = HEADER_HEIGHT + rows.length * ROW_HEIGHT + ROW_HEIGHT / 2;
     parts.push(
-      `<text class="row-more" x="${NODE_PADDING + BADGE_SLOT}" y="${y + 4}">+${hidden}개 더</text>`
+      `<text class="row-more" x="${NODE_PADDING + BADGE_SLOT}" y="${y + 4}">${t("node.more", { count: hidden })}</text>`
     );
   }
 
@@ -872,7 +655,7 @@ function renderRail() {
   elements.railCount.textContent = schema ? String(schema.tables.length) : "0";
 
   if (!schema || !schema.tables.length) {
-    elements.tableRail.innerHTML = '<li class="rail-empty">테이블이 없습니다</li>';
+    elements.tableRail.innerHTML = `<li class="rail-empty">${escapeXml(t("rail.empty"))}</li>`;
     return;
   }
 
@@ -883,7 +666,7 @@ function renderRail() {
       return (
         `<li><button class="rail-item" type="button" data-id="${escapeXml(table.id)}">` +
         `<strong>${flag}${escapeXml(table.name)}</strong>` +
-        `<span>컬럼 ${table.columns.length} · 관계 ${relationCount}</span>` +
+        `<span>${escapeXml(t("rail.item", { columns: table.columns.length, relations: relationCount }))}</span>` +
         "</button></li>"
       );
     })
@@ -910,13 +693,13 @@ function relationLineMarkup(relation, perspective) {
 
   return (
     '<div class="relation-line">' +
-    `<span class="relation-tag ${relation.kind}">${relation.kind === "inferred" ? "추정" : "FK"}</span>` +
+    `<span class="relation-tag ${relation.kind}">${escapeXml(relation.kind === "inferred" ? t("relation.inferred") : t("relation.fk"))}</span>` +
     `<b>${escapeXml(own.join(", "))}</b>` +
     `<em>${arrow}</em>` +
     `<button class="relation-link" type="button" data-goto="${escapeXml(other.id)}">${escapeXml(
       other.name
     )}.${escapeXml(target.join(", "))}</button>` +
-    `<em>${cardinalityLabel(relation)}${relation.optional ? " · 선택" : ""}</em>` +
+    `<em>${cardinalityLabel(relation)}${relation.optional ? ` · ${escapeXml(t("relation.optional"))}` : ""}</em>` +
     (actions ? `<em>${escapeXml(actions)}</em>` : "") +
     "</div>"
   );
@@ -934,7 +717,7 @@ function renderDetail() {
 
   elements.detailEmpty.hidden = true;
   elements.detailBody.hidden = false;
-  elements.detailSchema.textContent = table.schema ? table.schema.toUpperCase() : "TABLE";
+  elements.detailSchema.textContent = table.schema ? table.schema.toUpperCase() : t("detail.table");
   elements.detailName.textContent = table.name;
   elements.detailComment.textContent = table.comment || "";
 
@@ -969,7 +752,7 @@ function renderDetail() {
   ];
   elements.detailRelations.innerHTML = lines.length
     ? lines.join("")
-    : '<div class="relation-line"><em>연결된 관계가 없습니다.</em></div>';
+    : `<div class="relation-line"><em>${escapeXml(t("detail.noRelations"))}</em></div>`;
 }
 
 function selectTable(id, options = {}) {
@@ -1031,7 +814,7 @@ function runSearch() {
     }
   }
 
-  elements.searchPosition.textContent = hits.length ? `${hits.length}개` : "없음";
+  elements.searchPosition.textContent = hits.length ? t("search.hits", { count: hits.length }) : t("search.none");
   updateEmphasis();
   return hits;
 }
@@ -1264,17 +1047,17 @@ function baseFileName() {
 
 function exportSvg() {
   if (!state.view.nodes.size) {
-    showToast("내보낼 다이어그램이 없습니다.");
+    showToast(t("toast.noDiagram"));
     return;
   }
   const { markup } = buildExportSvg();
   downloadBlob(new Blob([markup], { type: "image/svg+xml;charset=utf-8" }), `${baseFileName()}-diagram.svg`);
-  showToast("SVG로 내보냈습니다.");
+  showToast(t("toast.svgSaved"));
 }
 
 function exportPng() {
   if (!state.view.nodes.size) {
-    showToast("내보낼 다이어그램이 없습니다.");
+    showToast(t("toast.noDiagram"));
     return;
   }
 
@@ -1295,17 +1078,17 @@ function exportPng() {
 
     canvas.toBlob((blob) => {
       if (!blob) {
-        showToast("PNG 변환에 실패했습니다.");
+        showToast(t("toast.pngFailed"));
         return;
       }
       downloadBlob(blob, `${baseFileName()}-diagram.png`);
-      showToast("PNG로 내보냈습니다.");
+      showToast(t("toast.pngSaved"));
     }, "image/png");
   };
 
   image.onerror = () => {
     URL.revokeObjectURL(url);
-    showToast("PNG 변환에 실패했습니다.");
+    showToast(t("toast.pngFailed"));
   };
 
   image.src = url;
@@ -1314,12 +1097,12 @@ function exportPng() {
 function copyRelations() {
   const schema = state.schema;
   if (!schema || !schema.relations.length) {
-    showToast("복사할 관계가 없습니다.");
+    showToast(t("toast.noRelations"));
     return;
   }
 
   const lines = schema.relations.map((relation) => {
-    const kind = relation.kind === "inferred" ? "추정" : "FK";
+    const kind = relation.kind === "inferred" ? t("relation.inferred") : t("relation.fk");
     const actions = [relation.onDelete ? `ON DELETE ${relation.onDelete}` : "", relation.onUpdate ? `ON UPDATE ${relation.onUpdate}` : ""]
       .filter(Boolean)
       .join(" ");
@@ -1335,12 +1118,12 @@ function copyRelations() {
       .join("\t");
   });
 
-  const text = `# ${schema.tables.length}개 테이블 · ${schema.relations.length}개 관계\n${lines.join("\n")}\n`;
+  const text = `${t("copy.relationsHeader", { tables: schema.tables.length, relations: schema.relations.length })}\n${lines.join("\n")}\n`;
 
   navigator.clipboard
     ?.writeText(text)
-    .then(() => showToast(`관계 ${schema.relations.length}개를 복사했습니다.`))
-    .catch(() => showToast("클립보드 복사가 차단되었습니다."));
+    .then(() => showToast(t("toast.relationsCopied", { count: schema.relations.length })))
+    .catch(() => showToast(t("toast.clipboardBlocked")));
 }
 
 /* --------------------------------------------------------------- 파이프라인 */
@@ -1350,7 +1133,7 @@ function schemaMessages(schema, prefix) {
   return [
     ...schema.warnings.map((message) => `${tag}${message}`),
     ...schema.unresolved.map(
-      (entry) => `${tag}${entry.from}의 외래키가 참조하는 ${entry.target} 정의를 찾지 못했습니다.`
+      (entry) => `${tag}${t("warn.unresolved", { from: entry.from, target: entry.target })}`
     )
   ];
 }
@@ -1365,7 +1148,7 @@ function showWarnings(messages) {
   const shown = messages.slice(0, 6);
   elements.warningList.innerHTML = shown.map((message) => `<li>${escapeXml(message)}</li>`).join("");
   if (messages.length > shown.length) {
-    elements.warningList.insertAdjacentHTML("beforeend", `<li>외 ${messages.length - shown.length}건</li>`);
+    elements.warningList.insertAdjacentHTML("beforeend", `<li>${escapeXml(t("warn.more", { count: messages.length - shown.length }))}</li>`);
   }
   elements.warningBox.hidden = false;
 }
@@ -1380,33 +1163,33 @@ function setStat(target, label, value, note) {
 
 function updateStats(schema) {
   const stats = schema.stats;
-  setStat(elements.tableStat, "테이블", stats.tableCount, "해석된 정의");
-  setStat(elements.columnStat, "컬럼", stats.columnCount, "전체 필드");
-  setStat(elements.explicitStat, "명시 관계", stats.relationCount - stats.inferredCount, "FOREIGN KEY");
-  setStat(elements.inferredStat, "추정 관계", stats.inferredCount, "이름 기반");
-  setStat(elements.isolatedStat, "고립", stats.isolatedCount, "연결 없음");
+  setStat(elements.tableStat, t("stat.tables"), stats.tableCount, t("stat.tables.note"));
+  setStat(elements.columnStat, t("stat.columns"), stats.columnCount, t("stat.columns.note"));
+  setStat(elements.explicitStat, t("stat.explicit"), stats.relationCount - stats.inferredCount, t("stat.explicit.note"));
+  setStat(elements.inferredStat, t("stat.inferred"), stats.inferredCount, t("stat.inferred.note"));
+  setStat(elements.isolatedStat, t("stat.isolated"), stats.isolatedCount, t("stat.isolated.note"));
 
   const empty = stats.tableCount === 0;
   elements.resultState.classList.toggle("empty", empty);
   elements.resultStateText.textContent = empty
-    ? "읽을 테이블이 없습니다"
-    : `테이블 ${stats.tableCount}개 · 관계 ${stats.relationCount}개`;
+    ? t("state.empty")
+    : t("state.summary", { tables: stats.tableCount, relations: stats.relationCount });
 }
 
 function updateCompareStats(diff) {
   const stats = diff.stats;
   const columnChanges = stats.addedColumns + stats.removedColumns + stats.changedColumns;
 
-  setStat(elements.tableStat, "테이블", diff.tables.length, "양쪽 합계");
-  setStat(elements.columnStat, "컬럼 변경", columnChanges, `+${stats.addedColumns} −${stats.removedColumns} ~${stats.changedColumns}`);
-  setStat(elements.explicitStat, "추가", stats.addedTables, "TARGET 에만 있음");
-  setStat(elements.inferredStat, "변경", stats.changedTables, "내용이 다름");
-  setStat(elements.isolatedStat, "삭제", stats.removedTables, "SOURCE 에만 있음");
+  setStat(elements.tableStat, t("stat.tables"), diff.tables.length, t("stat.diff.tables.note"));
+  setStat(elements.columnStat, t("stat.diff.columns"), columnChanges, `+${stats.addedColumns} −${stats.removedColumns} ~${stats.changedColumns}`);
+  setStat(elements.explicitStat, t("stat.diff.added"), stats.addedTables, t("stat.diff.added.note"));
+  setStat(elements.inferredStat, t("stat.diff.changed"), stats.changedTables, t("stat.diff.changed.note"));
+  setStat(elements.isolatedStat, t("stat.diff.removed"), stats.removedTables, t("stat.diff.removed.note"));
 
   elements.resultState.classList.toggle("empty", diff.identical);
   elements.resultStateText.textContent = diff.identical
-    ? "두 스키마가 같습니다"
-    : `테이블 +${stats.addedTables} · −${stats.removedTables} · ~${stats.changedTables}`;
+    ? t("state.identical")
+    : t("state.diffSummary", { added: stats.addedTables, removed: stats.removedTables, changed: stats.changedTables });
 }
 
 /* ------------------------------------------------------- 비교 결과 조립 */
@@ -1517,26 +1300,26 @@ function tableChangeLines(entry) {
   }
 
   if (entry.pk) {
-    push("changed", `${named("PRIMARY KEY")} ${note(`(${entry.pk.from.join(", ") || "—"}) → (${entry.pk.to.join(", ") || "—"})`)}`);
+    push("changed", `${named(t("change.pk"))} ${note(`(${entry.pk.from.join(", ") || "—"}) → (${entry.pk.to.join(", ") || "—"})`)}`);
   }
   for (const unique of entry.uniques) {
-    push(unique.status, `${named("UNIQUE")} ${note(`(${unique.columns.join(", ")})`)}`);
+    push(unique.status, `${named(t("change.unique"))} ${note(`(${unique.columns.join(", ")})`)}`);
   }
   for (const index of entry.indexes) {
-    push(index.status, `${named("INDEX")} ${note(`(${index.columns.join(", ")})`)}`);
+    push(index.status, `${named(t("change.index"))} ${note(`(${index.columns.join(", ")})`)}`);
   }
   for (const relation of entry.relations) {
     const model = relation.target || relation.source;
     const extra = relation.status === "changed" ? ` · ${relation.changes[0].to}` : "";
-    push(relation.status, `${named("FK")} ${note(relationSummary(model) + extra)}`);
+    push(relation.status, `${named(t("change.fk"))} ${note(relationSummary(model) + extra)}`);
   }
   if (entry.comment) {
-    push("changed", `${named("테이블 설명")} ${note(`${entry.comment.from || "—"} → ${entry.comment.to || "—"}`)}`);
+    push("changed", `${named(t("change.tableComment"))} ${note(`${entry.comment.from || "—"} → ${entry.comment.to || "—"}`)}`);
   }
   return lines;
 }
 
-const CHANGE_FLAGS = { added: "추가", removed: "삭제", changed: "변경", same: "동일" };
+const changeFlag = (status) => t(`change.flag.${status}`);
 const MAX_CHANGE_LINES = 14;
 
 function renderChangeList() {
@@ -1549,7 +1332,7 @@ function renderChangeList() {
 
   if (!entries.length) {
     elements.changeList.innerHTML = `<div class="change-empty">${
-      diff.tables.length ? "바뀐 테이블이 없습니다." : "읽을 테이블이 없습니다."
+      escapeXml(diff.tables.length ? t("change.empty.noChanges") : t("change.empty.noTables"))
     }</div>`;
     return;
   }
@@ -1559,17 +1342,19 @@ function renderChangeList() {
       const lines = tableChangeLines(entry);
       const shown = lines.slice(0, MAX_CHANGE_LINES);
       if (lines.length > shown.length) {
-        shown.push(`<li><i></i><span>외 ${lines.length - shown.length}건</span></li>`);
+        shown.push(`<li><i></i><span>${escapeXml(t("change.more", { count: lines.length - shown.length }))}</span></li>`);
       }
 
       const table = entry.target || entry.source;
       const summary =
-        entry.status === "changed" ? `${entry.changeCount}건` : `컬럼 ${table.columns.length}`;
+        entry.status === "changed"
+          ? t("change.count", { count: entry.changeCount })
+          : t("change.columns", { count: table.columns.length });
 
       return (
         `<article class="change-table ${entry.status}">` +
         `<button class="change-head" type="button" data-id="${escapeXml(entry.displayId || "")}">` +
-        `<span class="change-flag">${CHANGE_FLAGS[entry.status]}</span>` +
+        `<span class="change-flag">${escapeXml(changeFlag(entry.status))}</span>` +
         `<strong>${escapeXml(entry.qualified)}</strong>` +
         `<em>${summary}</em>` +
         "</button>" +
@@ -1587,7 +1372,9 @@ function renderMigration() {
   state.migration = result;
 
   elements.migrationScript.textContent = result.sql;
-  elements.scriptMeta.textContent = result.statementCount ? `${result.statementCount}개 문장` : "실행할 문장 없음";
+  elements.scriptMeta.textContent = result.statementCount
+    ? t("report.statements", { count: result.statementCount })
+    : t("report.noStatements");
 
   if (result.notes.length) {
     elements.scriptNoteList.innerHTML = result.notes.map((note) => `<li>${escapeXml(note)}</li>`).join("");
@@ -1607,8 +1394,8 @@ function parseInput(text) {
 function updatePanelMeta(panel, tableCount) {
   const name = state[panel.stateKey];
   panel.metaLabel.textContent = tableCount
-    ? `${name === panel.sampleName ? "샘플 · " : ""}${tableCount}개 테이블`
-    : "해석된 테이블 없음";
+    ? t(name === panel.sampleName ? "panel.meta.sample" : "panel.meta.tables", { count: tableCount })
+    : t("panel.meta.empty");
 }
 
 function renderSingle(options) {
@@ -1672,7 +1459,7 @@ const panels = {
     stateKey: "sourceName",
     sampleName: "shop-schema.sql",
     emptyName: "untitled.sql",
-    sample: () => SAMPLE_DDL,
+    sample: () => t("sample.v1"),
     textarea: elements.ddlText,
     dropzone: elements.ddlDropzone,
     fileInput: elements.ddlFileInput,
@@ -1683,7 +1470,7 @@ const panels = {
     stateKey: "targetName",
     sampleName: "shop-schema-v2.sql",
     emptyName: "untitled-v2.sql",
-    sample: () => SAMPLE_DDL_V2,
+    sample: () => t("sample.v2"),
     textarea: elements.ddlTextB,
     dropzone: elements.ddlDropzoneB,
     fileInput: elements.ddlFileInputB,
@@ -1734,8 +1521,8 @@ function loadSqliteFile(panel, bytes, name, clipped) {
   if (!result.ok) {
     showToast(
       result.reason === "bad-page-size"
-        ? "SQLite 파일이 손상되었거나 암호화되어 스키마를 읽을 수 없습니다."
-        : "SQLite 파일로 인식되지 않습니다."
+        ? t("toast.sqliteBroken")
+        : t("toast.sqliteNotRecognized")
     );
     return;
   }
@@ -1743,21 +1530,24 @@ function loadSqliteFile(panel, bytes, name, clipped) {
   loadText(panel, result.sql, name);
 
   if (clipped && result.truncated) {
-    showToast(`파일 앞 ${MAX_SQLITE_BYTES / 1024 / 1024}MB만 읽어 일부 테이블이 빠졌을 수 있습니다.`);
+    showToast(t("toast.sqliteClipped", { mb: MAX_SQLITE_BYTES / 1024 / 1024 }));
   }
   if (!result.tableCount) {
-    showToast("SQLite 파일에 테이블이 없습니다.");
+    showToast(t("toast.sqliteNoTables"));
     return;
   }
   showToast(
-    `SQLite에서 테이블 ${result.tableCount}개${result.indexCount ? ` · 인덱스 ${result.indexCount}개` : ""}를 읽었습니다.`
+    t("toast.sqliteLoaded", {
+      tables: result.tableCount,
+      indexes: result.indexCount ? t("toast.sqliteIndexes", { count: result.indexCount }) : ""
+    })
   );
 }
 
 function readBytes(blob, onDone) {
   const reader = new FileReader();
   reader.onload = () => onDone(new Uint8Array(reader.result || new ArrayBuffer(0)));
-  reader.onerror = () => showToast("파일을 읽지 못했습니다.");
+  reader.onerror = () => showToast(t("toast.readFailed"));
   reader.readAsArrayBuffer(blob);
 }
 
@@ -1773,14 +1563,14 @@ function readFile(panel, file) {
     }
 
     if (file.size > MAX_TEXT_BYTES) {
-      showToast(`SQL 파일이 너무 큽니다. 최대 ${MAX_TEXT_BYTES / 1024 / 1024}MB까지 읽습니다.`);
+      showToast(t("toast.fileTooLarge", { mb: MAX_TEXT_BYTES / 1024 / 1024 }));
       return;
     }
 
     readBytes(file, (bytes) => {
       const text = decodeText(bytes);
       if (looksBinary(text)) {
-        showToast("텍스트 SQL이나 SQLite 파일이 아닙니다.");
+        showToast(t("toast.notText"));
         return;
       }
       loadText(panel, text, file.name);
@@ -1800,7 +1590,7 @@ function readDroppedFiles(panel, files) {
       return;
     }
     // 단일 모드에서 조용히 하나만 읽으면 나머지가 어디 갔는지 알 수 없다.
-    showToast("파일을 하나만 읽었습니다. 스키마 비교 모드에서는 두 개를 SOURCE·TARGET 으로 나눠 담습니다.");
+    showToast(t("toast.singleModeDrop"));
   }
   readFile(panel, list[0]);
 }
@@ -1816,7 +1606,7 @@ function showToast(message) {
 
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  elements.themeButton.setAttribute("aria-label", theme === "dark" ? "라이트 모드 전환" : "다크 모드 전환");
+  elements.themeButton.setAttribute("aria-label", t(theme === "dark" ? "header.themeToLight" : "header.themeToDark"));
   try {
     localStorage.setItem("dbschemaview-theme", theme);
   } catch (error) {
@@ -1840,32 +1630,6 @@ function initTheme() {
 
 /* --------------------------------------------------------------- 모드 */
 
-const HERO_COPY = {
-  single:
-    "CREATE TABLE 구문을 그대로 붙여넣으세요. 컬럼과 키, 외래키를 읽어 ER 다이어그램으로 그립니다. 외래키가 없는 스키마는 컬럼 이름으로 관계를 추정합니다.",
-  compare:
-    "바뀌기 전과 후의 스키마를 나란히 붙여넣으세요. 달라진 테이블과 컬럼을 짚어주고, SOURCE 를 TARGET 으로 만드는 마이그레이션 DDL 을 방언에 맞춰 만들어 줍니다."
-};
-
-const MODE_NOTE = {
-  single: "DDL 하나를 읽어 ER 다이어그램을 그립니다.",
-  compare: "두 스키마를 대조해 변경 목록과 마이그레이션 DDL 을 만듭니다. 파일 두 개를 한 번에 놓아도 됩니다."
-};
-
-// 비교 모드에서는 SOURCE 칸에도 파일 두 개를 놓을 수 있으므로 안내 문구를 바꾼다.
-const SOURCE_DROP_TEXT = {
-  single: {
-    hint: ".sql 또는 SQLite .db 파일 드롭 · 붙여넣기 가능",
-    title: "SQL 또는 SQLite 파일 놓기",
-    note: ".db 파일은 안에 저장된 스키마를 꺼내 그립니다"
-  },
-  compare: {
-    hint: "파일 1개/2개 드롭 · 붙여넣기 가능",
-    title: "한 개 또는 두 파일 놓기",
-    note: "두 파일이면 SOURCE / TARGET 에 자동 배치합니다"
-  }
-};
-
 function applyMode() {
   const compare = state.mode === "compare";
 
@@ -1877,21 +1641,21 @@ function applyMode() {
   elements.diffLegend.hidden = !compare;
   elements.diagramCanvas.classList.toggle("compare", compare);
 
-  elements.sourceLabel.textContent = compare ? "SOURCE · 기준" : "DDL INPUT";
+  // 모드마다 달라지는 글은 여기서 한 번에 갈아 끼운다. 언어를 바꿔도 이 함수를 다시 부른다.
+  const mode = state.mode;
+  elements.sourceLabel.textContent = t(`panel.source.${mode}`);
+  elements.sourceDropHint.textContent = t(`drop.${mode}.hint`);
+  elements.sourceDropTitle.textContent = t(`drop.${mode}.title`);
+  elements.sourceDropNote.textContent = t(`drop.${mode}.note`);
+  elements.renderButtonLabel.textContent = t(`action.render.${mode}`);
+  elements.resultsEyebrow.textContent = t(`results.eyebrow.${mode}`);
+  elements.resultsTitle.textContent = t(`results.title.${mode}`);
+  elements.resultFootnote.textContent = t(`footer.note.${mode}`);
+  elements.modeNote.textContent = t(`mode.note.${mode}`);
+  elements.heroCopy.textContent = t(`hero.copy.${mode}`);
 
-  const dropText = SOURCE_DROP_TEXT[state.mode];
-  elements.sourceDropHint.textContent = dropText.hint;
-  elements.sourceDropTitle.textContent = dropText.title;
-  elements.sourceDropNote.textContent = dropText.note;
-
-  elements.renderButtonLabel.textContent = compare ? "스키마 비교" : "다이어그램 그리기";
-  elements.resultsEyebrow.textContent = compare ? "SCHEMA DIFF" : "TABLES & RELATIONS";
-  elements.resultsTitle.textContent = compare ? "SCHEMA DIFF" : "ER DIAGRAM";
-  elements.resultFootnote.textContent = compare
-    ? "생성한 스크립트는 DDL 텍스트만 보고 만든 것입니다. 실행 전에 검토하세요."
-    : "모든 해석은 이 탭 안에서만 처리됩니다.";
-  elements.modeNote.textContent = MODE_NOTE[state.mode];
-  elements.heroCopy.textContent = HERO_COPY[state.mode];
+  // 비교 모드에서는 03 을 마이그레이션 구역이 쓰므로 특징 구역을 04 로 민다.
+  elements.focusStep.textContent = compare ? "04" : "03";
 
   for (const button of document.querySelectorAll("[data-mode]")) {
     const on = button.dataset.mode === state.mode;
@@ -1907,8 +1671,8 @@ function setMode(mode) {
   applyMode();
 
   // 샘플을 그대로 두고 비교로 넘어오면 비교용 샘플을 채워 바로 결과를 보여준다.
-  if (mode === "compare" && !elements.ddlTextB.value.trim() && elements.ddlText.value === SAMPLE_DDL) {
-    elements.ddlTextB.value = SAMPLE_DDL_V2;
+  if (mode === "compare" && !elements.ddlTextB.value.trim() && elements.ddlText.value === t("sample.v1")) {
+    elements.ddlTextB.value = t("sample.v2");
   }
 
   renderAll();
@@ -1928,7 +1692,7 @@ function swapPanels() {
 
   state.selected = null;
   renderAll();
-  showToast(`SOURCE 와 TARGET 을 바꿨습니다. 이제 ${state.sourceName} → ${state.targetName} 입니다.`);
+  showToast(t("toast.swapped", { source: state.sourceName, target: state.targetName }));
 }
 
 /* ------------------------------------------------------- 비교 내보내기 */
@@ -1939,7 +1703,7 @@ function csvCell(value) {
 }
 
 function changeRows() {
-  const rows = [["구분", "테이블", "대상", "항목", "이전", "이후"]];
+  const rows = [[t("csv.kind"), t("csv.table"), t("csv.target"), t("csv.item"), t("csv.before"), t("csv.after")]];
 
   for (const entry of state.diff.tables) {
     if (entry.status === "same") continue;
@@ -1947,7 +1711,7 @@ function changeRows() {
 
     if (entry.status !== "changed") {
       const table = entry.target || entry.source;
-      rows.push([CHANGE_FLAGS[entry.status], name, "테이블", `컬럼 ${table.columns.length}개`, "", ""]);
+      rows.push([changeFlag(entry.status), name, t("csv.tableRow"), t("csv.columnCount", { count: table.columns.length }), "", ""]);
       continue;
     }
 
@@ -1955,34 +1719,34 @@ function changeRows() {
       if (column.status === "same") continue;
       if (column.status === "changed") {
         for (const change of column.changes) {
-          rows.push(["변경", name, `컬럼 ${column.name}`, change.label, change.from, change.to]);
+          rows.push([changeFlag("changed"), name, t("csv.columnRow", { name: column.name }), change.label, change.from, change.to]);
         }
         continue;
       }
       const model = column.target || column.source;
-      rows.push([CHANGE_FLAGS[column.status], name, `컬럼 ${column.name}`, columnSummary(model), "", ""]);
+      rows.push([changeFlag(column.status), name, t("csv.columnRow", { name: column.name }), columnSummary(model), "", ""]);
     }
 
-    if (entry.pk) rows.push(["변경", name, "기본키", "PRIMARY KEY", entry.pk.from.join(" "), entry.pk.to.join(" ")]);
+    if (entry.pk) rows.push([changeFlag("changed"), name, t("csv.pk"), "PRIMARY KEY", entry.pk.from.join(" "), entry.pk.to.join(" ")]);
     for (const unique of entry.uniques) {
-      rows.push([CHANGE_FLAGS[unique.status], name, "고유 제약", unique.columns.join(" "), "", ""]);
+      rows.push([changeFlag(unique.status), name, t("csv.unique"), unique.columns.join(" "), "", ""]);
     }
     for (const index of entry.indexes) {
-      rows.push([CHANGE_FLAGS[index.status], name, "인덱스", index.columns.join(" "), "", ""]);
+      rows.push([changeFlag(index.status), name, t("csv.index"), index.columns.join(" "), "", ""]);
     }
     for (const relation of entry.relations) {
       const model = relation.target || relation.source;
       const change = relation.changes[0];
       rows.push([
-        CHANGE_FLAGS[relation.status],
+        changeFlag(relation.status),
         name,
-        "외래키",
+        t("csv.fk"),
         relationSummary(model),
         change ? change.from : "",
         change ? change.to : ""
       ]);
     }
-    if (entry.comment) rows.push(["변경", name, "테이블 설명", "COMMENT", entry.comment.from, entry.comment.to]);
+    if (entry.comment) rows.push([changeFlag("changed"), name, t("csv.comment"), "COMMENT", entry.comment.from, entry.comment.to]);
   }
 
   return rows;
@@ -1990,7 +1754,7 @@ function changeRows() {
 
 function copyChanges() {
   if (!state.diff || state.diff.identical) {
-    showToast("복사할 변경이 없습니다.");
+    showToast(t("toast.noChanges"));
     return;
   }
 
@@ -1999,16 +1763,16 @@ function copyChanges() {
 
   navigator.clipboard
     ?.writeText(`${text}\n`)
-    .then(() => showToast(`변경 ${rows.length - 1}건을 CSV로 복사했습니다.`))
-    .catch(() => showToast("클립보드 복사가 차단되었습니다."));
+    .then(() => showToast(t("toast.changesCopied", { count: rows.length - 1 })))
+    .catch(() => showToast(t("toast.clipboardBlocked")));
 }
 
 function copyScript() {
   if (!state.migration) return;
   navigator.clipboard
     ?.writeText(state.migration.sql)
-    .then(() => showToast("마이그레이션 스크립트를 복사했습니다."))
-    .catch(() => showToast("클립보드 복사가 차단되었습니다."));
+    .then(() => showToast(t("toast.scriptCopied")))
+    .catch(() => showToast(t("toast.clipboardBlocked")));
 }
 
 function saveScript() {
@@ -2019,7 +1783,7 @@ function saveScript() {
     new Blob([state.migration.sql], { type: "text/plain;charset=utf-8" }),
     `${source}-to-${target}.${state.dialect}.sql`
   );
-  showToast("스크립트를 저장했습니다.");
+  showToast(t("toast.scriptSaved"));
 }
 
 /* --------------------------------------------------------------- 바인딩 */
@@ -2058,6 +1822,10 @@ function bindEvents() {
 
   for (const button of document.querySelectorAll("[data-mode]")) {
     button.addEventListener("click", () => setMode(button.dataset.mode));
+  }
+
+  for (const button of document.querySelectorAll("[data-lang]")) {
+    button.addEventListener("click", () => setLanguage(button.dataset.lang));
   }
 
   for (const [panel, sampleButton, clearButton] of [
@@ -2127,7 +1895,7 @@ function bindEvents() {
     buildView(false);
     paint();
     fitToView();
-    showToast("자동으로 다시 배치했습니다.");
+    showToast(t("toast.relayout"));
   });
 
   elements.diagramCanvas.addEventListener("pointerdown", onPointerDown);
@@ -2194,19 +1962,60 @@ function bindEvents() {
 
 function initDialects() {
   elements.dialectSelect.innerHTML = DBSchemaDdl.DIALECTS.map(
-    (dialect) => `<option value="${dialect.id}">${escapeXml(dialect.label)}</option>`
+    (dialect) => `<option value="${dialect.id}">${escapeXml(DBSchemaDdl.dialectLabel(dialect))}</option>`
   ).join("");
   elements.dialectSelect.value = state.dialect;
 }
 
-function init() {
-  initTheme();
+/* --------------------------------------------------------------- 언어 */
+
+function applyLanguage() {
+  const lang = DBSchemaI18n.getLang();
+  document.documentElement.lang = lang;
+  document.title = t("meta.title");
+
+  DBSchemaI18n.applyStatic();
   initDialects();
-  bindEvents();
   applyMode();
-  elements.ddlText.value = SAMPLE_DDL;
+  setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+
+  for (const button of document.querySelectorAll("[data-lang]")) {
+    const on = button.dataset.lang === lang;
+    button.classList.toggle("active", on);
+    button.setAttribute("aria-pressed", String(on));
+  }
+}
+
+/* 화면에 남아 있는 것이 그 언어의 샘플뿐이라면 새 언어의 샘플로 바꿔 준다.
+ * 직접 붙여넣은 스키마는 건드리지 않는다. */
+function swapSampleText(before) {
+  for (const [panel, key] of [
+    [panels.source, "sample.v1"],
+    [panels.target, "sample.v2"]
+  ]) {
+    if (panel.textarea.value !== before[key]) continue;
+    panel.textarea.value = t(key);
+  }
+}
+
+function setLanguage(lang) {
+  if (DBSchemaI18n.getLang() === lang) return;
+
+  const before = { "sample.v1": t("sample.v1"), "sample.v2": t("sample.v2") };
+  DBSchemaI18n.setLang(lang);
+  swapSampleText(before);
+  applyLanguage();
+  renderAll({ keepTransform: true });
+}
+
+function init() {
+  DBSchemaI18n.setLang(DBSchemaI18n.detect());
+  initTheme();
+  bindEvents();
+  elements.ddlText.value = t("sample.v1");
   elements.sourceName.textContent = state.sourceName;
   elements.targetName.textContent = state.targetName;
+  applyLanguage();
   renderAll();
 }
 

@@ -498,6 +498,13 @@ svg {
   display: none;
 }
 
+/* 규칙 묶음이 이어 붙으면 범례가 앞 항목에 달라붙는다. */
+.option-list + .option-list {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
 .option-list legend {
   padding: 0;
   margin-bottom: 6px;
@@ -529,6 +536,11 @@ svg {
   font-size: 11px;
   line-height: 1.6;
   word-break: keep-all;
+}
+
+/* 체크박스가 아니라 전체 폭 컨트롤을 설명할 때는 들여쓰지 않는다. */
+.option-note.flush {
+  margin-left: 0;
 }
 
 .option-note code {
@@ -1618,6 +1630,34 @@ kbd {
 
 /* --------------------------------------------------------------- 비교 모드 */
 
+.lang-switch {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.lang-switch button {
+  padding: 7px 12px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 800 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.lang-switch button:hover {
+  color: var(--ink);
+}
+
+.lang-switch button.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .mode-switch {
   padding: 20px 0 18px;
   display: flex;
@@ -1726,7 +1766,6 @@ kbd {
 .select-control {
   display: grid;
   gap: 6px;
-  margin-bottom: 12px;
 }
 
 .select-control > span {
@@ -1899,6 +1938,8 @@ kbd {
   display: grid;
   gap: 10px;
   align-content: start;
+  /* 칸 높이가 정해져 있으면 auto 행이 남는 공간을 나눠 가져서 카드 내용이 잘린다. */
+  grid-auto-rows: min-content;
 }
 
 .change-empty {
@@ -2034,10 +2075,17 @@ kbd {
   text-decoration-thickness: 1px;
 }
 
+/* 머리말과 경고는 그대로 두고 스크립트만 늘었다 줄었다 하며 스스로 스크롤한다. */
 .script-box {
-  display: grid;
+  max-height: 560px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-content: start;
+}
+
+.script-head,
+.script-notes {
+  flex: 0 0 auto;
 }
 
 .script-head {
@@ -2055,7 +2103,8 @@ kbd {
 .script-box pre {
   margin: 0;
   padding: 15px 16px;
-  max-height: 470px;
+  flex: 1 1 auto;
+  min-height: 120px;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 8px;

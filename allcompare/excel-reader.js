@@ -9,6 +9,10 @@
   const MAX_EXCEL_GRID_CELLS = 500_000;
   const MAX_UNCOMPRESSED_ENTRY_BYTES = 256 * 1024 * 1024;
 
+  function t(key, params) {
+    return global.AllCompareI18n ? global.AllCompareI18n.t(key, params) : key;
+  }
+
   class ZipArchive {
     constructor(buffer) {
       this.bytes = new Uint8Array(buffer);
@@ -25,7 +29,7 @@
 
       for (let index = 0; index < entryCount; index += 1) {
         if (this.view.getUint32(offset, true) !== 0x02014b50) {
-          throw new Error("Excel ZIP 중앙 디렉터리를 읽지 못했습니다.");
+          throw new Error(t("excel.centralDirectory"));
         }
 
         const flags = this.view.getUint16(offset + 8, true);
@@ -40,7 +44,7 @@
         const fileName = normalizeArchivePath(new TextDecoder("utf-8").decode(fileNameBytes));
 
         if (uncompressedSize > MAX_UNCOMPRESSED_ENTRY_BYTES) {
-          throw new Error(`Excel 내부 파일이 너무 큽니다: ${fileName}`);
+          throw new Error(t("excel.entryTooLarge", { name: fileName }));
         }
 
         this.entries.set(fileName, {
@@ -62,7 +66,7 @@
           return offset;
         }
       }
-      throw new Error("올바른 XLSX ZIP 구조가 아닙니다.");
+      throw new Error(t("excel.zipStructure"));
     }
 
     has(path) {
@@ -81,12 +85,12 @@
         return null;
       }
       if ((entry.flags & 0x0001) !== 0) {
-        throw new Error("암호화된 Excel 파일은 비교할 수 없습니다.");
+        throw new Error(t("excel.encrypted"));
       }
 
       const localOffset = entry.localHeaderOffset;
       if (this.view.getUint32(localOffset, true) !== 0x04034b50) {
-        throw new Error(`Excel 내부 파일 헤더가 손상되었습니다: ${normalizedPath}`);
+        throw new Error(t("excel.headerDamaged", { path: normalizedPath }));
       }
       const fileNameLength = this.view.getUint16(localOffset + 26, true);
       const extraLength = this.view.getUint16(localOffset + 28, true);
@@ -97,10 +101,10 @@
         return compressed;
       }
       if (entry.compressionMethod !== 8) {
-        throw new Error(`지원하지 않는 Excel ZIP 압축 방식입니다: ${entry.compressionMethod}`);
+        throw new Error(t("excel.method", { method: entry.compressionMethod }));
       }
       if (typeof DecompressionStream === "undefined") {
-        throw new Error("이 브라우저는 XLSX 압축 해제를 지원하지 않습니다. 최신 브라우저를 사용해 주세요.");
+        throw new Error(t("excel.decompressUnsupported"));
       }
 
       try {
@@ -109,7 +113,7 @@
           .pipeThrough(new DecompressionStream("deflate-raw"));
         return new Uint8Array(await new Response(stream).arrayBuffer());
       } catch {
-        throw new Error(`Excel 내부 파일의 압축을 풀지 못했습니다: ${normalizedPath}`);
+        throw new Error(t("excel.decompressFailed", { path: normalizedPath }));
       }
     }
 
@@ -147,7 +151,7 @@
   function parseXml(xml, path) {
     const documentNode = new DOMParser().parseFromString(xml, "application/xml");
     if (documentNode.querySelector("parsererror")) {
-      throw new Error(`Excel XML을 읽지 못했습니다: ${path}`);
+      throw new Error(t("excel.xmlFailed", { path }));
     }
     return documentNode;
   }
@@ -318,7 +322,10 @@
       (range.endColumn - range.startColumn + 1);
     if (gridCellCount > MAX_EXCEL_GRID_CELLS) {
       throw new Error(
-        `Excel 표 범위가 너무 큽니다: ${rangeAddress(range)} (${gridCellCount.toLocaleString()}셀)`
+        t("excel.rangeTooLarge", {
+          range: rangeAddress(range),
+          cells: gridCellCount.toLocaleString()
+        })
       );
     }
 
@@ -340,7 +347,11 @@
   async function readWorksheet(archive, sheetPath, sheetName, sharedStrings) {
     const xml = await archive.text(sheetPath);
     if (!xml) {
-      return { sections: [`# Sheet: ${sheetName} [읽기 실패]`], cellCount: 0, tableCount: 0 };
+      return {
+        sections: [`# Sheet: ${sheetName} [${t("excel.sheetFailed")}]`],
+        cellCount: 0,
+        tableCount: 0
+      };
     }
 
     const documentNode = parseXml(xml, sheetPath);
@@ -368,7 +379,7 @@
       maxColumn = Math.max(maxColumn, address.column);
       if (cellCount > MAX_EXCEL_CELLS) {
         throw new Error(
-          `Excel 셀이 너무 많습니다. 한 파일당 ${MAX_EXCEL_CELLS.toLocaleString()}셀까지 지원합니다.`
+          t("excel.tooManyCells", { limit: MAX_EXCEL_CELLS.toLocaleString() })
         );
       }
     }
@@ -417,7 +428,7 @@
       ? "xl/workbook.xml"
       : archive.findPath("/workbook.xml");
     if (!workbookPath) {
-      throw new Error("Excel 통합 문서 정보를 찾지 못했습니다.");
+      throw new Error(t("excel.workbookMissing"));
     }
 
     const workbookXml = await archive.text(workbookPath);
@@ -453,7 +464,7 @@
     }
 
     if (sheetCount === 0) {
-      throw new Error("비교할 수 있는 Excel 시트를 찾지 못했습니다.");
+      throw new Error(t("excel.noSheets"));
     }
 
     return {
@@ -461,7 +472,9 @@
       sheetCount,
       tableCount,
       cellCount,
-      encoding: `Excel · ${sheetCount}시트 · ${tableCount}테이블`,
+      encoding: t("encodingLabel.excel", { sheets: sheetCount, tables: tableCount }),
+      encodingKey: "encodingLabel.excel",
+      encodingParams: { sheets: sheetCount, tables: tableCount },
       fileName
     };
   }
