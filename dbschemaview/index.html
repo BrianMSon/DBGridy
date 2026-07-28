@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CREATE TABLE 구문을 붙여넣으면 테이블 관계를 ER 다이어그램으로 그리고, 두 스키마를 비교해 마이그레이션 DDL을 만드는 DBSchemaView">
+  <meta name="theme-color" content="#f2efe7">
+  <title>DBSchemaView — DB 스키마 시각화와 비교</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#" aria-label="DBSchemaView 홈">
+      <span class="brand-mark" aria-hidden="true">
+        <span>D</span>
+        <span>S</span>
+      </span>
+      <span class="brand-name">DBSCHEMAVIEW</span>
+    </a>
+
+    <div class="header-actions">
+      <span class="privacy-note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.9 8.7 7 10 4.1-1.3 7-5.3 7-10V6l-7-3Zm0 4.2 3 1.3V11c0 2.7-1.4 5.2-3 6.4-1.6-1.2-3-3.7-3-6.4V8.5l3-1.3Z"/></svg>
+        스키마는 브라우저 밖으로 나가지 않아요
+      </span>
+      <button class="icon-button" id="themeButton" type="button" aria-label="다크 모드 전환" title="화면 테마 전환">
+        <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0-5v3m0 14v3M4.9 4.9 7 7m10 10 2.1 2.1M2 12h3m14 0h3M4.9 19.1 7 17m10-10 2.1-2.1"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow"><span>01</span> SCHEMA TO DIAGRAM</p>
+        <h1 id="pageTitle"><span class="sql-token">CREATE TABLE</span>에서<br><em>ER 다이어그램까지.</em></h1>
+      </div>
+      <div class="hero-copy">
+        <p id="heroCopy">CREATE TABLE 구문을 그대로 붙여넣으세요. 컬럼과 키, 외래키를 읽어 ER 다이어그램으로 그립니다. 외래키가 없는 스키마는 컬럼 이름으로 관계를 추정합니다.</p>
+        <div class="format-row" aria-label="지원 방언">
+          <span>MySQL</span><span>MariaDB</span><span>PostgreSQL</span><span>SQL SERVER</span><span>ORACLE</span><span>SQLite</span><span>.DB FILE</span><span>+ ANY DDL</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="schema-workspace" aria-label="스키마 입력 영역">
+      <div class="mode-switch">
+        <span class="mode-kicker">MODE</span>
+        <div class="mode-tabs" role="group" aria-label="작업 모드">
+          <button type="button" class="active" data-mode="single" aria-pressed="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16M10 10v9"/></svg>
+            단일 스키마
+          </button>
+          <button type="button" data-mode="compare" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h6v14H3zM15 5h6v14h-6M10 12h4m-1.6-1.8L14.2 12l-1.8 1.8"/></svg>
+            스키마 비교
+          </button>
+        </div>
+        <span class="mode-note" id="modeNote">DDL 하나를 읽어 ER 다이어그램을 그립니다.</span>
+
+        <button class="swap-button" id="swapButton" type="button" title="SOURCE 와 TARGET 을 서로 바꿉니다" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15l-3.5-3.5M19 8l-3.5 3.5M20 16H5l3.5-3.5M5 16l3.5 3.5"/></svg>
+          좌우 바꾸기
+        </button>
+      </div>
+
+      <div class="input-grid" id="inputGrid">
+        <article class="ddl-panel" id="ddlDropzone">
+          <div class="panel-kicker">
+            <span class="side-label source" id="sourceLabel">DDL INPUT</span>
+            <div class="panel-actions">
+              <button class="text-button" id="sampleButton" type="button">샘플 넣기</button>
+              <button class="text-button muted" id="clearButton" type="button">비우기</button>
+            </div>
+          </div>
+
+          <div class="file-title-row">
+            <div>
+              <strong id="sourceName">shop-schema.sql</strong>
+              <span id="sourceMeta">샘플 · 6개 테이블</span>
+            </div>
+            <label class="file-picker" for="ddlFileInput">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"/></svg>
+              파일 열기
+            </label>
+            <input id="ddlFileInput" type="file" accept=".sql,.ddl,.txt,.db,.sqlite,.sqlite3,.db3" hidden>
+          </div>
+
+          <textarea id="ddlText" spellcheck="false" aria-label="테이블 구조 DDL" placeholder="CREATE TABLE users (&#10;  id BIGINT PRIMARY KEY,&#10;  email VARCHAR(255) NOT NULL&#10;);"></textarea>
+
+          <div class="file-footer">
+            <span id="sourceDropHint">.sql 또는 SQLite .db 파일 드롭 · 붙여넣기 가능</span>
+            <span id="parseHint">CREATE TABLE · ALTER TABLE · COMMENT ON</span>
+          </div>
+
+          <div class="drop-overlay" aria-hidden="true">
+            <strong id="sourceDropTitle">SQL 또는 SQLite 파일 놓기</strong>
+            <span id="sourceDropNote">.db 파일은 안에 저장된 스키마를 꺼내 그립니다</span>
+          </div>
+        </article>
+
+        <article class="ddl-panel target-panel" id="ddlDropzoneB" hidden>
+          <div class="panel-kicker">
+            <span class="side-label target">TARGET · 목표</span>
+            <div class="panel-actions">
+              <button class="text-button" id="sampleButtonB" type="button">샘플 넣기</button>
+              <button class="text-button muted" id="clearButtonB" type="button">비우기</button>
+            </div>
+          </div>
+
+          <div class="file-title-row">
+            <div>
+              <strong id="targetName">shop-schema-v2.sql</strong>
+              <span id="targetMeta">샘플 · 6개 테이블</span>
+            </div>
+            <label class="file-picker" for="ddlFileInputB">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"/></svg>
+              파일 열기
+            </label>
+            <input id="ddlFileInputB" type="file" accept=".sql,.ddl,.txt,.db,.sqlite,.sqlite3,.db3" hidden>
+          </div>
+
+          <textarea id="ddlTextB" spellcheck="false" aria-label="비교 대상 DDL" placeholder="바뀐 뒤의 스키마를 붙여넣으세요."></textarea>
+
+          <div class="file-footer">
+            <span>파일 1개/2개 드롭 · 이 모습이 되도록 만듭니다</span>
+            <span>TARGET</span>
+          </div>
+
+          <div class="drop-overlay" aria-hidden="true">
+            <strong>한 개 또는 두 파일 놓기</strong>
+            <span>두 파일이면 SOURCE / TARGET 에 자동 배치합니다</span>
+          </div>
+        </article>
+
+        <aside class="option-panel">
+          <div class="panel-kicker">
+            <span class="side-label target">OPTIONS</span>
+          </div>
+
+          <fieldset class="option-list">
+            <legend>해석 규칙</legend>
+            <label class="check-control"><input id="inferRelations" type="checkbox" checked><span>관계 자동 추정</span></label>
+            <p class="option-note">외래키가 없어도 <code>user_id</code> → <code>users</code> 처럼 이름으로 연결합니다.</p>
+            <label class="check-control"><input id="showTypes" type="checkbox" checked><span>데이터 타입 표시</span></label>
+            <label class="check-control"><input id="showComments" type="checkbox"><span>컬럼 설명 우선 표시</span></label>
+          </fieldset>
+
+          <fieldset class="option-list" id="dialectField" hidden>
+            <legend>마이그레이션</legend>
+            <label class="select-control">
+              <span>DDL 방언</span>
+              <select id="dialectSelect" aria-label="마이그레이션 DDL 방언"></select>
+            </label>
+            <label class="check-control"><input id="hideSameTables" type="checkbox" checked><span>변경된 테이블만 목록에 표시</span></label>
+            <p class="option-note">SOURCE 를 TARGET 으로 만드는 스크립트를 이 문법으로 적습니다.</p>
+          </fieldset>
+
+          <div class="warning-box" id="warningBox" hidden>
+            <strong id="warningTitle">확인이 필요합니다</strong>
+            <ul id="warningList"></ul>
+          </div>
+
+          <div class="primary-actions">
+            <span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+            <button class="compare-button" id="renderButton" type="button">
+              <span id="renderButtonLabel">다이어그램 그리기</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
+            </button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="results-section" id="resultsSection" aria-labelledby="resultsTitle">
+      <div class="results-topline">
+        <div>
+          <p class="eyebrow"><span>02</span> <span id="resultsEyebrow">TABLES &amp; RELATIONS</span></p>
+          <h2 id="resultsTitle">ER DIAGRAM</h2>
+        </div>
+        <div class="result-state" id="resultState">
+          <span class="result-dot"></span>
+          <strong id="resultStateText">테이블 6개를 읽었습니다</strong>
+        </div>
+      </div>
+
+      <div class="stats-grid" aria-label="스키마 통계">
+        <div class="stat-cell total">
+          <span>테이블</span>
+          <strong id="tableStat">6</strong>
+          <small>해석된 정의</small>
+        </div>
+        <div class="stat-cell">
+          <span>컬럼</span>
+          <strong id="columnStat">38</strong>
+          <small>전체 필드</small>
+        </div>
+        <div class="stat-cell added">
+          <span>명시 관계</span>
+          <strong id="explicitStat">7</strong>
+          <small>FOREIGN KEY</small>
+        </div>
+        <div class="stat-cell changed">
+          <span>추정 관계</span>
+          <strong id="inferredStat">0</strong>
+          <small>이름 기반</small>
+        </div>
+        <div class="stat-cell removed">
+          <span>고립</span>
+          <strong id="isolatedStat">0</strong>
+          <small>연결 없음</small>
+        </div>
+      </div>
+
+      <div class="result-toolbar">
+        <div class="segmented" aria-label="컬럼 표시 방식">
+          <button type="button" class="active" data-columns="all">전체 컬럼</button>
+          <button type="button" data-columns="keys">키 컬럼만</button>
+        </div>
+
+        <label class="search-field">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm5 12 4 4"/></svg>
+          <input id="searchInput" type="search" placeholder="테이블 · 컬럼 검색" aria-label="테이블 또는 컬럼 검색">
+        </label>
+
+        <output class="diff-position" id="searchPosition" aria-live="polite">—</output>
+
+        <div class="toolbar-spacer"></div>
+
+        <div class="zoom-group" role="group" aria-label="확대 축소">
+          <button class="tool-button" id="zoomOutButton" type="button" title="축소">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+          </button>
+          <output id="zoomLevel">100%</output>
+          <button class="tool-button" id="zoomInButton" type="button" title="확대">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+
+        <button class="tool-button" id="fitButton" type="button" title="화면에 맞추기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5m11-5v5h-5"/></svg>
+          맞춤
+        </button>
+        <button class="tool-button" id="relayoutButton" type="button" title="자동 재배치">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h6M4 12h10M4 18h6m6-9 4 3-4 3"/></svg>
+          재배치
+        </button>
+      </div>
+
+      <div class="diagram-frame">
+        <aside class="table-rail" aria-label="테이블 목록">
+          <div class="rail-head">
+            <span>TABLES</span>
+            <strong id="railCount">6</strong>
+          </div>
+          <ul id="tableRail"></ul>
+        </aside>
+
+        <div class="diagram-canvas" id="diagramCanvas" tabindex="0" role="group" aria-label="관계 다이어그램. 위아래 방향키로 테이블을 선택하고, Ctrl과 마우스 휠로 확대·축소합니다.">
+          <svg id="diagramSvg" aria-label="테이블 관계 다이어그램" role="img">
+            <g id="viewport">
+              <g id="edgeLayer"></g>
+              <g id="nodeLayer"></g>
+            </g>
+          </svg>
+
+          <div class="diagram-empty" id="diagramEmpty" hidden>
+            <strong>읽을 테이블이 없습니다</strong>
+            <span>CREATE TABLE 구문을 붙여넣고 다시 그려보세요.</span>
+          </div>
+
+          <div class="diagram-legend" aria-label="범례">
+            <span><i class="legend-line explicit"></i>외래키</span>
+            <span><i class="legend-line inferred"></i>추정 관계</span>
+            <span><i class="legend-badge pk">PK</i>기본키</span>
+            <span><i class="legend-badge fk">FK</i>외래키</span>
+            <span><i class="legend-badge uq">UQ</i>고유</span>
+          </div>
+
+          <div class="diagram-legend diff-legend" id="diffLegend" aria-label="변경 범례" hidden>
+            <span><i class="legend-swatch added"></i>추가</span>
+            <span><i class="legend-swatch changed"></i>변경</span>
+            <span><i class="legend-swatch removed"></i>삭제</span>
+            <span><i class="legend-swatch same"></i>그대로</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="compare-report" id="compareReport" aria-labelledby="reportTitle" hidden>
+        <div class="report-head">
+          <div>
+            <p class="eyebrow"><span>03</span> MIGRATION</p>
+            <h3 id="reportTitle">변경 목록과 마이그레이션 스크립트</h3>
+          </div>
+          <div class="report-actions">
+            <button class="secondary-button" id="copyChangesButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8h10v12H9zM5 4h10v4M5 4v12h4"/></svg>
+              변경 목록 CSV
+            </button>
+            <button class="secondary-button" id="copyScriptButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8h10v12H9zM5 4h10v4M5 4v12h4"/></svg>
+              스크립트 복사
+            </button>
+            <button class="secondary-button dark" id="saveScriptButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+              .sql 저장
+            </button>
+          </div>
+        </div>
+
+        <div class="report-grid">
+          <div class="change-list" id="changeList"></div>
+
+          <div class="script-box">
+            <div class="script-head">
+              <span class="side-label target">MIGRATION DDL</span>
+              <output id="scriptMeta">—</output>
+            </div>
+            <pre id="migrationScript" tabindex="0" aria-label="생성된 마이그레이션 스크립트"></pre>
+            <div class="script-notes" id="scriptNotes" hidden>
+              <strong>확인이 필요합니다</strong>
+              <ul id="scriptNoteList"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-panel" id="detailPanel" aria-live="polite">
+        <div class="detail-empty" id="detailEmpty">
+          <strong>테이블을 선택하세요</strong>
+          <span>다이어그램이나 왼쪽 목록에서 테이블을 누르면 컬럼과 관계를 자세히 보여줍니다.</span>
+        </div>
+        <div class="detail-body" id="detailBody" hidden>
+          <div class="detail-head">
+            <div>
+              <span class="detail-schema" id="detailSchema"></span>
+              <strong id="detailName"></strong>
+              <p id="detailComment"></p>
+            </div>
+            <button class="text-button muted" id="detailCloseButton" type="button">선택 해제</button>
+          </div>
+          <div class="detail-columns">
+            <table>
+              <thead>
+                <tr><th>키</th><th>컬럼</th><th>타입</th><th>NULL</th><th>기본값</th><th>설명</th></tr>
+              </thead>
+              <tbody id="detailColumnBody"></tbody>
+            </table>
+          </div>
+          <div class="detail-relations" id="detailRelations"></div>
+        </div>
+      </section>
+
+      <div class="result-footer">
+        <p id="resultFootnote">모든 해석은 이 탭 안에서만 처리됩니다.</p>
+        <div>
+          <button class="secondary-button" id="copyButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8h10v12H9zM5 4h10v4M5 4v12h4"/></svg>
+            관계 목록 복사
+          </button>
+          <button class="secondary-button" id="exportSvgButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+            SVG 내보내기
+          </button>
+          <button class="secondary-button dark" id="exportPngButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+            PNG 내보내기
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" aria-label="DBSchemaView 특징">
+      <p class="eyebrow"><span>03</span> BUILT FOR FOCUS</p>
+      <div class="feature-grid">
+        <article><span>01</span><h3>방언을 가리지 않는 해석</h3><p>MySQL 백틱, SQL Server 대괄호, PostgreSQL 따옴표와 배열 타입, Oracle 스키마 한정자를 같은 규칙으로 읽습니다.</p></article>
+        <article><span>02</span><h3>관계가 없어도 그립니다</h3><p>FOREIGN KEY가 빠진 스키마는 컬럼 이름과 기본키를 대조해 관계를 추정하고, 점선으로 구분해 표시합니다.</p></article>
+        <article><span>03</span><h3>두 스키마의 차이와 이어 붙일 DDL</h3><p>운영과 개발 스키마를 나란히 놓으면 바뀐 테이블과 컬럼을 짚어주고, 한쪽을 다른 쪽으로 만드는 ALTER 스크립트를 방언에 맞춰 적어줍니다.</p></article>
+        <article><span>04</span><h3>완전한 로컬 처리</h3><p>업로드 서버와 계정이 없습니다. 붙여넣은 스키마는 현재 브라우저 메모리 안에서만 해석됩니다.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="brand footer-brand"><span class="brand-mark" aria-hidden="true"><span>D</span><span>S</span></span><span class="brand-name">DBSCHEMAVIEW</span></div>
+    <p>PASTE DDL. SEE RELATIONS.</p>
+    <span>Browser edition · 2026</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="sqlite-reader.js"></script>
+  <script src="sql-parser.js"></script>
+  <script src="schema-diff.js"></script>
+  <script src="ddl-writer.js"></script>
+  <script src="layout.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
