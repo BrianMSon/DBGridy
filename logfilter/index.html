@@ -745,11 +745,29 @@ select {
 }
 
 .file-chip {
+  position: relative;
   flex: 0 0 auto;
   min-width: 188px;
-  padding: 11px 13px;
+  padding: 11px 30px 11px 13px;
   border: 1px solid var(--line);
   background: var(--paper);
+}
+
+.chip-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.chip-close:hover {
+  color: var(--coral);
 }
 
 .file-chip strong,
@@ -4564,6 +4582,9 @@ const MSG = {
     addAfterIndex: '인덱싱이 끝난 뒤에 파일을 추가할 수 있습니다',
     alreadyOpen: '이미 열려 있는 파일입니다',
     confirmClose: (n) => `열려 있는 로그 ${n}개를 모두 닫습니다. 계속할까요?`,
+    closeFile: '이 파일 닫기',
+    closeFileAria: (name) => `${name} 닫기`,
+    confirmRemoveFile: (name) => `${name}을(를) 닫고 나머지를 다시 인덱싱합니다. 별표는 사라집니다. 계속할까요?`,
     closedAll: '열린 로그를 모두 닫았습니다',
     nothingToExport: '내보낼 결과가 없습니다',
     saved: (n, capped) => `${n}줄을 저장했습니다${capped ? ' · 최대 10만 줄까지만 포함' : ''}`,
@@ -4652,6 +4673,9 @@ const MSG = {
     addAfterIndex: 'Files can be added once indexing finishes',
     alreadyOpen: 'Those files are already open',
     confirmClose: (n) => `Close all ${n} open logs?`,
+    closeFile: 'Close this file',
+    closeFileAria: (name) => `Close ${name}`,
+    confirmRemoveFile: (name) => `Close ${name} and re-index the rest? Stars will be lost.`,
     closedAll: 'All logs closed',
     nothingToExport: 'Nothing to export',
     saved: (n, capped) => `Saved ${n} lines${capped ? ' · capped at 100k lines' : ''}`,
@@ -5188,6 +5212,8 @@ function renderLoadedFiles() {
   const files = orderedFiles();
   $('fileChipList').innerHTML = files.map((file, index) => `
     <article class="file-chip">
+      <button type="button" class="chip-close" data-close="${file.id}"
+        title="${msg('closeFile')}" aria-label="${msg('closeFileAria', escapeHtml(file.name))}">×</button>
       <strong title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</strong>
       <span>${msg('chipMeta', formatBytes(file.size), formatNumber(file.count), escapeHtml(file.encoding.toUpperCase()))}</span>
       ${files.length < 2 ? '' : `
@@ -5960,9 +5986,8 @@ function resetWorkspace() {
 /* Files opened through a handle are asked for a fresh snapshot, so a log that kept
  * growing is re-indexed as it is now. Files that came from the plain picker can only be
  * read as they were, because the browser refuses a reference whose file has changed. */
-async function reloadFiles() {
-  if (!state.files.length) return;
-  const files = await Promise.all(state.files.map(async (file) => {
+async function freshCopies(files) {
+  return Promise.all(files.map(async (file) => {
     const handle = fileHandles.get(file);
     if (!handle) return file;
     try {
@@ -5973,7 +5998,32 @@ async function reloadFiles() {
       return file;
     }
   }));
-  loadFiles(files);
+}
+
+async function reloadFiles() {
+  if (!state.files.length) return;
+  loadFiles(await freshCopies(state.files));
+}
+
+/* Aggregates and record ids are tied to whole file blocks, so dropping one file means
+ * re-indexing the rest. The order the reader arranged carries over into the new index,
+ * and closing the last file simply closes the workspace. */
+async function removeFile(fileId) {
+  const file = state.files[fileId];
+  if (!file) return;
+  if (state.files.length === 1) {
+    resetWorkspace();
+    toast(msg('closedAll'));
+    return;
+  }
+  if (state.bookmarks.size && !window.confirm(msg('confirmRemoveFile', file.name))) return;
+  const rank = new Map(state.fileOrder.map((id, position) => [id, position]));
+  const remaining = state.files
+    .map((entry, id) => ({ entry, id }))
+    .filter(({ id }) => id !== fileId)
+    .sort((a, b) => (rank.get(a.id) ?? a.id) - (rank.get(b.id) ?? b.id))
+    .map(({ entry }) => entry);
+  loadFiles(await freshCopies(remaining));
 }
 
 function clearFiles() {
@@ -6409,6 +6459,11 @@ function bindEvents() {
   $('addFilesButton').addEventListener('click', () => openFilePicker({ append: true }));
   $('reloadFilesButton').addEventListener('click', reloadFiles);
   $('fileChipList').addEventListener('click', (event) => {
+    const close = event.target.closest('[data-close]');
+    if (close) {
+      removeFile(Number(close.dataset.close));
+      return;
+    }
     const button = event.target.closest('[data-move]');
     if (button) moveFile(Number(button.dataset.move), Number(button.dataset.step));
   });
