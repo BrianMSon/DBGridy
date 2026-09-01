@@ -1971,6 +1971,26 @@ select {
   letter-spacing: 0.08em;
 }
 
+.json-section-head {
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.json-tree-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px 8px;
+  letter-spacing: normal;
+}
+
+.json-tree-actions .text-button {
+  flex: 0 0 auto;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 9px;
+}
+
 .detail-section pre {
   max-height: 210px;
   margin: 0;
@@ -3167,7 +3187,14 @@ select {
                   <dl class="field-list" id="fieldList"></dl>
                 </div>
                 <div class="detail-section json-section" id="jsonSection" hidden>
-                  <div class="detail-section-head"><span data-i18n="jsonLabel">감지된 JSON</span><button class="text-button" id="copyJsonButton" type="button" data-i18n="copyJsonLabel"><svg><use href="#icon-copy"/></svg> JSON 복사</button></div>
+                  <div class="detail-section-head json-section-head">
+                    <span data-i18n="jsonLabel">감지된 JSON</span>
+                    <div class="json-tree-actions">
+                      <button class="text-button" id="jsonExpandAllButton" type="button" aria-controls="jsonTree" data-i18n="jsonExpandAllLabel">모두 펼치기</button>
+                      <button class="text-button" id="jsonCollapseAllButton" type="button" aria-controls="jsonTree" data-i18n="jsonCollapseAllLabel">모두 접기</button>
+                      <button class="text-button" id="copyJsonButton" type="button" data-i18n="copyJsonLabel"><svg><use href="#icon-copy"/></svg> JSON 복사</button>
+                    </div>
+                  </div>
                   <div class="json-tree" id="jsonTree" role="tree" aria-label="JSON 트리" data-i18n-aria="jsonTreeAria"></div>
                 </div>
               </div>
@@ -4625,6 +4652,8 @@ const UI_EN = {
   copyLabel: ' Copy',
   fieldsLabel: 'Detected fields',
   jsonLabel: 'Detected JSON',
+  jsonExpandAllLabel: 'Expand all',
+  jsonCollapseAllLabel: 'Collapse all',
   copyJsonLabel: ' Copy JSON',
   jsonTreeAria: 'Detected JSON tree',
   starThis: 'Star this line',
@@ -5941,6 +5970,12 @@ function renderJsonTree(value) {
   appendJsonTreeNode(tree, '', value, 0, { rendered: 0 }, { root: true });
 }
 
+function setJsonTreeExpanded(expanded) {
+  $$('details', $('jsonTree')).forEach((branch) => {
+    branch.open = expanded;
+  });
+}
+
 function parseFields(text, detectedJson = detectJson(text)) {
   const trimmed = String(text).trim();
   const candidates = [];
@@ -6968,6 +7003,8 @@ function bindEvents() {
     const copied = await copyText(state.selectedJson.formatted);
     toast(copied ? msg('jsonCopied') : msg('copyFailed'), copied ? '' : 'error');
   });
+  $('jsonExpandAllButton').addEventListener('click', () => setJsonTreeExpanded(true));
+  $('jsonCollapseAllButton').addEventListener('click', () => setJsonTreeExpanded(false));
 
   $('exportButton').addEventListener('click', () => {
     const willOpen = $('exportPopover').hidden;
