@@ -2006,7 +2006,14 @@ select {
 
 .field-list {
   margin: 0;
+  max-height: min(65vh, 520px);
+  overflow: auto;
   border: 1px solid var(--line);
+  resize: vertical;
+}
+
+.field-list-adjustable {
+  min-height: 100px;
 }
 
 .field-list div {
@@ -3184,7 +3191,7 @@ select {
               <div class="detail-inspections">
                 <div class="detail-section fields-section">
                   <div class="detail-section-head"><span data-i18n="fieldsLabel">감지된 필드</span><output id="fieldCount">0</output></div>
-                  <dl class="field-list" id="fieldList"></dl>
+                  <dl class="field-list" id="fieldList" tabindex="0" aria-label="감지된 필드 목록" title="오른쪽 아래 모서리를 드래그해 필드 목록 높이 조절" data-i18n-aria="fieldListAria" data-i18n-title="fieldResizeTitle"></dl>
                 </div>
                 <div class="detail-section json-section" id="jsonSection" hidden>
                   <div class="detail-section-head json-section-head">
@@ -4469,6 +4476,7 @@ const MAX_SCROLL_HEIGHT = 16_000_000;
 const ROW_BUFFER = 8;
 const MAX_JSON_TREE_NODES = 500;
 const MAX_JSON_TREE_DEPTH = 20;
+const FIELD_LIST_INITIAL_HEIGHT = 230;
 // Rows fetched beyond the visible window on each side, so ordinary scrolling and
 // arrow-key stepping repaint from cache instead of waiting on the worker.
 const ROW_OVERFETCH = 90;
@@ -4651,6 +4659,8 @@ const UI_EN = {
   rawLabel: 'Raw',
   copyLabel: ' Copy',
   fieldsLabel: 'Detected fields',
+  fieldListAria: 'Detected field list',
+  fieldResizeTitle: 'Drag the lower-right corner to resize the field list',
   jsonLabel: 'Detected JSON',
   jsonExpandAllLabel: 'Expand all',
   jsonCollapseAllLabel: 'Collapse all',
@@ -6034,9 +6044,16 @@ function selectRow(row) {
   state.selectedJson = detectedJson;
   const fields = parseFields(row.text, detectedJson);
   $('fieldCount').textContent = `${fields.length}`;
-  $('fieldList').innerHTML = fields.length
+  const fieldList = $('fieldList');
+  fieldList.classList.remove('field-list-adjustable');
+  fieldList.style.height = '';
+  fieldList.innerHTML = fields.length
     ? fields.map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')
     : `<div><dt>—</dt><dd>${msg('noFields')}</dd></div>`;
+  if (fieldList.scrollHeight > FIELD_LIST_INITIAL_HEIGHT) {
+    fieldList.style.height = `${FIELD_LIST_INITIAL_HEIGHT}px`;
+    fieldList.classList.add('field-list-adjustable');
+  }
   $('jsonSection').hidden = !detectedJson;
   if (detectedJson) renderJsonTree(detectedJson.value);
   else $('jsonTree').replaceChildren();
