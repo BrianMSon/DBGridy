@@ -101,6 +101,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
+summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--lime) 65%, transparent);
   outline-offset: 2px;
@@ -1381,7 +1382,7 @@ select {
 .log-columns,
 .log-row {
   display: grid;
-  grid-template-columns: 62px 68px 92px 70px 118px minmax(220px, 1fr) 34px;
+  grid-template-columns: 34px 62px 68px 92px 70px 118px minmax(220px, 1fr);
   align-items: center;
 }
 
@@ -2016,6 +2017,118 @@ select {
   border-left: 1px solid var(--line);
 }
 
+.detail-inspections {
+  min-width: 0;
+}
+
+.json-tree {
+  max-height: 330px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  color: var(--ink-soft);
+  font: 10px/1.5 var(--mono);
+}
+
+.json-tree summary,
+.json-tree-leaf {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: max-content;
+  padding: 4px 8px;
+}
+
+.json-tree summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.json-tree summary::-webkit-details-marker {
+  display: none;
+}
+
+.json-tree summary::before,
+.json-tree-leaf::before {
+  width: 10px;
+  flex: 0 0 10px;
+  color: var(--muted);
+  content: '';
+}
+
+.json-tree summary::before {
+  content: '›';
+  font: 800 14px/0.8 var(--mono);
+  transform: translateY(1px);
+  transform-origin: center;
+}
+
+.json-tree details[open] > summary::before {
+  transform: translateY(1px) rotate(90deg);
+}
+
+.json-tree summary:hover,
+.json-tree summary:focus-visible,
+.json-tree-leaf:hover {
+  background: color-mix(in srgb, var(--teal) 10%, transparent);
+}
+
+.json-tree-branch.root > summary {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.json-tree-children {
+  margin-left: 13px;
+  border-left: 1px solid color-mix(in srgb, var(--teal) 45%, var(--line));
+}
+
+.json-key {
+  max-width: 180px;
+  color: var(--ink);
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.json-index,
+.json-separator,
+.json-container-count {
+  color: var(--muted);
+}
+
+.json-root-type,
+.json-container-marker {
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.json-container-count {
+  font-size: 9px;
+}
+
+.json-value {
+  max-width: 360px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.json-value.string { color: var(--lime-dark); }
+.json-value.number { color: var(--violet); }
+.json-value.boolean { color: var(--amber); }
+.json-value.null { color: var(--coral); font-style: italic; }
+
+.json-tree-notice {
+  padding: 5px 8px 5px 24px;
+  color: var(--muted);
+  font-style: italic;
+}
+
 .bookmark-button {
   width: 100%;
   margin-top: 18px;
@@ -2370,15 +2483,18 @@ select {
     grid-column: 1;
   }
 
-  .detail-content .detail-section:nth-of-type(1) {
+  .detail-content > .raw-section {
     grid-column: 2;
     grid-row: 1 / span 4;
     margin-top: 0;
   }
 
-  .detail-content .detail-section:nth-of-type(2) {
+  .detail-content > .detail-inspections {
     grid-column: 3;
     grid-row: 1 / span 4;
+  }
+
+  .detail-inspections > .detail-section:first-child {
     margin-top: 0;
   }
 
@@ -2496,6 +2612,11 @@ select {
     display: block;
   }
 
+  .detail-content > .raw-section,
+  .detail-inspections > .detail-section:first-child {
+    margin-top: 16px;
+  }
+
   .site-footer {
     padding: 34px 17px;
   }
@@ -2577,11 +2698,13 @@ select {
 
   .log-columns,
   .log-row {
-    grid-template-columns: 78px 62px minmax(180px, 1fr) 32px;
+    grid-template-columns: 32px 78px 62px minmax(180px, 1fr);
   }
 
-  .log-columns span:nth-child(1),
-  .log-columns span:nth-child(4),
+  .log-columns span:nth-child(2),
+  .log-columns span:nth-child(3),
+  .log-columns span:nth-child(6),
+  .seq-cell,
   .line-cell,
   .source-cell {
     display: none;
@@ -2974,7 +3097,7 @@ select {
 
             <div class="flow-view" id="flowView" role="tabpanel" aria-labelledby="flowTab">
               <div class="log-columns" id="logColumns" aria-hidden="true">
-                <span>NO</span><span>#</span><span>TIME</span><span>LEVEL</span><span>SOURCE</span><span>MESSAGE</span><span></span>
+                <span></span><span>NO</span><span>#</span><span>TIME</span><span>LEVEL</span><span>SOURCE</span><span>MESSAGE</span>
               </div>
               <div class="log-viewport" id="logViewport" tabindex="0" aria-label="검색된 로그 목록" data-i18n-aria="listAria">
                 <div class="virtual-space" id="virtualSpace"></div>
@@ -3034,13 +3157,19 @@ select {
                 <div><dt data-i18n="dtLine">줄</dt><dd id="detailLine">—</dd></div>
                 <div><dt data-i18n="dtTime">시간</dt><dd id="detailTime">—</dd></div>
               </dl>
-              <div class="detail-section">
+              <div class="detail-section raw-section">
                 <div class="detail-section-head"><span data-i18n="rawLabel">원문</span><button class="text-button" id="copyRowButton" type="button" data-i18n="copyLabel"><svg><use href="#icon-copy"/></svg> 복사</button></div>
                 <pre id="detailRaw"></pre>
               </div>
-              <div class="detail-section">
-                <div class="detail-section-head"><span data-i18n="fieldsLabel">감지된 필드</span><output id="fieldCount">0</output></div>
-                <dl class="field-list" id="fieldList"></dl>
+              <div class="detail-inspections">
+                <div class="detail-section fields-section">
+                  <div class="detail-section-head"><span data-i18n="fieldsLabel">감지된 필드</span><output id="fieldCount">0</output></div>
+                  <dl class="field-list" id="fieldList"></dl>
+                </div>
+                <div class="detail-section json-section" id="jsonSection" hidden>
+                  <div class="detail-section-head"><span data-i18n="jsonLabel">감지된 JSON</span><button class="text-button" id="copyJsonButton" type="button" data-i18n="copyJsonLabel"><svg><use href="#icon-copy"/></svg> JSON 복사</button></div>
+                  <div class="json-tree" id="jsonTree" role="tree" aria-label="JSON 트리" data-i18n-aria="jsonTreeAria"></div>
+                </div>
               </div>
               <button class="bookmark-button" id="detailBookmarkButton" type="button">
                 <svg><use href="#icon-star"/></svg>
@@ -4311,6 +4440,8 @@ const LEVEL_CLASSES = ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'othe
 const ROW_HEIGHT = 38;
 const MAX_SCROLL_HEIGHT = 16_000_000;
 const ROW_BUFFER = 8;
+const MAX_JSON_TREE_NODES = 500;
+const MAX_JSON_TREE_DEPTH = 20;
 // Rows fetched beyond the visible window on each side, so ordinary scrolling and
 // arrow-key stepping repaint from cache instead of waiting on the worker.
 const ROW_OVERFETCH = 90;
@@ -4336,6 +4467,7 @@ const state = {
   activePattern: '',
   activeTab: 'flow',
   selectedRow: null,
+  selectedJson: null,
   selectedPosition: -1,
   pendingSelectPosition: -1,
   currentRows: new Map(),
@@ -4492,6 +4624,9 @@ const UI_EN = {
   rawLabel: 'Raw',
   copyLabel: ' Copy',
   fieldsLabel: 'Detected fields',
+  jsonLabel: 'Detected JSON',
+  copyJsonLabel: ' Copy JSON',
+  jsonTreeAria: 'Detected JSON tree',
   starThis: 'Star this line',
   g1t: 'The main screen never stalls',
   g1p: 'Reading and searching run in a Web Worker, so buttons and scrolling stay responsive during analysis.',
@@ -4524,6 +4659,7 @@ const MSG = {
     copied: '메시지를 복사했습니다',
     copyFailed: '복사하지 못했습니다 · 직접 선택해 복사해주세요',
     rawCopied: '로그 원문을 복사했습니다',
+    jsonCopied: 'JSON을 복사했습니다',
     staleChanged: "파일이 디스크에서 바뀌어 더 읽을 수 없습니다 · OPEN FILES의 '다시 읽기'를 눌러 지금 내용으로 다시 읽어주세요",
     staleShrunk: "파일이 짧아져 지금 인덱스로는 읽을 수 없습니다 · OPEN FILES의 '다시 읽기'를 눌러 지금 내용으로 다시 읽어주세요",
     workerStartFail: 'Web Worker를 시작할 수 없습니다. README 안내처럼 로컬 HTTP 서버로 열어주세요.',
@@ -4575,6 +4711,12 @@ const MSG = {
     resultN: (n) => `결과 ${n}`,
     lineN: (n) => `${n}번째 줄`,
     noFields: '구조화된 필드를 찾지 못했습니다',
+    jsonObject: '객체',
+    jsonArray: '배열',
+    jsonKeys: (n) => `${formatNumber(n)}개 키`,
+    jsonItems: (n) => `${formatNumber(n)}개 항목`,
+    jsonMore: (n) => `나머지 ${formatNumber(n)}개 항목은 생략됨`,
+    jsonDepthLimit: '더 깊은 항목은 생략됨',
     starThis: '이 로그에 별표',
     patternCardTitle: '이 패턴의 로그만 보기',
     patternCap: (m, n) => `${m}개 패턴 중 많이 나온 순으로 ${n}개만 표시합니다`,
@@ -4615,6 +4757,7 @@ const MSG = {
     copied: 'Message copied',
     copyFailed: 'Copy failed · select the text by hand',
     rawCopied: 'Raw line copied',
+    jsonCopied: 'JSON copied',
     staleChanged: "The file changed on disk and can no longer be read · press 'Reload' under OPEN FILES to read it as it is now",
     staleShrunk: "The file shrank and no longer matches the index · press 'Reload' under OPEN FILES to read it as it is now",
     workerStartFail: 'The Web Worker could not start. Serve the folder over a local HTTP server as the README describes.',
@@ -4666,6 +4809,12 @@ const MSG = {
     resultN: (n) => `Result ${n}`,
     lineN: (n) => `Line ${n}`,
     noFields: 'No structured fields found',
+    jsonObject: 'Object',
+    jsonArray: 'Array',
+    jsonKeys: (n) => `${formatNumber(n)} ${n === 1 ? 'key' : 'keys'}`,
+    jsonItems: (n) => `${formatNumber(n)} ${n === 1 ? 'item' : 'items'}`,
+    jsonMore: (n) => `${formatNumber(n)} more items omitted`,
+    jsonDepthLimit: 'Deeper items omitted',
     starThis: 'Star this line',
     patternCardTitle: 'Show only this pattern',
     patternCap: (m, n) => `Showing the ${n} most frequent of ${m} patterns`,
@@ -5509,13 +5658,13 @@ function createRowElement() {
   const element = document.createElement('div');
   element.className = 'log-row';
   element.setAttribute('role', 'row');
-  element.innerHTML = '<span class="log-cell seq-cell"></span>'
+  element.innerHTML = '<button class="row-star" type="button"><svg><use href="#icon-star"/></svg></button>'
+    + '<span class="log-cell seq-cell"></span>'
     + '<span class="log-cell line-cell"></span>'
     + '<span class="log-cell time-cell"></span>'
     + '<span class="log-cell"><i class="level-badge"></i></span>'
     + '<span class="log-cell source-cell"></span>'
-    + '<span class="log-cell message-cell"></span>'
-    + '<button class="row-star" type="button"><svg><use href="#icon-star"/></svg></button>';
+    + '<span class="log-cell message-cell"></span>';
   return element;
 }
 
@@ -5524,7 +5673,7 @@ function updateRowElement(element, row) {
   const levelClass = LEVEL_CLASSES[row.level] || 'other';
   const starred = state.bookmarks.has(row.id);
   const selected = state.selectedRow?.id === row.id;
-  const [seqCell, lineCell, timeCell, levelCell, sourceCell, messageCell, star] = element.children;
+  const [star, seqCell, lineCell, timeCell, levelCell, sourceCell, messageCell] = element.children;
 
   element.className = `log-row ${levelClass}${selected ? ' selected' : ''}${row.isMatch ? '' : ' context-row'}`;
   element.dataset.position = row.position;
@@ -5632,22 +5781,167 @@ function scrollToPosition(position) {
   scheduleRowsRender();
 }
 
-function parseFields(text) {
+/* Finds the first complete JSON object or array even when a timestamp, level, or
+ * message surrounds it. A balanced scan prevents braces inside quoted strings from
+ * ending the candidate early; JSON.parse remains the final validity check. */
+function detectJson(text) {
+  const source = String(text);
+  let attempts = 0;
+
+  for (let start = 0; start < source.length && attempts < 100; start += 1) {
+    const opening = source[start];
+    if (opening !== '{' && opening !== '[') continue;
+    attempts += 1;
+
+    const stack = [opening];
+    let inString = false;
+    let escaped = false;
+    for (let cursor = start + 1; cursor < source.length; cursor += 1) {
+      const character = source[cursor];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === '"') inString = false;
+        continue;
+      }
+      if (character === '"') {
+        inString = true;
+        continue;
+      }
+      if (character === '{' || character === '[') {
+        stack.push(character);
+        continue;
+      }
+      if (character !== '}' && character !== ']') continue;
+
+      const expected = character === '}' ? '{' : '[';
+      if (stack.at(-1) !== expected) break;
+      stack.pop();
+      if (stack.length) continue;
+
+      const json = source.slice(start, cursor + 1);
+      try {
+        const value = JSON.parse(json);
+        if (value && typeof value === 'object') {
+          return { value, source: json, formatted: JSON.stringify(value, null, 2) };
+        }
+      } catch {
+        // A balanced bracket expression may still be ordinary log text.
+      }
+      break;
+    }
+  }
+  return null;
+}
+
+function jsonContainerInfo(value) {
+  const array = Array.isArray(value);
+  const size = array ? value.length : Object.keys(value).length;
+  return { array, size };
+}
+
+function appendJsonKey(parent, key, arrayItem) {
+  const name = document.createElement('span');
+  name.className = arrayItem ? 'json-key json-index' : 'json-key';
+  name.textContent = arrayItem ? `[${key}]` : key;
+  parent.append(name);
+
+  const separator = document.createElement('span');
+  separator.className = 'json-separator';
+  separator.textContent = ':';
+  parent.append(separator);
+}
+
+function appendJsonNotice(parent, message) {
+  const notice = document.createElement('div');
+  notice.className = 'json-tree-notice';
+  notice.textContent = `… ${message}`;
+  parent.append(notice);
+}
+
+function appendJsonTreeNode(parent, key, value, depth, context, { root = false, arrayItem = false } = {}) {
+  context.rendered += 1;
+  const container = value !== null && typeof value === 'object';
+  if (!container) {
+    const row = document.createElement('div');
+    row.className = 'json-tree-leaf';
+    row.setAttribute('role', 'treeitem');
+    appendJsonKey(row, key, arrayItem);
+
+    const rendered = document.createElement('span');
+    const kind = value === null ? 'null' : typeof value;
+    rendered.className = `json-value ${kind}`;
+    rendered.textContent = kind === 'string' ? JSON.stringify(value) : String(value);
+    row.append(rendered);
+    parent.append(row);
+    return;
+  }
+
+  const { array, size } = jsonContainerInfo(value);
+  const branch = document.createElement('details');
+  branch.className = `json-tree-branch${root ? ' root' : ''}`;
+  branch.open = root || depth < 2;
+  const summary = document.createElement('summary');
+  if (root) {
+    const type = document.createElement('span');
+    type.className = 'json-root-type';
+    type.textContent = `${array ? '[ ]' : '{ }'} ${msg(array ? 'jsonArray' : 'jsonObject')}`;
+    summary.append(type);
+  } else {
+    appendJsonKey(summary, key, arrayItem);
+    const marker = document.createElement('span');
+    marker.className = 'json-container-marker';
+    marker.textContent = array ? '[ ]' : '{ }';
+    summary.append(marker);
+  }
+  const count = document.createElement('span');
+  count.className = 'json-container-count';
+  count.textContent = msg(array ? 'jsonItems' : 'jsonKeys', size);
+  summary.append(count);
+  branch.append(summary);
+
+  const children = document.createElement('div');
+  children.className = 'json-tree-children';
+  children.setAttribute('role', 'group');
+  if (depth >= MAX_JSON_TREE_DEPTH) {
+    appendJsonNotice(children, msg('jsonDepthLimit'));
+  } else if (array) {
+    for (let index = 0; index < value.length; index += 1) {
+      if (context.rendered >= MAX_JSON_TREE_NODES) {
+        appendJsonNotice(children, msg('jsonMore', value.length - index));
+        break;
+      }
+      appendJsonTreeNode(children, index, value[index], depth + 1, context, { arrayItem: true });
+    }
+  } else {
+    const entries = Object.entries(value);
+    for (let index = 0; index < entries.length; index += 1) {
+      if (context.rendered >= MAX_JSON_TREE_NODES) {
+        appendJsonNotice(children, msg('jsonMore', entries.length - index));
+        break;
+      }
+      const [childKey, childValue] = entries[index];
+      appendJsonTreeNode(children, childKey, childValue, depth + 1, context);
+    }
+  }
+  branch.append(children);
+  parent.append(branch);
+}
+
+function renderJsonTree(value) {
+  const tree = $('jsonTree');
+  tree.replaceChildren();
+  appendJsonTreeNode(tree, '', value, 0, { rendered: 0 }, { root: true });
+}
+
+function parseFields(text, detectedJson = detectJson(text)) {
   const trimmed = String(text).trim();
   const candidates = [];
-  const jsonStart = trimmed.indexOf('{');
-  if (jsonStart >= 0) {
-    try {
-      const parsed = JSON.parse(trimmed.slice(jsonStart));
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        for (const [key, value] of Object.entries(parsed).slice(0, 60)) {
-          candidates.push([key, typeof value === 'object' ? JSON.stringify(value) : String(value)]);
-        }
-        return candidates;
-      }
-    } catch {
-      // Continue with key/value detection.
+  if (detectedJson && !Array.isArray(detectedJson.value)) {
+    for (const [key, value] of Object.entries(detectedJson.value).slice(0, 60)) {
+      candidates.push([key, typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value)]);
     }
+    return candidates;
   }
 
   /* A bracketed value is taken whole, so "Cards=[0,401120]" or "Client={0, 402135}"
@@ -5694,15 +5988,21 @@ function selectRow(row) {
   $('detailTime').textContent = formatFullTime(row.timestamp);
   $('detailRaw').textContent = row.text;
 
-  const fields = parseFields(row.text);
+  const detectedJson = detectJson(row.text);
+  state.selectedJson = detectedJson;
+  const fields = parseFields(row.text, detectedJson);
   $('fieldCount').textContent = `${fields.length}`;
   $('fieldList').innerHTML = fields.length
     ? fields.map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')
     : `<div><dt>—</dt><dd>${msg('noFields')}</dd></div>`;
+  $('jsonSection').hidden = !detectedJson;
+  if (detectedJson) renderJsonTree(detectedJson.value);
+  else $('jsonTree').replaceChildren();
   updateDetailBookmark();
 }
 
 function hideDetails() {
+  state.selectedJson = null;
   $('detailPlaceholder').hidden = false;
   $('detailContent').hidden = true;
 }
@@ -6655,6 +6955,11 @@ function bindEvents() {
     if (!state.selectedRow) return;
     const copied = await copyText(state.selectedRow.text);
     toast(copied ? msg('rawCopied') : msg('copyFailed'), copied ? '' : 'error');
+  });
+  $('copyJsonButton').addEventListener('click', async () => {
+    if (!state.selectedJson) return;
+    const copied = await copyText(state.selectedJson.formatted);
+    toast(copied ? msg('jsonCopied') : msg('copyFailed'), copied ? '' : 'error');
   });
 
   $('exportButton').addEventListener('click', () => {
