@@ -5822,7 +5822,14 @@ function detectJson(text) {
       const json = source.slice(start, cursor + 1);
       try {
         const value = JSON.parse(json);
-        if (value && typeof value === 'object') {
+        /* Numeric bracket tokens such as [444] and [0,401120] are common log
+         * context/field notation. Treating those root fragments as JSON makes the
+         * detail pane noisy, while numeric arrays nested in a JSON object remain
+         * visible through that enclosing object. */
+        const structuredArray = Array.isArray(value)
+          && value.length > 0
+          && value.some((item) => typeof item !== 'number');
+        if (value && typeof value === 'object' && (!Array.isArray(value) || structuredArray)) {
           return { value, source: json, formatted: JSON.stringify(value, null, 2) };
         }
       } catch {
