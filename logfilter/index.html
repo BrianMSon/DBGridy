@@ -1154,9 +1154,51 @@ select {
 }
 
 .workbench-grid {
+  --filter-panel-width: 236px;
+  --detail-panel-width: 310px;
+  --panel-resizer-width: 8px;
   display: grid;
-  grid-template-columns: 236px minmax(450px, 1fr) 310px;
+  grid-template-columns:
+    minmax(190px, var(--filter-panel-width))
+    var(--panel-resizer-width)
+    minmax(450px, 1fr)
+    var(--panel-resizer-width)
+    minmax(250px, var(--detail-panel-width));
   min-height: 690px;
+}
+
+.panel-resizer {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  cursor: col-resize;
+  touch-action: none;
+  background: color-mix(in srgb, var(--surface) 72%, var(--paper));
+}
+
+.panel-resizer::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 34px;
+  border-radius: 2px;
+  background: var(--line-strong);
+  content: "";
+  transform: translate(-50%, -50%);
+  transition: height 120ms ease, background-color 120ms ease;
+}
+
+.panel-resizer:hover::after,
+.panel-resizer:focus-visible::after,
+.panel-resizer.is-dragging::after {
+  height: 54px;
+  background: var(--teal);
+}
+
+body.is-panel-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .filter-panel,
@@ -1165,7 +1207,7 @@ select {
 }
 
 .filter-panel {
-  border-right: 1px solid var(--line);
+  min-width: 0;
 }
 
 .panel-heading {
@@ -1847,7 +1889,6 @@ select {
 
 .detail-panel {
   min-width: 0;
-  border-left: 1px solid var(--line);
 }
 
 .detail-placeholder {
@@ -2484,7 +2525,14 @@ select {
 
 @media (max-width: 1240px) {
   .workbench-grid {
-    grid-template-columns: 220px minmax(420px, 1fr);
+    grid-template-columns:
+      minmax(190px, var(--filter-panel-width))
+      var(--panel-resizer-width)
+      minmax(420px, 1fr);
+  }
+
+  .panel-resizer[data-panel-resizer="detail"] {
+    display: none;
   }
 
   .detail-panel {
@@ -2602,6 +2650,10 @@ select {
 
   .workbench-grid {
     grid-template-columns: 1fr;
+  }
+
+  .panel-resizer {
+    display: none;
   }
 
   .filter-panel {
@@ -3036,8 +3088,8 @@ select {
 
         <div class="filter-progress" id="filterProgress" aria-hidden="true"><span></span></div>
 
-        <div class="workbench-grid">
-          <aside class="filter-panel" aria-label="로그 필터" data-i18n-aria="filterAria">
+        <div class="workbench-grid" id="workbenchGrid">
+          <aside class="filter-panel" id="filterPanel" aria-label="로그 필터" data-i18n-aria="filterAria">
             <div class="panel-heading">
               <div><svg><use href="#icon-filter"/></svg><strong data-i18n="filtersTitle">필터</strong></div>
               <button class="text-button muted" id="resetFilterButton" type="button" data-i18n="resetLabel">초기화</button>
@@ -3109,7 +3161,12 @@ select {
             </fieldset>
           </aside>
 
-          <section class="log-stage">
+          <div class="panel-resizer" id="filterPanelResizer" data-panel-resizer="filter" role="separator"
+            tabindex="0" aria-orientation="vertical" aria-controls="filterPanel logStage" aria-valuemin="190"
+            aria-valuemax="420" aria-valuenow="236" aria-label="필터 패널 너비 조절"
+            data-i18n-aria="filterResizeAria"></div>
+
+          <section class="log-stage" id="logStage">
             <div class="filter-summary" id="filterSummary">
               <div>
                 <span class="pulse-dot ready"></span>
@@ -3158,6 +3215,11 @@ select {
               <div class="group-empty" id="groupEmpty" data-i18n="groupEmpty" hidden>일치하는 반복 패턴이 없습니다.</div>
             </div>
           </section>
+
+          <div class="panel-resizer" id="detailPanelResizer" data-panel-resizer="detail" role="separator"
+            tabindex="0" aria-orientation="vertical" aria-controls="logStage detailPanel" aria-valuemin="250"
+            aria-valuemax="600" aria-valuenow="310" aria-label="상세 패널 너비 조절"
+            data-i18n-aria="detailResizeAria"></div>
 
           <aside class="detail-panel" id="detailPanel" aria-label="로그 상세" data-i18n-aria="detailAria">
             <div class="detail-placeholder" id="detailPlaceholder">
@@ -4477,6 +4539,12 @@ const ROW_BUFFER = 8;
 const MAX_JSON_TREE_NODES = 500;
 const MAX_JSON_TREE_DEPTH = 20;
 const FIELD_LIST_INITIAL_HEIGHT = 230;
+const PANEL_SIZE_KEY = 'logfilter-panel-sizes';
+const PANEL_DEFAULT_SIZES = { filter: 236, detail: 310 };
+const PANEL_MIN_SIZES = { filter: 190, detail: 250 };
+const PANEL_MAX_SIZES = { filter: 420, detail: 600 };
+const PANEL_RESIZER_WIDTH = 8;
+const LOG_PANEL_MIN_WIDTH = 450;
 // Rows fetched beyond the visible window on each side, so ordinary scrolling and
 // arrow-key stepping repaint from cache instead of waiting on the worker.
 const ROW_OVERFETCH = 90;
@@ -4608,6 +4676,7 @@ const UI_EN = {
   gotoHint: 'Enter to jump · Esc to close',
   gotoCloseAria: 'Close go-to',
   filterAria: 'Log filters',
+  filterResizeAria: 'Resize filter panel',
   filtersTitle: 'Filters',
   resetLabel: 'Reset',
   legendLevel: 'Log level',
@@ -4628,6 +4697,7 @@ const UI_EN = {
   groupPh: 'Search within patterns',
   groupEmpty: 'No matching patterns.',
   detailAria: 'Log detail',
+  detailResizeAria: 'Resize detail panel',
   pickTitle: 'Select a log line',
   pickSub: 'The raw line, detected fields and file position appear here.',
   scSearch: ' Search',
@@ -5261,6 +5331,7 @@ function finishIndex(message, cancelled = false) {
   $('loadProgress').hidden = true;
   $('loadedFiles').hidden = false;
   $('resultsSection').hidden = false;
+  renderPanelSizes();
   renderLoadedFiles();
   renderFileFilters();
   renderStats();
@@ -6808,6 +6879,160 @@ function receiveLinePosition(message) {
   }
 }
 
+let panelSizes = { ...PANEL_DEFAULT_SIZES };
+let renderedPanelSizes = { ...PANEL_DEFAULT_SIZES };
+
+function panelLayoutMode() {
+  if (window.matchMedia('(max-width: 900px)').matches) return 'stacked';
+  if (window.matchMedia('(max-width: 1240px)').matches) return 'compact';
+  return 'wide';
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(maximum, value));
+}
+
+function renderPanelSizes(activePanel = null) {
+  const grid = $('workbenchGrid');
+  if (!grid) return;
+
+  const mode = panelLayoutMode();
+  let filter = clamp(
+    activePanel === 'detail' ? renderedPanelSizes.filter : panelSizes.filter,
+    PANEL_MIN_SIZES.filter,
+    PANEL_MAX_SIZES.filter,
+  );
+  let detail = clamp(
+    activePanel === 'filter' ? renderedPanelSizes.detail : panelSizes.detail,
+    PANEL_MIN_SIZES.detail,
+    PANEL_MAX_SIZES.detail,
+  );
+  let filterMax = PANEL_MAX_SIZES.filter;
+  let detailMax = PANEL_MAX_SIZES.detail;
+
+  if (grid.clientWidth > 0 && mode === 'wide') {
+    const sidePanelSpace = Math.max(
+      PANEL_MIN_SIZES.filter + PANEL_MIN_SIZES.detail,
+      grid.clientWidth - LOG_PANEL_MIN_WIDTH - PANEL_RESIZER_WIDTH * 2,
+    );
+    filter = Math.min(filter, sidePanelSpace - PANEL_MIN_SIZES.detail);
+    detail = Math.min(detail, sidePanelSpace - PANEL_MIN_SIZES.filter);
+    if (filter + detail > sidePanelSpace) {
+      if (activePanel === 'filter') {
+        filter = Math.max(PANEL_MIN_SIZES.filter, sidePanelSpace - detail);
+      } else {
+        detail = Math.max(PANEL_MIN_SIZES.detail, sidePanelSpace - filter);
+      }
+    }
+    filterMax = Math.min(PANEL_MAX_SIZES.filter, sidePanelSpace - detail);
+    detailMax = Math.min(PANEL_MAX_SIZES.detail, sidePanelSpace - filter);
+  } else if (grid.clientWidth > 0 && mode === 'compact') {
+    filterMax = Math.min(
+      PANEL_MAX_SIZES.filter,
+      Math.max(PANEL_MIN_SIZES.filter, grid.clientWidth - LOG_PANEL_MIN_WIDTH - PANEL_RESIZER_WIDTH),
+    );
+    filter = clamp(filter, PANEL_MIN_SIZES.filter, filterMax);
+  }
+
+  grid.style.setProperty('--filter-panel-width', `${filter}px`);
+  grid.style.setProperty('--detail-panel-width', `${detail}px`);
+  renderedPanelSizes = { filter, detail };
+
+  const values = { filter, detail };
+  const maxima = { filter: filterMax, detail: detailMax };
+  for (const panel of ['filter', 'detail']) {
+    const handle = $(`${panel}PanelResizer`);
+    handle.setAttribute('aria-valuenow', String(Math.round(values[panel])));
+    handle.setAttribute('aria-valuemax', String(Math.round(maxima[panel])));
+  }
+  scheduleRowsRender();
+}
+
+function savePanelSizes() {
+  try {
+    localStorage.setItem(PANEL_SIZE_KEY, JSON.stringify(panelSizes));
+  } catch {
+    // Resizing should still work when storage is unavailable or full.
+  }
+}
+
+function setPanelSize(panel, value, { save = true } = {}) {
+  panelSizes[panel] = clamp(
+    Math.round(value),
+    PANEL_MIN_SIZES[panel],
+    PANEL_MAX_SIZES[panel],
+  );
+  renderPanelSizes(panel);
+  if (save) savePanelSizes();
+}
+
+function initializePanelResizers() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PANEL_SIZE_KEY) || '{}');
+    for (const panel of ['filter', 'detail']) {
+      if (Number.isFinite(saved[panel])) panelSizes[panel] = saved[panel];
+    }
+  } catch {
+    panelSizes = { ...PANEL_DEFAULT_SIZES };
+  }
+  renderPanelSizes();
+
+  for (const panel of ['filter', 'detail']) {
+    const handle = $(`${panel}PanelResizer`);
+    let drag = null;
+
+    const finishDrag = (event) => {
+      if (!drag || (event.pointerId != null && event.pointerId !== drag.pointerId)) return;
+      panelSizes[panel] = Number(handle.getAttribute('aria-valuenow'));
+      drag = null;
+      handle.classList.remove('is-dragging');
+      document.body.classList.remove('is-panel-resizing');
+      savePanelSizes();
+    };
+
+    handle.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 || panelLayoutMode() === 'stacked') return;
+      event.preventDefault();
+      drag = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startSize: Number(handle.getAttribute('aria-valuenow')),
+      };
+      handle.classList.add('is-dragging');
+      document.body.classList.add('is-panel-resizing');
+      try {
+        handle.setPointerCapture(event.pointerId);
+      } catch {
+        // Synthetic pointers and older browsers can still resize without capture.
+      }
+    });
+    handle.addEventListener('pointermove', (event) => {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const direction = panel === 'filter' ? 1 : -1;
+      setPanelSize(panel, drag.startSize + (event.clientX - drag.startX) * direction, { save: false });
+    });
+    handle.addEventListener('pointerup', finishDrag);
+    handle.addEventListener('pointercancel', finishDrag);
+    handle.addEventListener('lostpointercapture', finishDrag);
+
+    handle.addEventListener('keydown', (event) => {
+      const direction = panel === 'filter' ? 1 : -1;
+      const step = event.shiftKey ? 40 : 12;
+      const current = Number(handle.getAttribute('aria-valuenow'));
+      let next = null;
+      if (event.key === 'ArrowLeft') next = current - step * direction;
+      else if (event.key === 'ArrowRight') next = current + step * direction;
+      else if (event.key === 'Home') next = PANEL_MIN_SIZES[panel];
+      else if (event.key === 'End') next = Number(handle.getAttribute('aria-valuemax'));
+      if (next == null) return;
+      event.preventDefault();
+      setPanelSize(panel, next);
+    });
+
+    handle.addEventListener('dblclick', () => setPanelSize(panel, PANEL_DEFAULT_SIZES[panel]));
+  }
+}
+
 function bindEvents() {
   $('themeButton').addEventListener('click', toggleTheme);
   $('langButton').addEventListener('click', () => setLanguage(uiLang === 'en' ? 'ko' : 'en'));
@@ -7105,10 +7330,11 @@ function bindEvents() {
     else if (event.key === 'Escape' && state.selectedRow) clearSelection();
   });
 
-  window.addEventListener('resize', scheduleRowsRender);
+  window.addEventListener('resize', renderPanelSizes);
 }
 
 initializeTheme();
+initializePanelResizers();
 bindEvents();
 initializeLanguage();
 refreshRecentFiles();
