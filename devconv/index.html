@@ -1639,7 +1639,6 @@ function toolHtml(tool) {
     <div class="fields">${tool.fields.map(fieldHtml).join("")}</div>
     <div class="actions">
       <button class="btn primary" data-action="run">${escapeHtml(uiText("run"))}</button>
-      ${tool.id === "timestamp" ? `<button class="btn" data-action="now">${escapeHtml(uiText("now"))}</button>` : ""}
       <button class="btn" data-action="copy">${escapeHtml(uiText("copy"))}</button>
       <button class="btn" data-action="clear">${escapeHtml(uiText("clear"))}</button>
     </div>
@@ -1676,7 +1675,7 @@ function fieldHtml(f) {
   if (f.type === "datetime" || f.type === "date") {
     const pickLabel = escapeHtml(uiText("pickDate"));
     const nativeAttrs = f.type === "date" ? 'type="date"' : 'type="datetime-local" step="1"';
-    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><div class="date-pick"><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"><input class="date-pick-native" ${nativeAttrs} tabindex="-1" aria-hidden="true"><button class="btn" type="button" data-action="pickDate" title="${pickLabel}" aria-label="${pickLabel}">📅</button></div></div>`;
+    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><div class="date-pick"><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"><input class="date-pick-native" ${nativeAttrs} tabindex="-1" aria-hidden="true"><button class="btn" type="button" data-action="pickDate" title="${pickLabel}" aria-label="${pickLabel}">📅</button><button class="btn" type="button" data-action="now">${escapeHtml(uiText("now"))}</button></div></div>`;
   }
   return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"></div>`;
 }
@@ -1711,8 +1710,12 @@ async function onMainClick(e) {
   } else if (action === "now") {
     const now = Date.now();
     const v = readFields(card);
-    card.querySelector('[data-field="value"]').value = String(v.unit === "ms" ? now : Math.floor(now / 1000));
-    card.querySelector('[data-field="dateText"]').value = formatDateParts(dateToParts(new Date(now), v.zone), " ");
+    const wrap = button.closest(".date-pick");
+    const tool = card.dataset.tool;
+    if (tool === "timestamp") card.querySelector('[data-field="value"]').value = String(v.unit === "ms" ? now : Math.floor(now / 1000));
+    const parts = tool === "timezone" ? dateToParts(new Date(now + Number(v.from) * 60000), "utc") : dateToParts(new Date(now), v.zone);
+    const text = formatDateParts(parts, " ");
+    wrap.querySelector("input[data-field]").value = wrap.querySelector(".date-pick-native").type === "date" ? text.slice(0, 10) : text;
     await runTool(card);
   } else if (action === "pickDate") {
     const wrap = button.closest(".date-pick");
