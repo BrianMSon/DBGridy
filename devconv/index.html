@@ -1129,17 +1129,17 @@ const tools = [
     select("mode", "작업", [["Timestamp -> 날짜","toDate"],["날짜 -> Timestamp","toTs"]], "toDate")
   ]},
   { id: "timezone", category: "datetime", title: "타임존 변환", tags: ["UTC", "KST"], fields: [
-    input("dateText", "날짜/시간", "2024-01-01 09:00:00"),
+    datetime("dateText", "날짜/시간", "2024-01-01 09:00:00"),
     select("from", "From", tzOptions, "0"),
     select("to", "To", tzOptions, "540")
   ]},
   { id: "dateFormat", category: "datetime", title: "날짜 포맷 변환", tags: ["YYYY-MM-DD"], fields: [
-    input("dateText", "날짜", "2024-01-01 09:05:07"),
+    datetime("dateText", "날짜", "2024-01-01 09:05:07"),
     select("format", "출력 포맷", [["YYYY-MM-DD","YYYY-MM-DD"],["YYYY/MM/DD","YYYY/MM/DD"],["MM/DD/YYYY","MM/DD/YYYY"],["DD/MM/YYYY","DD/MM/YYYY"],["YYYY.MM.DD HH:mm:ss","YYYY.MM.DD HH:mm:ss"],["ISO 8601","ISO"]], "MM/DD/YYYY")
   ]},
   { id: "dateDiff", category: "datetime", title: "날짜 계산", tags: ["D-day", "차이"], fields: [
-    input("start", "시작일", "2024-01-01"),
-    input("end", "종료일", "2024-12-31"),
+    date("start", "시작일", "2024-01-01"),
+    date("end", "종료일", "2024-12-31"),
     input("addDays", "시작일에 더할 일수", "100")
   ]},
   { id: "cron", category: "datetime", title: "Cron 표현식 해석", tags: ["0 9 * * 1"], fields: [
@@ -1346,6 +1346,7 @@ const tools = [
 function area(name, label, placeholder) { return { type: "textarea", name, label, placeholder: placeholder || "", wide: true }; }
 function input(name, label, placeholder) { return { type: "input", name, label, placeholder: placeholder || "" }; }
 function datetime(name, label, placeholder) { return { type: "datetime", name, label, placeholder: placeholder || "" }; }
+function date(name, label, placeholder) { return { type: "date", name, label, placeholder: placeholder || "" }; }
 function select(name, label, options, value) { return { type: "select", name, label, options, value }; }
 function checkbox(name, label, checked) { return { type: "checkbox", name, label, checked: !!checked }; }
 function file(name, label) { return { type: "file", name, label, wide: true }; }
@@ -1672,9 +1673,10 @@ function fieldHtml(f) {
   if (f.type === "file") {
     return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input type="file" data-field="${f.name}"></div>`;
   }
-  if (f.type === "datetime") {
+  if (f.type === "datetime" || f.type === "date") {
     const pickLabel = escapeHtml(uiText("pickDate"));
-    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><div class="date-pick"><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"><input class="date-pick-native" type="datetime-local" step="1" tabindex="-1" aria-hidden="true"><button class="btn" type="button" data-action="pickDate" title="${pickLabel}" aria-label="${pickLabel}">📅</button></div></div>`;
+    const nativeAttrs = f.type === "date" ? 'type="date"' : 'type="datetime-local" step="1"';
+    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><div class="date-pick"><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"><input class="date-pick-native" ${nativeAttrs} tabindex="-1" aria-hidden="true"><button class="btn" type="button" data-action="pickDate" title="${pickLabel}" aria-label="${pickLabel}">📅</button></div></div>`;
   }
   return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"></div>`;
 }
@@ -1721,7 +1723,7 @@ async function onMainClick(e) {
     } catch (_) {
       parts = dateToParts(new Date(), readFields(card).zone);
     }
-    native.value = formatDateParts(parts, "T");
+    native.value = native.type === "date" ? formatDateParts(parts, "T").slice(0, 10) : formatDateParts(parts, "T");
     native.showPicker();
   } else if (action === "noiseStop") {
     stopNoiseMeter(card, true);
