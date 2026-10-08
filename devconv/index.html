@@ -448,6 +448,26 @@ input[type="color"] {
 input[type="file"] {
   padding: 6px 8px;
 }
+.date-pick {
+  position: relative;
+  display: flex;
+  gap: 6px;
+}
+.date-pick .btn {
+  flex: none;
+}
+.date-pick-native {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -824,6 +844,8 @@ const I18N = {
     run: "실행",
     copy: "결과 복사",
     clear: "초기화",
+    now: "현재시간",
+    pickDate: "달력에서 날짜/시간 선택",
     stop: "정지",
     remeasure: "재측정",
     resultPlaceholder: "결과",
@@ -856,6 +878,8 @@ const I18N = {
     run: "Run",
     copy: "Copy Result",
     clear: "Clear",
+    now: "Now",
+    pickDate: "Pick date/time from calendar",
     stop: "Stop",
     remeasure: "Re-measure",
     resultPlaceholder: "Result",
@@ -943,6 +967,7 @@ const EN_LABELS = {
   "도메인": "Domain",
   "단위": "Unit",
   "날짜 입력": "Date Input",
+  "날짜 입력 기준": "Date Input Zone",
   "날짜/시간": "Date/Time",
   "날짜": "Date",
   "출력 포맷": "Output Format",
@@ -1099,7 +1124,8 @@ const tools = [
   { id: "timestamp", category: "datetime", title: "Unix Timestamp 변환", tags: ["초", "밀리초"], fields: [
     input("value", "Timestamp", String(Math.floor(Date.now() / 1000))),
     select("unit", "단위", [["자동 인식","auto"],["초","s"],["밀리초","ms"]], "auto"),
-    input("dateText", "날짜 입력", "2024-01-01 09:00:00"),
+    datetime("dateText", "날짜 입력", "2024-01-01 09:00:00"),
+    select("zone", "날짜 입력 기준", [["Local","local"],["UTC","utc"]], "local"),
     select("mode", "작업", [["Timestamp -> 날짜","toDate"],["날짜 -> Timestamp","toTs"]], "toDate")
   ]},
   { id: "timezone", category: "datetime", title: "타임존 변환", tags: ["UTC", "KST"], fields: [
@@ -1319,6 +1345,7 @@ const tools = [
 
 function area(name, label, placeholder) { return { type: "textarea", name, label, placeholder: placeholder || "", wide: true }; }
 function input(name, label, placeholder) { return { type: "input", name, label, placeholder: placeholder || "" }; }
+function datetime(name, label, placeholder) { return { type: "datetime", name, label, placeholder: placeholder || "" }; }
 function select(name, label, options, value) { return { type: "select", name, label, options, value }; }
 function checkbox(name, label, checked) { return { type: "checkbox", name, label, checked: !!checked }; }
 function file(name, label) { return { type: "file", name, label, wide: true }; }
@@ -1611,6 +1638,7 @@ function toolHtml(tool) {
     <div class="fields">${tool.fields.map(fieldHtml).join("")}</div>
     <div class="actions">
       <button class="btn primary" data-action="run">${escapeHtml(uiText("run"))}</button>
+      ${tool.id === "timestamp" ? `<button class="btn" data-action="now">${escapeHtml(uiText("now"))}</button>` : ""}
       <button class="btn" data-action="copy">${escapeHtml(uiText("copy"))}</button>
       <button class="btn" data-action="clear">${escapeHtml(uiText("clear"))}</button>
     </div>
@@ -1644,6 +1672,10 @@ function fieldHtml(f) {
   if (f.type === "file") {
     return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input type="file" data-field="${f.name}"></div>`;
   }
+  if (f.type === "datetime") {
+    const pickLabel = escapeHtml(uiText("pickDate"));
+    return `<div class="field${wide}"><label>${escapeHtml(label)}</label><div class="date-pick"><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"><input class="date-pick-native" type="datetime-local" step="1" tabindex="-1" aria-hidden="true"><button class="btn" type="button" data-action="pickDate" title="${pickLabel}" aria-label="${pickLabel}">📅</button></div></div>`;
+  }
   return `<div class="field${wide}"><label>${escapeHtml(label)}</label><input data-field="${f.name}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(placeholder || "")}"></div>`;
 }
 
@@ -1674,6 +1706,23 @@ async function onMainClick(e) {
   const action = button.dataset.action;
   if (action === "run") {
     await runTool(card);
+  } else if (action === "now") {
+    const now = Date.now();
+    const v = readFields(card);
+    card.querySelector('[data-field="value"]').value = String(v.unit === "ms" ? now : Math.floor(now / 1000));
+    card.querySelector('[data-field="dateText"]').value = formatDateParts(dateToParts(new Date(now), v.zone), " ");
+    await runTool(card);
+  } else if (action === "pickDate") {
+    const wrap = button.closest(".date-pick");
+    const native = wrap.querySelector(".date-pick-native");
+    let parts;
+    try {
+      parts = parseDateParts(wrap.querySelector("input[data-field]").value);
+    } catch (_) {
+      parts = dateToParts(new Date(), readFields(card).zone);
+    }
+    native.value = formatDateParts(parts, "T");
+    native.showPicker();
   } else if (action === "noiseStop") {
     stopNoiseMeter(card, true);
   } else if (action === "noiseRestart") {
@@ -1709,6 +1758,11 @@ function onMainInput(e) {
 }
 
 function onMainChange(e) {
+  if (e.target.matches(".date-pick-native")) {
+    const picked = e.target.value;
+    if (picked) e.target.closest(".date-pick").querySelector("input[data-field]").value = picked.replace("T", " ") + (picked.length === 16 ? ":00" : "");
+    return;
+  }
   if (e.target.matches('select[data-field="format"]')) {
     const card = e.target.closest(".tool-card");
     if (card && card.dataset.tool === "barcode") applyBarcodeFormatSample(card);
@@ -2489,15 +2543,31 @@ const handlers = {
       const ms = unit === "s" ? raw * 1000 : raw;
       setOutput(card, [
         `${v.unit === "auto" ? langText("감지 단위", "Detected unit") : langText("선택 단위", "Selected unit")}: ${unit === "ms" ? langText("밀리초", "milliseconds") : langText("초", "seconds")}`,
-        `Local: ${formatDate(new Date(ms))}`,
+        `Local: ${formatDateOffset(ms, -new Date(ms).getTimezoneOffset())}`,
         `UTC: ${formatDateOffset(ms, 0)}`,
         `KST: ${formatDateOffset(ms, 540)}`,
         `ISO: ${new Date(ms).toISOString()}`
       ].join("\n"));
     } else {
-      const d = parseDateLoose(v.dateText);
+      let d;
+      let basis;
+      try {
+        const p = parseDateParts(v.dateText);
+        d = v.zone === "utc" ? new Date(Date.UTC(p.y, p.m - 1, p.d, p.hh, p.mm, p.ss)) : new Date(p.y, p.m - 1, p.d, p.hh, p.mm, p.ss);
+        basis = v.zone === "utc" ? "UTC" : "Local";
+      } catch (_) {
+        d = parseDateLoose(v.dateText);
+        basis = langText("입력값 그대로 해석", "Parsed as written");
+      }
       const ms = d.getTime();
-      setOutput(card, `seconds: ${Math.floor(ms / 1000)}\nmilliseconds: ${ms}\nISO: ${d.toISOString()}`);
+      setOutput(card, [
+        `${langText("입력 기준", "Input zone")}: ${basis}`,
+        `seconds: ${Math.floor(ms / 1000)}`,
+        `milliseconds: ${ms}`,
+        `Local: ${formatDateOffset(ms, -d.getTimezoneOffset())}`,
+        `UTC: ${formatDateOffset(ms, 0)}`,
+        `ISO: ${d.toISOString()}`
+      ].join("\n"));
     }
   },
   timezone(card, v) {
@@ -2948,6 +3018,14 @@ function parseDateParts(text) {
   return { y: +m[1], m: +m[2], d: +m[3], hh: +(m[4] || 0), mm: +(m[5] || 0), ss: +(m[6] || 0) };
 }
 function pad2(n) { return String(n).padStart(2, "0"); }
+function dateToParts(d, zone) {
+  return zone === "utc"
+    ? { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(), hh: d.getUTCHours(), mm: d.getUTCMinutes(), ss: d.getUTCSeconds() }
+    : { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate(), hh: d.getHours(), mm: d.getMinutes(), ss: d.getSeconds() };
+}
+function formatDateParts(p, sep) {
+  return `${p.y}-${pad2(p.m)}-${pad2(p.d)}${sep}${pad2(p.hh)}:${pad2(p.mm)}:${pad2(p.ss)}`;
+}
 function formatDate(d) {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
 }
