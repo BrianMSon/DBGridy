@@ -1,0 +1,166 @@
+{
+  "en": {
+    "title": "DBGridy | Windows Database Editor, SSH & SFTP Client",
+    "phonetic": "[diːbiːˈɡrɪdi]",
+    "nav": {
+      "features": "Features",
+      "screenshots": "Screenshots",
+      "license": "License",
+      "langSwitch": "한국어",
+      "download": "Download for Windows"
+    },
+    "hero": {
+      "title": "DBGridy Database Editor<br>for Windows",
+      "subtitle": "SQL, NoSQL, SSH and SFTP in one desktop application",
+      "desc1": "DBGridy is a Windows database editor for MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server and Oracle.",
+      "desc2": "Edit SQL and NoSQL records in an Excel-like grid, run queries, and export data to CSV, SQL or JSON.",
+      "desc3": "Includes an SSH terminal, SFTP file transfers and WSL access. Free for personal, educational and internal business use under a proprietary license.",
+      "downloadBtn": "Download Now"
+    },
+    "features": {
+      "title": "DBGridy Features",
+      "multiDb": {
+        "title": "🔌 Multi-Database Support",
+        "desc": "Seamlessly connect to your favorite databases in one unified interface."
+      },
+      "grid": {
+        "title": "📊 Grid-Based Editing",
+        "desc": "Edit database records directly within a user-friendly grid interface. Experience Excel-like convenience for your data."
+      },
+      "query": {
+        "title": "📝 Advanced Query Editor",
+        "desc": "Syntax highlighting for SQL and JSON. Multiple query tabs for multitasking and bulk operations tools."
+      },
+      "visual": {
+        "title": "🎨 Visualization & Themes",
+        "desc": "Built-in JSON pretty-printing, visual Tree Views for schemas/Redis keys, and support for both Light and Dark themes."
+      },
+      "data": {
+        "title": "💾 Data Management",
+        "desc": "Export data to CSV, SQL, or JSON easily. Includes handy tools like Blob-to-Hex conversion."
+      },
+      "native": {
+        "title": "🚀 Native Performance",
+        "desc": "Built as a native Windows (WinForms) application for maximum performance and system integration."
+      },
+      "ssh": {
+        "title": "🔐 SSH/SFTP & WSL Support",
+        "desc": "Connect to remote servers via SSH terminal, browse and transfer files with SFTP, and access WSL environments directly from the app."
+      }
+    },
+    "screenshots": {
+      "title": "See it in Action",
+      "dark": "Dark Theme - Modern and easy on the eyes",
+      "light": "Light Theme - Clean and professional"
+    },
+    "license": {
+      "title": "License Information",
+      "desc": "DBGridy is proprietary software free for personal, educational, and internal business use.",
+      "sub": "Commercial redistribution, resale, and modification are prohibited.<br>Please check the <a href=\"https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt\" target=\"_blank\">full license on GitHub</a> for more details."
+    },
+    "footer": {
+      "bugReport": "Bug report <span aria-hidden='true'>↗</span>",
+      "feedback": "Feedback <span aria-hidden='true'>↗</span>",
+      "sisterProduct": "Sister Products:",
+      "sisterPage": "Sister Pages:"
+    },
+    "description": "Edit SQL and NoSQL data in an Excel-like grid on Windows. DBGridy supports MySQL, PostgreSQL, MongoDB, Redis and more, with SSH, SFTP and WSL tools.",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "whatQ": "What is DBGridy?",
+      "whatA": "DBGridy is a Windows database editor for MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server and Oracle. It combines grid-based data editing, queries, SSH, SFTP and WSL access in one desktop application.",
+      "dbQ": "Which databases does DBGridy support?",
+      "dbA": "DBGridy supports MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server (MS-SQL) and Oracle.",
+      "freeQ": "Is DBGridy free for business use?",
+      "freeA": "Personal, educational and internal business use is free, including use in organizations of any size. DBGridy is proprietary software. Redistribution, resale, modification and offering it as a service are prohibited. Read the full license for the terms.",
+      "osQ": "Does DBGridy run on macOS or Linux?",
+      "osA": "DBGridy is a native Windows desktop application built with WinForms. The downloads are for Windows; WSL access is provided from within the Windows application.",
+      "downloadQ": "Where can I download DBGridy?",
+      "downloadA": "Use the official GitHub releases page to download DBGridy for Windows. Follow the README and the instructions for your selected release.",
+      "toolsQ": "Does DBGridy include SSH and SFTP?",
+      "toolsA": "Yes. DBGridy includes an SSH terminal, SFTP file browsing and transfers, and access to WSL environments."
+    }
+  },
+  "ko": {
+    "title": "DBGridy | Windows DB 에디터 · SSH 터미널 · SFTP 클라이언트",
+    "phonetic": "[디비 그리디]",
+    "nav": {
+      "features": "주요기능",
+      "screenshots": "스크린샷",
+      "license": "라이선스",
+      "langSwitch": "English",
+      "download": "Windows용 다운로드"
+    },
+    "hero": {
+      "title": "DBGridy<br>Windows용 데이터베이스 에디터",
+      "subtitle": "SQL·NoSQL 데이터 편집부터 SSH·SFTP까지 하나의 앱에서",
+      "desc1": "DBGridy는 MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server, Oracle을 지원하는 Windows용 데이터베이스 에디터입니다.",
+      "desc2": "SQL·NoSQL 데이터를 엑셀처럼 그리드에서 편집하고, 쿼리를 실행하며, CSV·SQL·JSON으로 내보낼 수 있습니다.",
+      "desc3": "SSH 터미널, SFTP 파일 전송, WSL 접근 기능을 제공합니다. 독점 라이선스에 따라 개인·교육·사내 업무 용도로 무료 사용이 가능합니다.",
+      "downloadBtn": "지금 다운로드"
+    },
+    "features": {
+      "title": "DBGridy 주요 기능",
+      "multiDb": {
+        "title": "🔌 멀티 데이터베이스 지원",
+        "desc": "즐겨 사용하는 다양한 데이터베이스를 하나의 통합 인터페이스에서 원활하게 연결하고 관리하세요."
+      },
+      "grid": {
+        "title": "📊 그리드 기반 편집",
+        "desc": "사용자 친화적인 그리드 인터페이스에서 데이터베이스 레코드를 직접 편집하세요. 마치 엑셀을 다루듯 편리한 데이터 관리를 경험할 수 있습니다."
+      },
+      "query": {
+        "title": "📝 고급 쿼리 에디터",
+        "desc": "SQL 및 JSON을 위한 문법 강조 기능(Syntax Highlighting)을 지원합니다. 멀티 탭 기능을 통해 여러 작업을 동시에 처리하고, 대량 데이터 작업 도구도 활용해보세요."
+      },
+      "visual": {
+        "title": "🎨 시각화 및 테마",
+        "desc": "내장된 JSON Pretty-print, 스키마 및 Redis 키를 위한 시각적 트리 뷰(Tree View), 그리고 눈이 편안한 라이트/다크 테마를 모두 지원합니다."
+      },
+      "data": {
+        "title": "💾 데이터 관리",
+        "desc": "CSV, SQL, JSON 형식으로 데이터를 손쉽게 내보낼 수 있습니다. Blob 데이터를 Hex로 변환하는 등의 유용한 도구들도 포함되어 있습니다."
+      },
+      "native": {
+        "title": "🚀 네이티브 성능",
+        "desc": "윈도우 네이티브(WinForms) 애플리케이션으로 제작되어 최고의 성능과 시스템 통합성을 보장합니다."
+      },
+      "ssh": {
+        "title": "🔐 SSH/SFTP & WSL 지원",
+        "desc": "SSH 터미널로 원격 서버에 접속하고, SFTP로 파일을 탐색 및 전송하며, WSL 환경에도 직접 접근할 수 있습니다."
+      }
+    },
+    "screenshots": {
+      "title": "실제 사용 화면",
+      "dark": "다크 테마 - 모던하고 눈이 편안한 디자인",
+      "light": "라이트 테마 - 깔끔하고 전문적인 디자인"
+    },
+    "license": {
+      "title": "라이선스 정보",
+      "desc": "DBGridy는 개인, 교육 목적, 그리고 사내 비즈니스 용도(관리/개발)로 무료로 사용할 수 있는 독점 소프트웨어입니다.",
+      "sub": "단, 상업적 재배포, 재판매 및 수정은 금지되어 있습니다.<br>자세한 내용은 <a href=\"https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt\" target=\"_blank\">GitHub의 전체 라이선스</a>를 확인해 주세요."
+    },
+    "footer": {
+      "bugReport": "버그 리포트 <span aria-hidden='true'>↗</span>",
+      "feedback": "피드백 <span aria-hidden='true'>↗</span>",
+      "sisterProduct": "자매품:",
+      "sisterPage": "자매 페이지:"
+    },
+    "description": "DBGridy는 SQL·NoSQL 데이터를 엑셀처럼 편집하는 Windows DB 에디터입니다. MySQL, PostgreSQL, MongoDB, Redis 등 8개 DB와 SSH 터미널, SFTP, WSL을 지원합니다.",
+    "faq": {
+      "title": "자주 묻는 질문",
+      "whatQ": "DBGridy는 무엇인가요?",
+      "whatA": "DBGridy는 MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server, Oracle을 지원하는 Windows용 데이터베이스 에디터입니다. 그리드 데이터 편집, 쿼리 실행, SSH·SFTP·WSL 접근을 하나의 데스크톱 앱에서 제공합니다.",
+      "dbQ": "어떤 데이터베이스를 지원하나요?",
+      "dbA": "MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server(MS-SQL), Oracle을 지원합니다.",
+      "freeQ": "회사에서도 무료로 사용할 수 있나요?",
+      "freeA": "조직 규모와 관계없이 개인·교육·사내 업무 용도로 무료 사용이 가능합니다. DBGridy는 독점 소프트웨어이며 재배포, 재판매, 수정 및 서비스형 제공은 금지됩니다. 자세한 조건은 전체 라이선스를 확인해 주세요.",
+      "osQ": "macOS나 Linux에서도 실행되나요?",
+      "osA": "DBGridy는 WinForms 기반의 Windows 네이티브 데스크톱 앱입니다. 다운로드는 Windows용이며, WSL 환경 접근은 Windows 앱 안에서 제공합니다.",
+      "downloadQ": "어디에서 다운로드할 수 있나요?",
+      "downloadA": "공식 GitHub 릴리스 페이지에서 Windows용 DBGridy를 다운로드하세요. README와 선택한 릴리스의 안내를 확인해 주세요.",
+      "toolsQ": "SSH와 SFTP 기능도 있나요?",
+      "toolsA": "네. SSH 터미널, SFTP 파일 탐색·전송 및 WSL 환경 접근 기능을 제공합니다."
+    }
+  }
+}

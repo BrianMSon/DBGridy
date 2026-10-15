@@ -136,4 +136,15 @@ See the LICENSE.txt file for full details.
 
 https://dbgridy.com
 
+## Website maintenance
+
+The English homepage is `index.html`; the Korean homepage at `ko/index.html` is generated as static HTML so both languages are readable without JavaScript.
+
+- Edit shared layout and styles in `index.html`.
+- Edit localized text in `scripts/home-translations.json`. Text marked with `data-i18n` is replaced during generation.
+- Run `node scripts/build-home.cjs` and include both generated HTML files when deploying. No packages are required.
+- Keep visible product facts, structured data in the generator, and the optional `llms.txt` summary consistent with the README, license and releases. `llms.txt` is a supplementary summary, not a requirement or guarantee for AI search visibility.
+- Update sitemap `lastmod` only when the corresponding page changes meaningfully.
+- After deployment, submit `https://dbgridy.com/sitemap.xml` in Google Search Console and Bing Webmaster Tools, inspect `/` and `/ko/`, and validate the SoftwareApplication structured data. Search ranking, indexing and AI citations are not guaranteed by these changes.
+
 _Copyright © 2025 BrianMSon. All Rights Reserved._

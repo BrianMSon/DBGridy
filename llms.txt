@@ -1,0 +1,22 @@
+# DBGridy
+
+> DBGridy is a native Windows database editor by BrianMSon. It combines Excel-like grid editing for SQL and NoSQL data with an SSH terminal, SFTP file transfers and WSL access.
+
+## Product facts
+
+- Platform: Windows desktop application built with WinForms. WSL access is a feature inside the Windows application, not a native Linux release.
+- Databases: MySQL, PostgreSQL, MongoDB, Redis, ClickHouse, SQLite, Microsoft SQL Server (MS-SQL) and Oracle.
+- Editing: grid-based record editing, SQL and JSON query editor, multiple query tabs, JSON formatting and tree views.
+- Export formats: CSV, SQL and JSON.
+- License: proprietary, not open source. Personal, educational and internal business use in organizations of any size is free. Redistribution, resale, modification and offering the software as a service are prohibited. The full license governs use.
+- Downloads: use the official GitHub releases page for current release instructions. No specific version or benchmark is asserted here.
+
+## Official sources
+
+- [English product page](https://dbgridy.com/): Features, screenshots, frequently asked questions and license overview.
+- [한국어 제품 페이지](https://dbgridy.com/ko/): 한국어 기능 소개, 자주 묻는 질문 및 라이선스 안내.
+- [Official downloads](https://github.com/BrianMSon/DBGridy/releases): Release assets and release-specific instructions.
+- [README](https://github.com/BrianMSon/DBGridy#readme): Usage and installation guidance.
+- [Full license](https://github.com/BrianMSon/DBGridy/blob/main/LICENSE.txt): Authoritative permitted and prohibited uses.
+- [Bug reports](https://github.com/BrianMSon/DBGridy/issues): Report product issues.
+- [Sitemap](https://dbgridy.com/sitemap.xml): Site URLs.
