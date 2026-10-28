@@ -839,6 +839,7 @@ const I18N = {
     allTools: "모든 도구",
     quickPanelTitle: "도구 퀵 버튼",
     quickPanelAria: "도구 퀵 버튼",
+    quickAll: "모두",
     quickPanelCollapse: "접기",
     quickPanelExpand: "펼치기",
     recentPanelTitle: "최근 사용한 도구",
@@ -873,6 +874,7 @@ const I18N = {
     allTools: "All Tools",
     quickPanelTitle: "Tool Shortcuts",
     quickPanelAria: "Tool shortcuts",
+    quickAll: "All",
     quickPanelCollapse: "Collapse",
     quickPanelExpand: "Expand",
     recentPanelTitle: "Recently Used",
@@ -1623,11 +1625,13 @@ function bindEvents() {
   document.getElementById("main").addEventListener("click", onMainClick);
   document.getElementById("main").addEventListener("input", onMainInput);
   document.getElementById("main").addEventListener("change", onMainChange);
+  document.getElementById("main").addEventListener("keydown", onMainKeydown);
   document.getElementById("toolSearch").addEventListener("input", filterTools);
   document.querySelectorAll(".lang-btn").forEach(button => {
     button.addEventListener("click", () => setLanguage(button.dataset.lang));
   });
   window.addEventListener("beforeunload", () => stopAllNoiseMeters(false));
+  window.addEventListener("popstate", e => { if (e.state && e.state.devconvView) restoreViewState(e.state); });
   setupTopButton();
   eventsBound = true;
 }
@@ -1704,9 +1708,16 @@ async function onMainClick(e) {
     setQuickCollapsed(!quickCollapsed);
     return;
   }
+  if (e.target.closest("button[data-jump-all]")) {
+    setActiveCategory(activeCategory);
+    return;
+  }
   const jumpButton = e.target.closest("button[data-jump]");
   if (jumpButton) {
+    // Save the current view so the browser Back button can return to it
+    history.replaceState(currentViewState(), "");
     showSingleTool(jumpButton.dataset.jump, { keepCategory: true });
+    history.pushState({ devconvView: true, search: "", category: activeCategory, solo: soloToolId }, "");
     return;
   }
   const button = e.target.closest("button[data-action]");
@@ -1770,6 +1781,14 @@ function onMainInput(e) {
   }
 }
 
+function onMainKeydown(e) {
+  // Enter in a single-line tool input runs the tool (skip while IME is composing)
+  if (e.key !== "Enter" || e.isComposing || e.keyCode === 229) return;
+  if (!e.target.matches(".tool-card input[data-field]:not([type])")) return;
+  e.preventDefault();
+  runTool(e.target.closest(".tool-card"));
+}
+
 function onMainChange(e) {
   if (e.target.matches(".date-pick-native")) {
     const picked = e.target.value;
@@ -1797,6 +1816,26 @@ function showSingleTool(id, options = {}) {
   filterTools();
   const target = document.querySelector(`.tool-card[data-tool="${id}"]`);
   if (target) target.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function currentViewState() {
+  return { devconvView: true, search: document.getElementById("toolSearch").value, category: activeCategory, solo: soloToolId, scrollY: window.scrollY };
+}
+
+function restoreViewState(state) {
+  document.getElementById("toolSearch").value = state.search || "";
+  activeCategory = state.category || ALL_CATEGORY;
+  soloToolId = state.solo || null;
+  document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.target === activeCategory));
+  filterTools();
+  requestAnimationFrame(() => {
+    if (typeof state.scrollY === "number") {
+      window.scrollTo({ top: state.scrollY, behavior: "instant" });
+    } else if (soloToolId) {
+      const target = document.querySelector(`.tool-card[data-tool="${soloToolId}"]`);
+      if (target) target.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  });
 }
 
 async function runTool(card) {
@@ -2478,7 +2517,7 @@ function updateToolQuickPanel(query) {
       ? tools
       : tools.filter(tool => tool.category === activeCategory);
   quickPanel.classList.toggle("hidden", scopedTools.length === 0);
-  quickButtons.innerHTML = scopedTools.map(toolQuickButtonHtml).join("");
+  quickButtons.innerHTML = `<button class="tool-jump-btn" data-jump-all>${escapeHtml(uiText("quickAll"))}</button>` + scopedTools.map(toolQuickButtonHtml).join("");
   quickCount.textContent = hasSearch ? formatSearchResultCount(scopedTools.length) : formatToolCount(scopedTools.length);
   applyQuickCollapsed();
 }
