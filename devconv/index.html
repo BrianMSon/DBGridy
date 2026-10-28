@@ -562,6 +562,9 @@ input[type="file"] {
   font-family: var(--font-mono);
   font-size: 10px;
 }
+.swatches.named .swatch span {
+  overflow-wrap: anywhere;
+}
 .noise-meter {
   display: grid;
   gap: 10px;
@@ -954,6 +957,7 @@ const EN_LABELS = {
   "색상 팔레트 생성": "Color Palette Generator",
   "색상 대비 비율 계산": "Color Contrast Ratio",
   "CSS 색상명 / HEX 변환": "CSS Color Name / HEX Converter",
+  "C# 색상명 테이블": "C# Color Name Table",
   "정규식 테스터": "Regex Tester",
   "JWT 인코딩/디코딩": "JWT Encode/Decode",
   "SQL 포맷팅": "SQL Formatter",
@@ -1004,6 +1008,7 @@ const EN_LABELS = {
   "전경색": "Foreground",
   "배경색": "Background",
   "색상명 또는 HEX": "Color name or HEX",
+  "검색 (이름 또는 HEX, 비우면 전체)": "Search (name or HEX, empty = all)",
   "패턴": "Pattern",
   "플래그": "Flags",
   "테스트 텍스트": "Test Text",
@@ -1312,6 +1317,9 @@ const tools = [
   ]},
   { id: "cssColor", category: "color", title: "CSS 색상명 / HEX 변환", tags: ["CSS"], fields: [
     input("value", "색상명 또는 HEX", "rebeccapurple")
+  ]},
+  { id: "csharpColor", category: "color", title: "C# 색상명 테이블", tags: ["C#", "System.Drawing"], fields: [
+    input("filter", "검색 (이름 또는 HEX, 비우면 전체)", "")
   ]},
 
   { id: "regex", category: "code", title: "정규식 테스터", tags: ["RegExp"], fields: [
@@ -2914,6 +2922,20 @@ const handlers = {
     setOutput(card, `HEX: ${hex}\nCSS name: ${exactName || langText("(정확히 일치하는 표준 이름 없음)", "(no exact standard name)")}`);
     setPreview(card, `<div class="swatches"><div class="swatch" style="background:${hex}"><span>${escapeHtml(value)}<br>${hex}</span></div></div>`);
   },
+  csharpColor(card, v) {
+    const q = v.filter.trim().toLowerCase().replace(/^#/, "").replace(/^color\./, "");
+    const rows = CSHARP_COLOR_NAMES.map(name => {
+      // .NET Transparent is ARGB(0, 255, 255, 255)
+      const c = name === "Transparent" ? { r: 255, g: 255, b: 255 } : parseColor(name);
+      return { name, hex: name === "Transparent" ? "#00FFFFFF" : rgbToHex(c.r, c.g, c.b), c };
+    }).filter(row => !q || row.name.toLowerCase().includes(q) || row.hex.toLowerCase().includes(q));
+    if (!rows.length) throw new Error(langText("일치하는 C# 색상이 없습니다.", "No matching C# color."));
+    setOutput(card, [
+      `System.Drawing.Color - ${rows.length}${langText("개", " colors")}`,
+      ...rows.map(row => `${("Color." + row.name).padEnd(28)}${row.hex.padEnd(10)}${row.c.r}, ${row.c.g}, ${row.c.b}${row.name === "RebeccaPurple" ? "  (.NET 8+)" : ""}`)
+    ].join("\n"));
+    setPreview(card, `<div class="swatches named">${rows.map(row => `<div class="swatch" style="background:${row.name === "Transparent" ? "transparent" : row.hex}"><span>${row.name}<br>${row.hex}</span></div>`).join("")}</div>`);
+  },
 
   regex(card, v) {
     const flags = v.flags.includes("g") ? v.flags : v.flags + "g";
@@ -3658,6 +3680,7 @@ function domainToUnicode(domain) {
   return domain.split(".").map(label => label.toLowerCase().startsWith("xn--") ? puny.decode(label.slice(4)) : label).join(".");
 }
 
+const CSHARP_COLOR_NAMES = "AliceBlue,AntiqueWhite,Aqua,Aquamarine,Azure,Beige,Bisque,Black,BlanchedAlmond,Blue,BlueViolet,Brown,BurlyWood,CadetBlue,Chartreuse,Chocolate,Coral,CornflowerBlue,Cornsilk,Crimson,Cyan,DarkBlue,DarkCyan,DarkGoldenrod,DarkGray,DarkGreen,DarkKhaki,DarkMagenta,DarkOliveGreen,DarkOrange,DarkOrchid,DarkRed,DarkSalmon,DarkSeaGreen,DarkSlateBlue,DarkSlateGray,DarkTurquoise,DarkViolet,DeepPink,DeepSkyBlue,DimGray,DodgerBlue,Firebrick,FloralWhite,ForestGreen,Fuchsia,Gainsboro,GhostWhite,Gold,Goldenrod,Gray,Green,GreenYellow,Honeydew,HotPink,IndianRed,Indigo,Ivory,Khaki,Lavender,LavenderBlush,LawnGreen,LemonChiffon,LightBlue,LightCoral,LightCyan,LightGoldenrodYellow,LightGray,LightGreen,LightPink,LightSalmon,LightSeaGreen,LightSkyBlue,LightSlateGray,LightSteelBlue,LightYellow,Lime,LimeGreen,Linen,Magenta,Maroon,MediumAquamarine,MediumBlue,MediumOrchid,MediumPurple,MediumSeaGreen,MediumSlateBlue,MediumSpringGreen,MediumTurquoise,MediumVioletRed,MidnightBlue,MintCream,MistyRose,Moccasin,NavajoWhite,Navy,OldLace,Olive,OliveDrab,Orange,OrangeRed,Orchid,PaleGoldenrod,PaleGreen,PaleTurquoise,PaleVioletRed,PapayaWhip,PeachPuff,Peru,Pink,Plum,PowderBlue,Purple,RebeccaPurple,Red,RosyBrown,RoyalBlue,SaddleBrown,Salmon,SandyBrown,SeaGreen,SeaShell,Sienna,Silver,SkyBlue,SlateBlue,SlateGray,Snow,SpringGreen,SteelBlue,Tan,Teal,Thistle,Tomato,Transparent,Turquoise,Violet,Wheat,White,WhiteSmoke,Yellow,YellowGreen".split(",");
 const CSS_COLOR_NAMES = "aliceblue,antiquewhite,aqua,aquamarine,azure,beige,bisque,black,blanchedalmond,blue,blueviolet,brown,burlywood,cadetblue,chartreuse,chocolate,coral,cornflowerblue,cornsilk,crimson,cyan,darkblue,darkcyan,darkgoldenrod,darkgray,darkgreen,darkgrey,darkkhaki,darkmagenta,darkolivegreen,darkorange,darkorchid,darkred,darksalmon,darkseagreen,darkslateblue,darkslategray,darkslategrey,darkturquoise,darkviolet,deeppink,deepskyblue,dimgray,dimgrey,dodgerblue,firebrick,floralwhite,forestgreen,fuchsia,gainsboro,ghostwhite,gold,goldenrod,gray,green,greenyellow,grey,honeydew,hotpink,indianred,indigo,ivory,khaki,lavender,lavenderblush,lawngreen,lemonchiffon,lightblue,lightcoral,lightcyan,lightgoldenrodyellow,lightgray,lightgreen,lightgrey,lightpink,lightsalmon,lightseagreen,lightskyblue,lightslategray,lightslategrey,lightsteelblue,lightyellow,lime,limegreen,linen,magenta,maroon,mediumaquamarine,mediumblue,mediumorchid,mediumpurple,mediumseagreen,mediumslateblue,mediumspringgreen,mediumturquoise,mediumvioletred,midnightblue,mintcream,mistyrose,moccasin,navajowhite,navy,oldlace,olive,olivedrab,orange,orangered,orchid,palegoldenrod,palegreen,paleturquoise,palevioletred,papayawhip,peachpuff,peru,pink,plum,powderblue,purple,rebeccapurple,red,rosybrown,royalblue,saddlebrown,salmon,sandybrown,seagreen,seashell,sienna,silver,skyblue,slateblue,slategray,slategrey,snow,springgreen,steelblue,tan,teal,thistle,tomato,turquoise,violet,wheat,white,whitesmoke,yellow,yellowgreen".split(",");
 
 render();
